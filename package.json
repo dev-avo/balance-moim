@@ -1,26 +1,37 @@
 {
-  "name": "vibe-temp",
+  "name": "balance-moim",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply balance-moim-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply balance-moim-db --remote",
+    "db:studio": "drizzle-kit studio",
+    "cf:dev": "wrangler dev"
   },
   "dependencies": {
+    "@cloudflare/workers-types": "^4.20251111.0",
+    "better-sqlite3": "^12.4.1",
+    "drizzle-orm": "^0.44.7",
+    "next": "16.0.1",
     "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "next": "16.0.1"
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "drizzle-kit": "^0.31.6",
     "eslint": "^9",
-    "eslint-config-next": "16.0.1"
+    "eslint-config-next": "16.0.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "wrangler": "^4.47.0"
   }
 }
