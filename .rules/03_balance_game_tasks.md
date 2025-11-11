@@ -6,33 +6,33 @@
 ---
 
 ## 1. 프로젝트 초기 설정 및 인프라 구축
-- [ ] 1.1 Next.js 14+ (App Router) 프로젝트 생성 및 TypeScript 설정
+- [x] 1.1 Next.js 14+ (App Router) 프로젝트 생성 및 TypeScript 설정
   - `npx create-next-app@latest` 실행
   - `tsconfig.json` 설정 확인
   - `.gitignore` 파일 확인
   
-- [ ] 1.2 Tailwind CSS 설치 및 설정
+- [x] 1.2 Tailwind CSS 설치 및 설정
   - `tailwind.config.ts` 커스텀 설정 (색상, 폰트, 브레이크포인트)
   - `globals.css` 기본 스타일 정의
   
-- [ ] 1.3 프로젝트 폴더 구조 설계
+- [x] 1.3 프로젝트 폴더 구조 설계
   - `/app` (페이지 라우트)
   - `/components` (재사용 컴포넌트)
   - `/lib` (유틸리티, DB 설정)
   - `/types` (TypeScript 타입 정의)
   - `/hooks` (커스텀 훅)
   
-- [ ] 1.4 Cloudflare D1 데이터베이스 설정
+- [x] 1.4 Cloudflare D1 데이터베이스 설정
   - Cloudflare 계정 생성 및 D1 데이터베이스 생성
   - `wrangler.toml` 설정 파일 작성
   - 로컬 개발 환경용 SQLite 데이터베이스 설정
   
-- [ ] 1.5 Drizzle ORM 설치 및 설정
+- [x] 1.5 Drizzle ORM 설치 및 설정
   - `drizzle-orm`, `drizzle-kit` 설치
   - `/lib/db/schema.ts` 스키마 파일 생성
   - `drizzle.config.ts` 설정 파일 작성
   
-- [ ] 1.6 데이터베이스 스키마 정의
+- [x] 1.6 데이터베이스 스키마 정의
   - `user` 테이블 스키마 정의
   - `question` 테이블 스키마 정의
   - `tag` 테이블 스키마 정의
@@ -42,7 +42,7 @@
   - `group_member` 테이블 스키마 정의
   - `invite_link` 테이블 스키마 정의
   
-- [ ] 1.7 데이터베이스 마이그레이션 실행
+- [x] 1.7 데이터베이스 마이그레이션 실행
   - `drizzle-kit generate` 실행
   - 로컬 및 Cloudflare D1에 마이그레이션 적용
   - 인덱스 생성 확인

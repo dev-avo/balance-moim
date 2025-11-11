@@ -1,0 +1,9 @@
+name = "balance-moim"
+compatibility_date = "2024-11-11"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "balance-moim-db"
+database_id = "62c611cc-48ac-4310-969d-1606bba96f00"
+migrations_dir = "drizzle"
+
