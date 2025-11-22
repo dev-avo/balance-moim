@@ -151,7 +151,7 @@ export default function MyQuestionsPage() {
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <ErrorMessage
           message={error}
-          onRetry={fetchMyQuestions}
+          onRetry={() => fetchMyQuestions(currentPage)}
           fullScreen
         />
       </div>

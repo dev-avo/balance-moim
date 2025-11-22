@@ -114,7 +114,7 @@ export default function GroupsPage() {
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <ErrorMessage
           message={error}
-          onRetry={fetchMyGroups}
+          onRetry={() => fetchMyGroups(currentPage)}
           fullScreen
         />
       </div>
