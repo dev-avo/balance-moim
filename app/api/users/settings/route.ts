@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/auth';
-import { getDb } from '@/lib/db';
+import { getDb, setDb } from '@/lib/db';
 import { user as userTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -28,6 +28,10 @@ const updateSettingsSchema = z.object({
  * 사용자 설정 업데이트 (표시 이름 설정)
  */
 export async function PATCH(request: NextRequest) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     // 인증 확인
     const session = await auth();

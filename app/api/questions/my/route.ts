@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, setDb } from '@/lib/db';
 import { question, questionTag, tag, response } from '@/lib/db/schema';
 import { eq, isNull, and, sql } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -49,6 +49,10 @@ export const runtime = 'edge';
  * ```
  */
 export async function GET(request: NextRequest) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     // 1. 로그인 확인
     const currentUser = await getCurrentUser();

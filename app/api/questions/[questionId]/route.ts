@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, setDb } from '@/lib/db';
 import { question, questionTag, tag } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -36,6 +36,10 @@ export async function DELETE(
   request: NextRequest,
   context: RouteContext
 ) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     const { questionId } = await context.params;
 
@@ -99,6 +103,10 @@ export async function GET(
   request: NextRequest,
   context: RouteContext
 ) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     const { questionId } = await context.params;
 
@@ -200,6 +208,10 @@ export async function PATCH(
   request: NextRequest,
   context: RouteContext
 ) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     const { questionId } = await context.params;
 

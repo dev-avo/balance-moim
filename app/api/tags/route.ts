@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, setDb } from '@/lib/db';
 import { tag } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
@@ -43,6 +43,11 @@ const TagSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Cloudflare Pages 환경: D1 데이터베이스 설정
+    if((request as any).env?.DB) {
+      setDb((request as any).env.DB);
+    }
+    
     // 1. 요청 본문 파싱 및 검증
     const body = await request.json();
     const validation = TagSchema.safeParse(body);
@@ -105,6 +110,10 @@ export async function POST(request: NextRequest) {
  * 모든 태그를 가져옵니다.
  */
 export async function GET(request: NextRequest) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     const allTags = await db.select().from(tag).orderBy(tag.name);
 

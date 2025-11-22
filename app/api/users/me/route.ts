@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getDb } from '@/lib/db';
+import { getDb, setDb } from '@/lib/db';
 import { user as userTable, userGroup } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -10,8 +10,13 @@ export const runtime = 'edge';
  * DELETE /api/users/me
  * 회원 탈퇴 (Soft Delete: status = -1)
  */
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    // Cloudflare Pages 환경: D1 데이터베이스 설정
+    if((request as any).env?.DB) {
+      setDb((request as any).env.DB);
+    }
+    
     // 인증 확인
     const session = await auth();
     if (!session?.user?.id) {

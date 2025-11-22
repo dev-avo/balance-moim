@@ -42,10 +42,15 @@ export function getDb() {
   return globalForDb.dbInstance;
 }
 
-// db export (기존 코드와의 호환성)
-// Cloudflare Pages 환경에서는 각 API 라우트에서 setDb(env.DB)를 먼저 호출해야 함
-// 임시로 getDb()를 호출하되 에러가 발생하도록 함
-export const db = getDb();
+// db export는 제거 (Edge Runtime에서 모듈 로드 시점에 D1이 설정되지 않음)
+// 각 API 라우트에서 setDb(env.DB)를 먼저 호출한 후 getDb()를 사용해야 함
+// 기존 코드와의 호환성을 위해 getter 함수로 제공
+export const db = new Proxy({} as ReturnType<typeof getDb>, {
+  get(target, prop) {
+    // 실제 db 인스턴스 반환 (D1이 설정되어 있어야 함)
+    return getDb()[prop as keyof ReturnType<typeof getDb>];
+  }
+});
 
 export type DbClient = ReturnType<typeof getDb>;
 

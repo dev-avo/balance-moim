@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, setDb } from '@/lib/db';
 import { userGroup, groupMember } from '@/lib/db/schema';
 import { getCurrentUser } from '@/lib/auth/session';
 import { generateId } from '@/lib/utils';
@@ -46,6 +46,11 @@ const GroupSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Cloudflare Pages 환경: D1 데이터베이스 설정
+    if((request as any).env?.DB) {
+      setDb((request as any).env.DB);
+    }
+    
     // 1. 로그인 확인
     const currentUser = await getCurrentUser();
 

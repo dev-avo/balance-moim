@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, setDb } from '@/lib/db';
 import { question, questionTag, tag } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -60,6 +60,11 @@ const QuestionSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Cloudflare Pages 환경: D1 데이터베이스 설정
+    if((request as any).env?.DB) {
+      setDb((request as any).env.DB);
+    }
+    
     // 1. 로그인 확인
     const currentUser = await getCurrentUser();
 
@@ -168,6 +173,10 @@ export async function POST(request: NextRequest) {
  * (향후 페이지네이션 추가 예정)
  */
 export async function GET(request: NextRequest) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     const allQuestions = await db
       .select()

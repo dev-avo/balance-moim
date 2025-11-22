@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, setDb } from '@/lib/db';
 import { groupMember, response, question, user as userTable, questionTag, tag } from '@/lib/db/schema';
 import { eq, and, isNull, inArray } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -54,6 +54,10 @@ export async function GET(
   request: NextRequest,
   context: RouteContext
 ) {
+  // Cloudflare Pages 환경: D1 데이터베이스 설정
+  if((request as any).env?.DB) {
+    setDb((request as any).env.DB);
+  }
   try {
     const { groupId, userId: targetUserId } = await context.params;
 

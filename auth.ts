@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import { db } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { user as userTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
@@ -20,6 +20,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if(!account || !profile) return false;
 
       try {
+        const db = getDb();
+        
         // Google ID로 기존 사용자 조회
         const existingUser = await db
           .select()
@@ -58,6 +60,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account, profile }) {
       // Google OAuth 정보 저장
       if(account && profile) {
+        const db = getDb();
+        
         // DB에서 사용자 정보 조회
         const dbUser = await db
           .select()
