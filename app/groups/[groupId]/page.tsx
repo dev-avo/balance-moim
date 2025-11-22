@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { InviteButton } from '@/components/groups/InviteButton';
+import { SimilarityRanking } from '@/components/groups/SimilarityRanking';
+import { GroupResponses } from '@/components/groups/GroupResponses';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +19,8 @@ import { useToast } from '@/hooks/use-toast';
  * - 모임 정보 표시 (이름, 설명)
  * - 멤버 목록 표시
  * - 통계 표시 (멤버 수, 응답 수)
+ * - 취향 유사도 랭킹 (Sprint 7)
+ * - 모임 응답 통계 (Sprint 7)
  * - 초대 링크 생성 버튼 (멤버만)
  * - 설정 버튼 (생성자만)
  */
@@ -238,6 +242,20 @@ export default function GroupDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 취향 유사도 랭킹 */}
+      {groupData.isMember && (
+        <div className="mb-8">
+          <SimilarityRanking groupId={groupId} />
+        </div>
+      )}
+
+      {/* 모임 응답 통계 */}
+      {groupData.isMember && (
+        <div className="mb-8">
+          <GroupResponses groupId={groupId} />
+        </div>
+      )}
 
       {/* 모임 나가기 (생성자 아닌 경우만) */}
       {groupData.isMember && !groupData.isCreator && (
