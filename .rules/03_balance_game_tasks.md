@@ -50,22 +50,22 @@
 ---
 
 ## 2. 인증 시스템 구축 (Google OAuth)
-- [ ] 2.1 NextAuth.js v5 설치 및 설정
+- [x] 2.1 NextAuth.js v5 설치 및 설정
   - `next-auth@beta` 설치
   - `/auth.ts` 설정 파일 생성
   - Google OAuth Provider 설정
   
-- [ ] 2.2 Google OAuth 애플리케이션 등록
+- [x] 2.2 Google OAuth 애플리케이션 등록
   - Google Cloud Console에서 OAuth 2.0 클라이언트 ID 생성
   - 리디렉션 URI 설정
   - `.env.local`에 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` 추가
   
-- [ ] 2.3 인증 API 라우트 구현
+- [x] 2.3 인증 API 라우트 구현
   - `/app/api/auth/[...nextauth]/route.ts` 생성
   - 세션 관리 로직 구현
   - JWT 전략 설정
   
-- [ ] 2.4 사용자 정보 저장 로직 구현
+- [x] 2.4 사용자 정보 저장 로직 구현
   - Google 로그인 시 `user` 테이블에 사용자 정보 저장
   - `google_id`, `email`, `display_name` 매핑
   - 기존 사용자 확인 로직
