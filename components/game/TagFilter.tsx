@@ -138,7 +138,7 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
   }
 
   return (
-    <div className="rounded-2xl glass border-2 border-border shadow-apple overflow-hidden">
+    <div className="rounded-2xl glass border-2 border-border shadow-apple">
       {/* 헤더 (항상 표시) */}
       <div className="p-4 flex items-center justify-between">
         <button
@@ -177,7 +177,7 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
           >
             <div className="px-4 pb-4 space-y-3">
               {/* 태그 버튼들 */}
-              <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2">
+              <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto p-2">
                 {tags.map((tag) => {
                   const isSelected = selectedTags.includes(tag.name);
                   

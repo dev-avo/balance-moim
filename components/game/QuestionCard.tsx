@@ -68,8 +68,8 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
         variants={staggerItem}
       >
         {/* VS 텍스트 (선택지 사이 중앙) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none hidden md:block">
-          <span className="text-4xl font-black text-foreground/60 drop-shadow-lg">VS</span>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+          <span className="text-3xl sm:text-4xl font-black text-foreground/60 drop-shadow-lg">VS</span>
         </div>
         {/* 선택지 A */}
         <motion.button
