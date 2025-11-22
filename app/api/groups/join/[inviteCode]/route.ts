@@ -4,6 +4,8 @@ import { userGroup, groupMember, inviteLink } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/groups/join/[inviteCode]
  * 

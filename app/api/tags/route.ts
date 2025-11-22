@@ -5,6 +5,8 @@ import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { z } from 'zod';
 
+export const runtime = 'edge';
+
 // 태그 목록은 자주 변경되지 않으므로 1시간 캐싱
 export const revalidate = 3600; // 1시간 (초 단위)
 

@@ -4,6 +4,8 @@ import { groupMember, response, question, user as userTable, questionTag, tag } 
 import { eq, and, isNull, inArray, sql } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
 
+export const runtime = 'edge';
+
 /**
  * GET /api/groups/[groupId]/responses?tag=음식
  * 

@@ -5,6 +5,8 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { generateId } from '@/lib/utils';
 import { z } from 'zod';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/groups
  * 

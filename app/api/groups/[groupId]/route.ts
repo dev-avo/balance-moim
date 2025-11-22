@@ -8,6 +8,8 @@ import { sanitizeObject } from '@/lib/security/sanitize';
 import { groupNameSchema, groupDescriptionSchema } from '@/lib/security/validation';
 import { checkCanModifyGroup } from '@/lib/auth/permissions';
 
+export const runtime = 'edge';
+
 /**
  * GET /api/groups/[groupId]
  * 

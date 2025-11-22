@@ -7,6 +7,8 @@ import { sql } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { z } from 'zod';
 
+export const runtime = 'edge';
+
 /**
  * DELETE /api/questions/[questionId]
  * 

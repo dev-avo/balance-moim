@@ -4,6 +4,8 @@ import { response, question, groupMember, userGroup, user } from '@/lib/db/schem
 import { eq, and, sql } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
 
+export const runtime = 'edge';
+
 // 통계는 실시간일 필요가 없으므로 5분 캐싱
 export const revalidate = 300; // 5분 (초 단위)
 

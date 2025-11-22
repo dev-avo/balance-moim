@@ -5,6 +5,8 @@ import { getDb } from '@/lib/db';
 import { user as userTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+export const runtime = 'edge';
+
 // 입력 유효성 검사 스키마
 const updateSettingsSchema = z.object({
   useNickname: z.boolean(),

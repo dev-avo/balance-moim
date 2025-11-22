@@ -7,13 +7,8 @@ const nextConfig: NextConfig = {
     // 타입 에러는 로컬에서 확인 후 푸시
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // 빌드 시 ESLint 체크 제외 (빌드 시간 단축)
-    // 린트 에러는 로컬에서 확인 후 푸시
-    ignoreDuringBuilds: true,
-  },
-  // 빌드 최적화
-  swcMinify: true,
+  // eslint 설정은 next.config.ts에서 제거됨 (Next.js 16)
+  // ESLint는 별도로 실행: npm run lint
   // 실험적 기능 (빌드 성능 향상)
   experimental: {
     // Turbopack 사용 (Next.js 16에서 기본)

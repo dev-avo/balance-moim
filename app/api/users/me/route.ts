@@ -4,6 +4,8 @@ import { getDb } from '@/lib/db';
 import { user as userTable, userGroup } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+export const runtime = 'edge';
+
 /**
  * DELETE /api/users/me
  * 회원 탈퇴 (Soft Delete: status = -1)

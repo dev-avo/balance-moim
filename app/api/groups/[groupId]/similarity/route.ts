@@ -4,6 +4,8 @@ import { groupMember, response, user as userTable } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
 
+export const runtime = 'edge';
+
 /**
  * GET /api/groups/[groupId]/similarity
  * 

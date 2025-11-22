@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { tag } from '@/lib/db/schema';
 import { like, sql } from 'drizzle-orm';
 
+export const runtime = 'edge';
+
 /**
  * GET /api/tags/search
  * 

@@ -4,6 +4,8 @@ import { question, questionTag, tag, response } from '@/lib/db/schema';
 import { eq, isNull, and, sql } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
 
+export const runtime = 'edge';
+
 /**
  * GET /api/questions/my
  * 

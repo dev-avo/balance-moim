@@ -6,6 +6,8 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { generateId } from '@/lib/utils';
 import { z } from 'zod';
 import { sanitizeObject } from '@/lib/security/sanitize';
+
+export const runtime = 'edge';
 import { 
   questionTitleSchema, 
   optionSchema, 

@@ -6,6 +6,8 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { generateId } from '@/lib/utils';
 import { sql } from 'drizzle-orm';
 
+export const runtime = 'edge';
+
 /**
  * POST /api/groups/[groupId]/invite
  * 
