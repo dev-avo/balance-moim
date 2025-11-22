@@ -44,8 +44,9 @@
 | **Root directory** | `/` (기본값) |
 | **Node.js version** | `22.13.1` |
 
-**중요**: 
+**⚠️ 중요**: 
 - Framework preset을 **반드시 `Next.js`로 선택**해야 합니다
+- Build command는 **반드시 `npm run build`**여야 합니다 (❌ `npx wrangler deploy` 아님)
 - `wrangler.toml` 파일이 있어도 Next.js 빌드에는 영향을 주지 않습니다
 - `.cloudflareignore` 파일이 `wrangler.toml`을 빌드에서 제외합니다
 
@@ -54,10 +55,36 @@
 - 타입 에러와 린트 에러는 로컬에서 확인 후 푸시하세요
 - 빌드 타임아웃(20분)을 방지하기 위해 최적화 설정이 적용되어 있습니다
 
-**Wrangler 에러 발생 시**:
-- Framework preset이 `Next.js`로 설정되어 있는지 확인
-- Build command가 `npm run build`인지 확인
-- Build output directory가 `.next`인지 확인
+### Step 4-1: Framework preset 설정 방법 (프로젝트 생성 후)
+
+프로젝트를 생성한 후 Framework preset을 설정하려면:
+
+1. Cloudflare Dashboard에서 프로젝트 선택
+2. **Settings** 탭 클릭
+3. 왼쪽 메뉴에서 **Builds & deployments** 클릭
+4. **Build configuration** 섹션에서:
+   - **Framework preset** 드롭다운에서 **Next.js** 선택
+   - **Build command**가 `npm run build`인지 확인
+   - **Build output directory**가 `.next`인지 확인
+5. **Save** 버튼 클릭
+
+**참고**: Framework preset을 Next.js로 선택하면 Build command와 Build output directory가 자동으로 설정됩니다.
+
+### Step 4-2: 빌드 명령어가 잘못된 경우 수정 방법
+
+만약 Build command가 `npx wrangler deploy`로 되어 있다면:
+
+1. **Settings** → **Builds & deployments** 이동
+2. **Build configuration** 섹션에서:
+   - **Framework preset**을 **Next.js**로 변경
+   - 또는 **Build command**를 직접 `npm run build`로 수정
+3. **Save** 버튼 클릭
+4. **Deployments** 탭으로 이동하여 **Retry deployment** 클릭
+
+**Wrangler 에러 발생 시 확인 사항**:
+- ✅ Framework preset이 `Next.js`로 설정되어 있는지
+- ✅ Build command가 `npm run build`인지 (❌ `npx wrangler deploy` 아님)
+- ✅ Build output directory가 `.next`인지
 
 ### Step 5: 환경 변수 설정 (나중에)
 
@@ -159,7 +186,38 @@ Preview 환경에도 동일한 변수를 추가할 수 있습니다:
 
 ---
 
-**문제가 발생하면:**
+## 🐛 트러블슈팅
+
+### 문제: 빌드 명령어가 `npx wrangler deploy`로 되어 있음
+
+**증상**: 
+- 빌드 로그에 "If are uploading a directory of assets..." 에러
+- Wrangler 관련 에러 메시지
+
+**해결 방법**:
+1. Cloudflare Dashboard → 프로젝트 선택
+2. **Settings** → **Builds & deployments**
+3. **Build configuration** 섹션에서:
+   - **Framework preset**을 **Next.js**로 변경
+   - **Build command**를 `npm run build`로 수정
+   - **Build output directory**를 `.next`로 설정
+4. **Save** 클릭
+5. **Deployments** 탭에서 **Retry deployment** 클릭
+
+### 문제: Framework preset 설정 위치를 모르겠음
+
+**해결 방법**:
+1. Cloudflare Dashboard → 프로젝트 선택
+2. **Settings** 탭 클릭 (왼쪽 상단)
+3. 왼쪽 메뉴에서 **Builds & deployments** 클릭
+4. **Build configuration** 섹션에서 **Framework preset** 드롭다운 찾기
+5. **Next.js** 선택 후 **Save**
+
+**참고**: Framework preset을 설정하면 Build command와 Build output directory가 자동으로 설정됩니다.
+
+### 문제: 빌드 실패 (기타)
+
+**해결 방법**:
 - Cloudflare Pages 빌드 로그 확인
 - `DEPLOYMENT.md`의 트러블슈팅 섹션 참고
 - Cloudflare Support에 문의
