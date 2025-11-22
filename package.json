@@ -9,7 +9,7 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply balance-moim-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply balance-moim-db --remote",
+    "db:migrate:prod": "wrangler d1 migrations apply balance-moim-db-prod --remote",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",
     "cf:dev": "wrangler dev"

@@ -16,16 +16,15 @@
 - [ ] 프로덕션 URL 확인 (예: `https://your-project.pages.dev`)
 
 ### 3. 데이터베이스 준비
-- [ ] Cloudflare D1 프로덕션 데이터베이스 생성
-  ```bash
-  npx wrangler d1 create balance-moim-db-prod
-  ```
-- [ ] `wrangler.toml`에 프로덕션 DB ID 추가
-- [ ] 프로덕션 DB 마이그레이션 실행
+- [x] Cloudflare D1 프로덕션 데이터베이스 생성 ✅
+  - 데이터베이스 이름: `balance-moim-db-prod`
+  - 데이터베이스 ID: `891a9ed9-3cd7-4183-8368-0beeb57f2727`
+- [x] `wrangler.toml`에 프로덕션 DB ID 추가 ✅
+- [x] 프로덕션 DB 마이그레이션 실행 ✅
   ```bash
   npm run db:migrate:prod
   ```
-- [ ] 프로덕션 DB 시딩 (100개 질문 + 20개 태그)
+- [ ] 프로덕션 DB 시딩 (100개 질문 + 20개 태그) - Cloudflare Pages URL 확인 후 진행
 
 ## 🚀 Cloudflare Pages 배포
 

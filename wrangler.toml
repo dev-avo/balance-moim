@@ -1,9 +1,17 @@
 name = "balance-moim"
 compatibility_date = "2024-11-11"
 
+# 로컬 개발용 데이터베이스
 [[d1_databases]]
 binding = "DB"
 database_name = "balance-moim-db"
 database_id = "2549d8d3bab8cbb0e514e6812bca2f8ebcce04327a5b13dc6e63f52fcd550126"
+migrations_dir = "drizzle"
+
+# 프로덕션 데이터베이스
+[[d1_databases]]
+binding = "DB_PROD"
+database_name = "balance-moim-db-prod"
+database_id = "891a9ed9-3cd7-4183-8368-0beeb57f2727"
 migrations_dir = "drizzle"
 
