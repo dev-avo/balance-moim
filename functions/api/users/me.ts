@@ -9,6 +9,15 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
+        // D1 데이터베이스 확인
+        if(!context.env.DB) {
+            console.error('D1 데이터베이스가 바인딩되지 않았습니다.');
+            return new Response(
+                JSON.stringify({ error: '데이터베이스 연결 오류' }),
+                { status: 500, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
         // 동적 import
         const { setDb } = await import('../../../lib/db');
         const { getCurrentUser } = await import('../../../lib/auth/session');
@@ -16,7 +25,9 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         // D1 데이터베이스 설정 (getCurrentUser가 auth()를 호출하고 auth()가 DB를 사용하므로 필수)
         setDb(context.env.DB);
         
+        console.log('D1 데이터베이스 설정 완료, getCurrentUser 호출 중...');
         const currentUser = await getCurrentUser();
+        console.log('getCurrentUser 결과:', currentUser ? '사용자 있음' : '사용자 없음');
         
         if(!currentUser) {
             return new Response(
@@ -31,8 +42,14 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         );
     } catch(error) {
         console.error('사용자 정보 조회 오류:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorStack = error instanceof Error ? error.stack : undefined;
+        console.error('에러 상세:', { errorMessage, errorStack });
         return new Response(
-            JSON.stringify({ error: '사용자 정보를 가져오는 중 오류가 발생했습니다.' }),
+            JSON.stringify({ 
+                error: '사용자 정보를 가져오는 중 오류가 발생했습니다.',
+                details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            }),
             { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
     }

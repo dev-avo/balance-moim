@@ -20,6 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if(!account || !profile) return false;
 
       try {
+        // DB가 설정되어 있는지 확인
         const db = getDb();
         
         // Google ID로 기존 사용자 조회
@@ -60,21 +61,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account, profile }) {
       // Google OAuth 정보 저장
       if(account && profile) {
-        const db = getDb();
-        
-        // DB에서 사용자 정보 조회
-        const dbUser = await db
-          .select()
-          .from(userTable)
-          .where(eq(userTable.googleId, account.providerAccountId))
-          .limit(1);
+        try {
+          const db = getDb();
+          
+          // DB에서 사용자 정보 조회
+          const dbUser = await db
+            .select()
+            .from(userTable)
+            .where(eq(userTable.googleId, account.providerAccountId))
+            .limit(1);
 
-        if(dbUser.length > 0) {
-          token.id = dbUser[0].id;
-          token.googleId = dbUser[0].googleId;
-          token.email = dbUser[0].email;
-          token.name = dbUser[0].displayName;
-          token.status = dbUser[0].status;
+          if(dbUser.length > 0) {
+            token.id = dbUser[0].id;
+            token.googleId = dbUser[0].googleId;
+            token.email = dbUser[0].email;
+            token.name = dbUser[0].displayName;
+            token.status = dbUser[0].status;
+          }
+        } catch(error) {
+          console.error('JWT 콜백에서 DB 접근 오류:', error);
+          // DB 접근 실패 시에도 토큰은 반환 (기존 토큰 정보 유지)
         }
       }
       
