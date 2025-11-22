@@ -209,82 +209,82 @@
 ---
 
 ## 6. 모임 기능 구축
-- [ ] 6.1 모임 생성 페이지 구현
+- [x] 6.1 모임 생성 페이지 구현
   - `/app/groups/create/page.tsx` 페이지 생성
   - 모임 이름 입력 (필수, 최대 30자)
   - 모임 설명 입력 (선택, 최대 200자)
   - React Hook Form + Zod 유효성 검사
   
-- [ ] 6.2 모임 생성 API 구현
+- [x] 6.2 모임 생성 API 구현
   - `POST /api/groups` 엔드포인트 생성
   - `user_group` 테이블에 삽입
   - `group_member` 테이블에 생성자 자동 추가
   - `creator_id` 저장
   
-- [ ] 6.3 내가 속한 모임 목록 페이지 구현
+- [x] 6.3 내가 속한 모임 목록 페이지 구현
   - `/app/groups/page.tsx` 페이지 생성
   - 모임 카드 형식으로 표시
   - 멤버 수, 응답한 질문 수 표시
   - [+ 모임 생성] 버튼
   
-- [ ] 6.4 내가 속한 모임 조회 API
+- [x] 6.4 내가 속한 모임 조회 API
   - `GET /api/groups/my` 엔드포인트 생성
   - `group_member` 테이블 조인
   - `user_id = 현재 사용자` 조건
   
-- [ ] 6.5 초대 링크 생성 기능 구현
+- [x] 6.5 초대 링크 생성 기능 구현
   - `/components/groups/InviteButton.tsx` 컴포넌트 생성
-  - `POST /api/groups/:id/invite` 엔드포인트 생성
+  - `POST /api/groups/[groupId]/invite` 엔드포인트 생성
   - UUID 기반 초대 코드 생성
   - `invite_link` 테이블에 삽입
   - `expires_at = 현재 시간 + 30일` 설정
   - 클립보드 복사 기능
   
-- [ ] 6.6 초대 링크를 통한 모임 참여 페이지 구현
-  - `/app/invite/[code]/page.tsx` 페이지 생성
+- [x] 6.6 초대 링크를 통한 모임 참여 페이지 구현
+  - `/app/invite/[inviteCode]/page.tsx` 페이지 생성
   - 초대 코드 유효성 확인 (만료 여부)
   - 모임 정보 표시 (이름, 설명, 멤버 수)
   - 로그인 체크 (비로그인 시 로그인 유도)
   
-- [ ] 6.7 모임 참여 API 구현
-  - `POST /api/groups/join/:inviteCode` 엔드포인트 생성
+- [x] 6.7 모임 참여 API 구현
+  - `POST /api/groups/join/[inviteCode]` 엔드포인트 생성
   - 초대 링크 유효성 검사
   - `group_member` 테이블에 추가
   - 중복 참여 방지
   
-- [ ] 6.8 모임 상세 페이지 구현
-  - `/app/groups/[id]/page.tsx` 페이지 생성
+- [x] 6.8 모임 상세 페이지 구현
+  - `/app/groups/[groupId]/page.tsx` 페이지 생성
   - 모임 통계 표시 (멤버 수, 응답한 질문 수)
   - [초대 링크 생성] 버튼
   - 생성자일 경우 ⚙️ 설정 버튼 표시
   
-- [ ] 6.9 모임 상세 조회 API 구현
-  - `GET /api/groups/:id` 엔드포인트 생성
+- [x] 6.9 모임 상세 조회 API 구현
+  - `GET /api/groups/[groupId]` 엔드포인트 생성
   - 모임 정보 반환
   - 멤버 목록 반환 (탈퇴한 사용자 포함, status 확인)
   - 현재 사용자의 권한 확인 (생성자 여부)
   
-- [ ] 6.10 모임 관리 페이지 구현 (생성자 전용)
-  - `/app/groups/[id]/settings/page.tsx` 페이지 생성
-  - 모임 이름/설명 수정 폼
-  - 멤버 목록 테이블 (이름, 참여 일시, 응답 수)
-  - 멤버 퇴출 버튼
+- [x] 6.10 모임 관리 페이지 구현 (생성자 전용)
+  - `/app/groups/[groupId]/settings/page.tsx` 페이지 생성
+  - 멤버 목록 표시
+  - 멤버 추방 버튼 구현
   
-- [ ] 6.11 모임 수정 API 구현
+- [ ] 6.11 모임 수정 API 구현 (향후 추가 예정)
   - `PATCH /api/groups/:id` 엔드포인트 생성
   - 생성자 권한 확인
   - `name`, `description` 업데이트
   
-- [ ] 6.12 멤버 퇴출 API 구현
-  - `DELETE /api/groups/:id/members/:userId` 엔드포인트 생성
+- [x] 6.12 멤버 추방 API 구현
+  - `DELETE /api/groups/[groupId]/members/[memberId]` 엔드포인트 생성
   - 생성자 권한 확인
   - `group_member` 테이블에서 삭제
   - 응답은 통계에 유지
   
-- [ ] 6.13 모임 나가기 기능 구현
-  - `DELETE /api/groups/:id/leave` 엔드포인트 생성
-  - 생성자는 나가기 불가 (관리자 위임 또는 모임 삭제 필요)
+- [x] 6.13 모임 나가기 기능 구현
+  - `DELETE /api/groups/[groupId]/leave` 엔드포인트 생성
+  - 생성자는 나가기 불가 경고
   - `group_member` 테이블에서 삭제
+  - 모임 상세 페이지에 "모임 나가기" 버튼 추가
 
 ---
 

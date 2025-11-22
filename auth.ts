@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { user as userTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
@@ -17,11 +17,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (!account || !profile) return false;
+      if(!account || !profile) return false;
 
       try {
-        const db = getDb();
-
         // Google ID로 기존 사용자 조회
         const existingUser = await db
           .select()
@@ -29,7 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .where(eq(userTable.googleId, account.providerAccountId))
           .limit(1);
 
-        if (existingUser.length === 0) {
+        if(existingUser.length === 0) {
           // 신규 사용자 생성
           await db.insert(userTable).values({
             id: generateId(),
@@ -47,22 +45,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .set({
               email: user.email!,
               displayName: user.name || null,
-              updatedAt: new Date(),
             })
             .where(eq(userTable.googleId, account.providerAccountId));
         }
 
         return true;
-      } catch (error) {
+      } catch(error) {
         console.error('Error saving user to database:', error);
         return false;
       }
     },
     async jwt({ token, account, profile }) {
       // Google OAuth 정보 저장
-      if (account && profile) {
-        const db = getDb();
-        
+      if(account && profile) {
         // DB에서 사용자 정보 조회
         const dbUser = await db
           .select()
@@ -70,7 +65,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .where(eq(userTable.googleId, account.providerAccountId))
           .limit(1);
 
-        if (dbUser.length > 0) {
+        if(dbUser.length > 0) {
           token.id = dbUser[0].id;
           token.googleId = dbUser[0].googleId;
           token.email = dbUser[0].email;
@@ -83,16 +78,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       // 세션에 사용자 정보 추가
-      if (token && session.user) {
+      if(token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
       }
       return session;
     },
-  },
-  pages: {
-    signIn: '/auth/signin',
   },
 });
 
