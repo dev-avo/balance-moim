@@ -62,11 +62,12 @@ INSERT OR IGNORE INTO tag (id, name) VALUES
 
   data.questions.forEach((q) => {
     const questionId = uuidv4();
-    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    // Unix timestamp (초 단위)
+    const now = Math.floor(Date.now() / 1000);
 
     sql += `-- 질문: ${q.title}\n`;
-    sql += `INSERT OR IGNORE INTO question (id, title, option_a, option_b, visibility, creator_id, group_id, created_at, updated_at, status) VALUES `;
-    sql += `('${questionId}', '${escapeSql(q.title)}', '${escapeSql(q.optionA)}', '${escapeSql(q.optionB)}', 'public', NULL, NULL, '${now}', '${now}', 1);\n`;
+    sql += `INSERT OR IGNORE INTO question (id, title, option_a, option_b, visibility, creator_id, group_id, deleted_at, created_at, updated_at) VALUES `;
+    sql += `('${questionId}', '${escapeSql(q.title)}', '${escapeSql(q.optionA)}', '${escapeSql(q.optionB)}', 'public', NULL, NULL, NULL, ${now}, ${now});\n`;
 
     // 질문-태그 연결 (태그 이름으로 조회하여 안전하게 삽입)
     q.tags.forEach((tagName) => {
