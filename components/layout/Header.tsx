@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { signIn, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
+import { MobileNav } from './MobileNav';
 
 export function Header() {
   const { user, isAuthenticated, isLoading } = useCurrentUser();
@@ -11,11 +12,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white">
       <div className="container flex h-16 items-center justify-between px-4">
-        {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold">🎯</span>
-          <span className="text-xl font-bold">밸런스 모임</span>
-        </Link>
+        {/* 모바일 메뉴 + 로고 */}
+        <div className="flex items-center space-x-2">
+          <MobileNav />
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-2xl font-bold">🎯</span>
+            <span className="text-xl font-bold">밸런스 모임</span>
+          </Link>
+        </div>
 
         {/* 네비게이션 */}
         <nav className="hidden md:flex items-center space-x-6">
