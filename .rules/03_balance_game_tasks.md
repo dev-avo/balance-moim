@@ -104,7 +104,7 @@
   - PC: 고정 사이드바
   - 네비게이션 메뉴 항목: 홈, 내 모임, 질문 만들기, 설정
   
-- [ ] 3.4 로딩 및 에러 상태 컴포넌트
+- [x] 3.4 로딩 및 에러 상태 컴포넌트
   - `/components/ui/Loading.tsx` (스피너)
   - `/components/ui/ErrorMessage.tsx`
   - `/components/ui/Toast.tsx` (성공/에러 메시지)
