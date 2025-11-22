@@ -22,7 +22,7 @@ export function Header() {
         </div>
 
         {/* 네비게이션 */}
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden lg:flex items-center space-x-6">
           <Link href="/" className="text-sm font-medium hover:text-blue-600">
             홈
           </Link>
@@ -34,6 +34,12 @@ export function Header() {
               <Link href="/questions/create" className="text-sm font-medium hover:text-blue-600">
                 질문 만들기
               </Link>
+              <Link href="/questions/my" className="text-sm font-medium hover:text-blue-600">
+                내 질문
+              </Link>
+              <Link href="/settings" className="text-sm font-medium hover:text-blue-600">
+                설정
+              </Link>
             </>
           )}
         </nav>
@@ -44,9 +50,9 @@ export function Header() {
             <div className="h-9 w-20 animate-pulse rounded-md bg-gray-200" />
           ) : isAuthenticated && user ? (
             <>
-              <Link href="/settings" className="text-sm font-medium hover:text-blue-600">
-                {user.name || '설정'}
-              </Link>
+              <span className="hidden lg:inline text-sm font-medium text-gray-700">
+                {user.name}
+              </span>
               <Button
                 variant="outline"
                 size="sm"

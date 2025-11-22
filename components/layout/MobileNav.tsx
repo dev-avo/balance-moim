@@ -45,10 +45,10 @@ export function MobileNav() {
 
   return (
     <>
-      {/* 햄버거 메뉴 버튼 (모바일에서만 표시) */}
+      {/* 햄버거 메뉴 버튼 (768px 미만에서만 표시) */}
       <button
         type="button"
-        className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600"
+        className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600 lg:hidden"
         onClick={toggleMenu}
         aria-label="메뉴 열기"
       >
@@ -84,13 +84,13 @@ export function MobileNav() {
         <>
           {/* 배경 오버레이 (클릭 시 메뉴 닫기) */}
           <div
-            className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/70 lg:hidden"
             onClick={handleLinkClick}
             aria-hidden="true"
           />
 
           {/* 슬라이드 메뉴 */}
-          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl md:hidden overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl lg:hidden overflow-y-auto">
             {/* 메뉴 헤더 */}
             <div className="flex items-center justify-between p-4 border-b">
               <span className="text-lg font-bold">메뉴</span>

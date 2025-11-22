@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { Header } from "@/components/layout/Header";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { Toaster } from "@/components/providers/toast-provider";
 
 const geistSans = Geist({
@@ -34,12 +33,11 @@ export default function RootLayout({
         <SessionProvider>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <div className="flex-1 flex">
-              <Sidebar className="hidden lg:block" />
-              <main className="flex-1 container py-6 px-4 lg:px-8">
+            <main className="flex-1 w-full">
+              <div className="container mx-auto py-6 px-4 lg:px-8">
                 {children}
-              </main>
-            </div>
+              </div>
+            </main>
           </div>
           <Toaster />
         </SessionProvider>

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FieldError } from '@/components/ui/ErrorMessage';
-import { Modal } from '@/components/ui/Modal';
+import { Modal, ModalContent, ModalHeader, ModalTitle } from '@/components/ui/Modal';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { Loading } from '@/components/ui/Loading';
@@ -110,7 +110,7 @@ export default function SettingsPage() {
 
       const settings = {
         email: user?.email || '',
-        displayName: settingsData.displayName,
+        displayName: user?.name || settingsData.displayName || '',
         customNickname: settingsData.customNickname,
         useNickname: settingsData.useNickname,
         createdGroupsCount: profileData.createdGroupsCount,
@@ -327,12 +327,12 @@ export default function SettingsPage() {
       </div>
 
       {/* 회원 탈퇴 확인 모달 */}
-      <Modal
-        open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
-        title="⚠️ 회원 탈퇴 확인"
-      >
-        <div className="space-y-4">
+      <Modal open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>⚠️ 회원 탈퇴 확인</ModalTitle>
+          </ModalHeader>
+          <div className="space-y-4">
           {userSettings.createdGroupsCount > 0 && (
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
               <p className="text-sm font-semibold text-yellow-900">
@@ -389,6 +389,7 @@ export default function SettingsPage() {
             </Button>
           </div>
         </div>
+        </ModalContent>
       </Modal>
     </div>
   );

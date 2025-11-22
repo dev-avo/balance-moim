@@ -156,7 +156,6 @@ export default function PlayPage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <WarningModal onConfirm={handleStart} />
-        <Loading text="준비 중..." />
       </div>
     );
   }
