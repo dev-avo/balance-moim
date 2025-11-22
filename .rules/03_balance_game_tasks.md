@@ -80,7 +80,7 @@
   - 표시 이름 설정 로직 (구글 계정명 vs 익명 별명)
   - `use_nickname`, `custom_nickname` 업데이트
   
-- [ ] 2.7 회원 탈퇴 API 구현
+- [x] 2.7 회원 탈퇴 API 구현
   - `DELETE /api/users/me` 엔드포인트 생성
   - `status = -1`로 변경 (Soft Delete)
   - 생성한 모임 확인 및 경고 처리
