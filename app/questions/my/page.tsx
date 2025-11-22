@@ -127,7 +127,7 @@ export default function MyQuestionsPage() {
         variant: 'success',
       });
 
-      fetchMyQuestions();
+      fetchMyQuestions(currentPage);
     } catch(err) {
       console.error('질문 삭제 오류:', err);
       toast({
