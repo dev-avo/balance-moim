@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { WarningModal } from '@/components/game/WarningModal';
 import { QuestionCard, QuestionCardSkeleton, QuestionData } from '@/components/game/QuestionCard';
 import { ResultCard, ResultCardSkeleton } from '@/components/game/ResultCard';
 import { TagFilter } from '@/components/game/TagFilter';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { Button } from '@/components/ui/Button';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { useToast } from '@/hooks/use-toast';
+import { fadeIn, slideUp, scaleUp } from '@/lib/animations/variants';
 
 /**
  * 밸런스 게임 플레이 페이지
@@ -154,72 +156,127 @@ export default function PlayPage() {
   // 주의사항 모달 표시 중
   if(!gameStarted) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+      <motion.div
+        className="flex min-h-[calc(100vh-4rem)] items-center justify-center"
+        variants={fadeIn}
+        initial="hidden"
+        animate="visible"
+      >
         <WarningModal onConfirm={handleStart} />
-      </div>
+      </motion.div>
     );
   }
 
   // 로딩 중
   if(gameState === 'loading') {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
+      <motion.div
+        className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12"
+        variants={fadeIn}
+        initial="hidden"
+        animate="visible"
+      >
         <QuestionCardSkeleton />
-      </div>
+      </motion.div>
     );
   }
 
   // 에러 발생
   if(gameState === 'error' || !currentQuestion) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
+      <motion.div
+        className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12"
+        variants={slideUp}
+        initial="hidden"
+        animate="visible"
+      >
         <ErrorMessage
           title="질문을 불러올 수 없습니다"
           message={error || '알 수 없는 오류가 발생했습니다.'}
           onRetry={fetchRandomQuestion}
           fullScreen
         />
-      </div>
+      </motion.div>
     );
   }
 
   // 질문 표시
   if(gameState === 'question' || gameState === 'submitting') {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        {/* 태그 필터 */}
-        <div className="mb-6">
-          <TagFilter />
-        </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentQuestion.id}
+          className="mx-auto max-w-4xl px-4 py-8"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          {/* 태그 필터 */}
+          <motion.div
+            className="mb-6"
+            variants={slideUp}
+            initial="hidden"
+            animate="visible"
+          >
+            <TagFilter />
+          </motion.div>
 
-        {/* 질문 카드 */}
-        <div className="flex items-center justify-center">
-          <QuestionCard
-            question={currentQuestion}
-            onSelect={handleSelect}
-            disabled={gameState === 'submitting'}
-          />
-        </div>
-      </div>
+          {/* 질문 카드 */}
+          <motion.div
+            className="flex items-center justify-center"
+            variants={scaleUp}
+            initial="hidden"
+            animate="visible"
+          >
+            <QuestionCard
+              question={currentQuestion}
+              onSelect={handleSelect}
+              disabled={gameState === 'submitting'}
+            />
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
   // 결과 표시
   if(gameState === 'result' && stats) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12">
-        <ResultCard question={currentQuestion} stats={stats} />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="result"
+          className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+        >
+          <motion.div
+            variants={slideUp}
+            initial="hidden"
+            animate="visible"
+          >
+            <ResultCard question={currentQuestion} stats={stats} />
+          </motion.div>
 
-        {/* 다음 질문 버튼 */}
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <Button size="lg" onClick={handleNextQuestion} className="px-12">
-            다음 질문으로 →
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            계속해서 밸런스 게임을 즐겨보세요!
-          </p>
-        </div>
-      </div>
+          {/* 다음 질문 버튼 */}
+          <motion.div
+            className="mt-8 flex flex-col items-center gap-4"
+            variants={slideUp}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: 0.3 }}
+          >
+            <AnimatedButton size="lg" onClick={handleNextQuestion} className="px-12">
+              다음 질문으로 →
+            </AnimatedButton>
+            <p className="text-sm text-muted-foreground">
+              계속해서 밸런스 게임을 즐겨보세요!
+            </p>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
     );
   }
 

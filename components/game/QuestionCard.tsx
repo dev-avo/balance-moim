@@ -1,6 +1,8 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { staggerContainer, staggerItem, buttonHover, buttonTap } from '@/lib/animations/variants';
 
 /**
  * QuestionCard Component - Apple MacBook Style
@@ -27,10 +29,18 @@ interface QuestionCardProps {
 
 export function QuestionCard({ question, onSelect, disabled = false }: QuestionCardProps) {
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8">
+    <motion.div
+      className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
       {/* 태그 */}
       {question.tags && question.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 justify-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <motion.div
+          className="flex flex-wrap gap-2 justify-center"
+          variants={staggerItem}
+        >
           {question.tags.map((tag) => (
             <span
               key={tag.id}
@@ -39,37 +49,47 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
               #{tag.name}
             </span>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* 질문 제목 */}
-      <div className="rounded-3xl glass border-2 border-border p-8 shadow-apple-lg animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
+      <motion.div
+        className="rounded-3xl glass border-2 border-border p-8 shadow-apple-lg"
+        variants={staggerItem}
+      >
         <h2 className="text-3xl font-bold text-center text-foreground sm:text-4xl">
           {question.title}
         </h2>
-      </div>
+      </motion.div>
 
       {/* VS 아이콘 */}
-      <div className="flex justify-center animate-in fade-in zoom-in duration-500 delay-200">
+      <motion.div
+        className="flex justify-center"
+        variants={staggerItem}
+      >
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl glass border-2 border-primary bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-bold text-xl shadow-apple-lg">
           VS
         </div>
-      </div>
+      </motion.div>
 
       {/* 선택지 버튼 */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+      <motion.div
+        className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2"
+        variants={staggerItem}
+      >
         {/* 선택지 A */}
-        <button
+        <motion.button
           onClick={() => onSelect('A')}
           disabled={disabled}
+          whileHover={!disabled ? buttonHover : undefined}
+          whileTap={!disabled ? buttonTap : undefined}
           className={cn(
             'group relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 smooth-transition',
             'min-h-[120px] sm:min-h-[160px]',
             'glass border-2 border-primary/50 bg-gradient-to-br from-primary/20 to-primary/10',
             'hover:from-primary/30 hover:to-primary/20',
-            'hover:shadow-apple-lg md:hover:scale-105 hover:border-primary',
-            'active:scale-95',
-            'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
+            'hover:shadow-apple-lg hover:border-primary',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
             'focus:outline-none focus:ring-4 focus:ring-primary/30',
             'touch-manipulation'
           )}
@@ -85,20 +105,21 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
               {question.optionA}
             </span>
           </div>
-        </button>
+        </motion.button>
 
         {/* 선택지 B */}
-        <button
+        <motion.button
           onClick={() => onSelect('B')}
           disabled={disabled}
+          whileHover={!disabled ? buttonHover : undefined}
+          whileTap={!disabled ? buttonTap : undefined}
           className={cn(
             'group relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 smooth-transition',
             'min-h-[120px] sm:min-h-[160px]',
             'glass border-2 border-secondary/50 bg-gradient-to-br from-secondary/20 to-secondary/10',
             'hover:from-secondary/30 hover:to-secondary/20',
-            'hover:shadow-apple-lg md:hover:scale-105 hover:border-secondary',
-            'active:scale-95',
-            'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
+            'hover:shadow-apple-lg hover:border-secondary',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
             'focus:outline-none focus:ring-4 focus:ring-secondary/30',
             'touch-manipulation'
           )}
@@ -114,15 +135,73 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
               {question.optionB}
             </span>
           </div>
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* 안내 문구 */}
       {!disabled && (
-        <div className="text-center text-sm text-muted-foreground animate-in fade-in duration-500 delay-500">
+        <motion.div
+          className="text-center text-sm text-muted-foreground"
+          variants={staggerItem}
+        >
           ⚠️ 선택 후에는 수정할 수 없습니다
-        </div>
+        </motion.div>
       )}
+    </motion.div>
+  );
+}
+
+/**
+ * QuestionCard Skeleton - 로딩 상태 표시
+ */
+export function QuestionCardSkeleton() {
+  return (
+    <div className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8 animate-pulse">
+      {/* 태그 스켈레톤 */}
+      <div className="flex flex-wrap gap-2 justify-center">
+        <div className="h-8 w-20 rounded-full glass border-2 border-border" />
+        <div className="h-8 w-24 rounded-full glass border-2 border-border" />
+      </div>
+
+      {/* 질문 제목 스켈레톤 */}
+      <div className="rounded-3xl glass border-2 border-border p-8 shadow-apple-lg">
+        <div className="space-y-3">
+          <div className="h-8 bg-muted-foreground/20 rounded-lg mx-auto w-3/4" />
+          <div className="h-8 bg-muted-foreground/20 rounded-lg mx-auto w-1/2" />
+        </div>
+      </div>
+
+      {/* VS 아이콘 스켈레톤 */}
+      <div className="flex justify-center">
+        <div className="h-16 w-16 rounded-2xl glass border-2 border-border shadow-apple-lg" />
+      </div>
+
+      {/* 선택지 버튼 스켈레톤 */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+        {/* 선택지 A 스켈레톤 */}
+        <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 min-h-[120px] sm:min-h-[160px] glass border-2 border-border shadow-apple">
+          <div className="flex flex-col items-center gap-3 sm:gap-4">
+            <div className="h-12 w-12 bg-muted-foreground/20 rounded-full" />
+            <div className="h-6 w-32 bg-muted-foreground/20 rounded-lg" />
+          </div>
+        </div>
+
+        {/* 선택지 B 스켈레톤 */}
+        <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 min-h-[120px] sm:min-h-[160px] glass border-2 border-border shadow-apple">
+          <div className="flex flex-col items-center gap-3 sm:gap-4">
+            <div className="h-12 w-12 bg-muted-foreground/20 rounded-full" />
+            <div className="h-6 w-32 bg-muted-foreground/20 rounded-lg" />
+          </div>
+        </div>
+      </div>
+
+      {/* 안내 문구 스켈레톤 */}
+      <div className="flex justify-center">
+        <div className="h-4 w-48 bg-muted-foreground/20 rounded-lg" />
+      </div>
     </div>
   );
 }
+
+// QuestionData 타입 export
+export type QuestionData = Question;

@@ -1,6 +1,9 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { staggerContainer, staggerItem } from '@/lib/animations/variants';
 
 /**
  * ResultCard Component - Apple MacBook Style
@@ -45,17 +48,25 @@ export function ResultCard({ question, stats }: ResultCardProps) {
   const { userSelection } = stats;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
+    <motion.div
+      className="w-full max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
       {/* 질문 제목 */}
-      <div className="text-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <motion.div className="text-center" variants={staggerItem}>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
           {question.title}
         </h2>
         <p className="text-sm sm:text-base text-muted-foreground">결과를 확인하세요</p>
-      </div>
+      </motion.div>
 
       {/* 전체 통계 */}
-      <div className="rounded-2xl sm:rounded-3xl glass border-2 border-border p-5 sm:p-6 md:p-8 shadow-apple-lg animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
+      <motion.div
+        className="rounded-2xl sm:rounded-3xl glass border-2 border-border p-5 sm:p-6 md:p-8 shadow-apple-lg"
+        variants={staggerItem}
+      >
         <h3 className="mb-6 text-xl font-bold text-foreground flex items-center gap-2">
           <span className="text-2xl">📊</span>
           전체 통계
@@ -95,15 +106,12 @@ export function ResultCard({ question, stats }: ResultCardProps) {
                 {stats.optionAPercentage}%
               </span>
             </div>
-            <div className="h-6 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
-              <div
-                className="h-full bg-gradient-to-r from-primary/80 to-primary smooth-transition shadow-apple"
-                style={{ 
-                  width: `${stats.optionAPercentage}%`,
-                  transition: 'width 0.8s ease-out'
-                }}
-              />
-            </div>
+            <ProgressBar
+              percentage={stats.optionAPercentage}
+              color="bg-gradient-to-r from-primary/80 to-primary"
+              height="h-6"
+              delay={0.2}
+            />
             <p className="mt-2 text-sm text-muted-foreground">
               {stats.optionACount.toLocaleString()}명 선택
             </p>
@@ -139,25 +147,22 @@ export function ResultCard({ question, stats }: ResultCardProps) {
                 {stats.optionBPercentage}%
               </span>
             </div>
-            <div className="h-6 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
-              <div
-                className="h-full bg-gradient-to-r from-secondary/80 to-secondary smooth-transition shadow-apple"
-                style={{ 
-                  width: `${stats.optionBPercentage}%`,
-                  transition: 'width 0.8s ease-out'
-                }}
-              />
-            </div>
+            <ProgressBar
+              percentage={stats.optionBPercentage}
+              color="bg-gradient-to-r from-secondary/80 to-secondary"
+              height="h-6"
+              delay={0.3}
+            />
             <p className="mt-2 text-sm text-muted-foreground">
               {stats.optionBCount.toLocaleString()}명 선택
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* 모임별 통계 */}
       {stats.groupStats.length > 0 && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+        <motion.div variants={staggerItem}>
           <h3 className="mb-6 text-xl font-bold text-foreground flex items-center gap-2">
             <span className="text-2xl">👥</span>
             내 모임별 통계
@@ -165,10 +170,12 @@ export function ResultCard({ question, stats }: ResultCardProps) {
 
           <div className="space-y-4">
             {stats.groupStats.map((groupStat, index) => (
-              <div
+              <motion.div
                 key={groupStat.groupId}
-                className="rounded-2xl glass border-2 border-border p-6 shadow-apple smooth-transition hover:shadow-apple-lg animate-in fade-in slide-in-from-bottom duration-500"
-                style={{ animationDelay: `${(index + 3) * 100}ms` }}
+                className="rounded-2xl glass border-2 border-border p-6 shadow-apple smooth-transition hover:shadow-apple-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + index * 0.1, duration: 0.4 }}
               >
                 <div className="mb-4 flex items-center justify-between">
                   <h4 className="font-bold text-foreground text-lg">{groupStat.groupName}</h4>
@@ -184,15 +191,12 @@ export function ResultCard({ question, stats }: ResultCardProps) {
                       A
                     </span>
                     <div className="flex-1">
-                      <div className="h-4 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
-                        <div
-                          className="h-full bg-primary smooth-transition"
-                          style={{ 
-                            width: `${groupStat.optionAPercentage}%`,
-                            transition: 'width 0.8s ease-out'
-                          }}
-                        />
-                      </div>
+                      <ProgressBar
+                        percentage={groupStat.optionAPercentage}
+                        color="bg-primary"
+                        height="h-4"
+                        delay={0.5 + index * 0.1}
+                      />
                     </div>
                     <span className="w-14 text-right text-sm font-bold text-primary">
                       {groupStat.optionAPercentage}%
@@ -205,37 +209,37 @@ export function ResultCard({ question, stats }: ResultCardProps) {
                       B
                     </span>
                     <div className="flex-1">
-                      <div className="h-4 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
-                        <div
-                          className="h-full bg-secondary smooth-transition"
-                          style={{ 
-                            width: `${groupStat.optionBPercentage}%`,
-                            transition: 'width 0.8s ease-out'
-                          }}
-                        />
-                      </div>
+                      <ProgressBar
+                        percentage={groupStat.optionBPercentage}
+                        color="bg-secondary"
+                        height="h-4"
+                        delay={0.6 + index * 0.1}
+                      />
                     </div>
                     <span className="w-14 text-right text-sm font-bold text-secondary-foreground">
                       {groupStat.optionBPercentage}%
                     </span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* 모임이 없을 때 안내 */}
       {stats.groupStats.length === 0 && userSelection && (
-        <div className="rounded-2xl glass border-2 border-primary/30 bg-primary/5 p-6 text-center shadow-apple animate-in fade-in slide-in-from-bottom duration-500 delay-300">
+        <motion.div
+          className="rounded-2xl glass border-2 border-primary/30 bg-primary/5 p-6 text-center shadow-apple"
+          variants={staggerItem}
+        >
           <p className="text-base text-muted-foreground flex items-center justify-center gap-2">
             <span className="text-2xl">💡</span>
             <span>모임에 가입하면 친구들의 선택을 비교할 수 있어요!</span>
           </p>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

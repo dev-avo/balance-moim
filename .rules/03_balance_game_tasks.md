@@ -479,11 +479,16 @@
   - 페이드 인/아웃 완료 ✅
   - 슬라이드 효과 완료 ✅
   - pageTransition variant 정의 ✅
+  - 게임 플레이 페이지 전환 애니메이션 적용 완료 ✅
+    - 주의사항 모달 → 질문 → 결과 부드러운 전환 ✅
+    - AnimatePresence로 exit 애니메이션 ✅
   
 - [x] 13.3 버튼 클릭 애니메이션 ✅
   - Scale 효과 완료 ✅
   - AnimatedButton 컴포넌트 생성 ✅
   - whileHover, whileTap 효과 적용 ✅
+  - QuestionCard 선택지 버튼에 애니메이션 적용 ✅
+  - "다음 질문으로" 버튼 애니메이션 적용 ✅
   
 - [x] 13.4 결과 표시 애니메이션 ✅
   - 슬라이드 업 완료 ✅
@@ -491,7 +496,15 @@
   - ProgressBar 컴포넌트 생성 ✅
   - 뷰포트 진입 시 자동 애니메이션 ✅
   - GroupResponses에 적용 완료 ✅
+  - ResultCard에 적용 완료 ✅
   - 순차 애니메이션 (stagger) 적용 ✅
+  - 모임별 통계 순차 등장 애니메이션 ✅
+  
+- [x] 13.5 게임 플레이 페이지 애니메이션 적용 ✅
+  - QuestionCard 전체 순차 애니메이션 ✅
+  - ResultCard 전체 순차 애니메이션 ✅
+  - QuestionCardSkeleton export 추가 ✅
+  - 로딩/에러 상태 페이드 인 애니메이션 ✅
 
 ---
 
