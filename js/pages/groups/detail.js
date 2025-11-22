@@ -2,12 +2,12 @@
  * 모임 상세 페이지
  */
 
-import { groupApi } from '../services/api.js';
-import { checkAuth } from '../utils/auth.js';
-import { router } from '../services/router.js';
-import { showErrorToast, showSuccessToast } from '../components/Toast.js';
-import { createLoading } from '../components/Loading.js';
-import { createModal, showConfirmModal } from '../components/Modal.js';
+import { groupApi } from '../../services/api.js';
+import { checkAuth } from '../../utils/auth.js';
+import { router } from '../../services/router.js';
+import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
+import { createLoading } from '../../components/Loading.js';
+import { createModal, showConfirmModal } from '../../components/Modal.js';
 
 let groupId = null;
 let groupData = null;

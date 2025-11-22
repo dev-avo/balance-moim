@@ -2,11 +2,11 @@
  * 모임 설정 페이지 (생성자 전용)
  */
 
-import { groupApi } from '../services/api.js';
-import { checkAuth } from '../utils/auth.js';
-import { router } from '../services/router.js';
-import { showErrorToast, showSuccessToast } from '../components/Toast.js';
-import { createLoading } from '../components/Loading.js';
+import { groupApi } from '../../services/api.js';
+import { checkAuth } from '../../utils/auth.js';
+import { router } from '../../services/router.js';
+import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
+import { createLoading } from '../../components/Loading.js';
 
 let groupId = null;
 let groupData = null;

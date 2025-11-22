@@ -2,12 +2,12 @@
  * 내 질문 목록 페이지
  */
 
-import { questionApi } from '../services/api.js';
-import { checkAuth } from '../utils/auth.js';
-import { router } from '../services/router.js';
-import { showErrorToast, showSuccessToast } from '../components/Toast.js';
-import { createLoading } from '../components/Loading.js';
-import { showConfirmModal } from '../components/Modal.js';
+import { questionApi } from '../../services/api.js';
+import { checkAuth } from '../../utils/auth.js';
+import { router } from '../../services/router.js';
+import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
+import { createLoading } from '../../components/Loading.js';
+import { showConfirmModal } from '../../components/Modal.js';
 
 let questions = [];
 let currentPage = 1;

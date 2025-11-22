@@ -2,13 +2,13 @@
  * 모임 생성 페이지
  */
 
-import { groupApi } from '../services/api.js';
-import { checkAuth } from '../utils/auth.js';
-import { router } from '../services/router.js';
-import { showErrorToast, showSuccessToast } from '../components/Toast.js';
-import { createLoading } from '../components/Loading.js';
-import { createInput, createTextarea } from '../components/Input.js';
-import { createButton } from '../components/Button.js';
+import { groupApi } from '../../services/api.js';
+import { checkAuth } from '../../utils/auth.js';
+import { router } from '../../services/router.js';
+import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
+import { createLoading } from '../../components/Loading.js';
+import { createInput, createTextarea } from '../../components/Input.js';
+import { createButton } from '../../components/Button.js';
 
 let formData = {
     name: '',
