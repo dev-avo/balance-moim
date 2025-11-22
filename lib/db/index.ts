@@ -42,13 +42,25 @@ export function getDb() {
   return globalForDb.dbInstance;
 }
 
-// db export는 제거 (Edge Runtime에서 모듈 로드 시점에 D1이 설정되지 않음)
-// 각 API 라우트에서 setDb(env.DB)를 먼저 호출한 후 getDb()를 사용해야 함
-// 기존 코드와의 호환성을 위해 getter 함수로 제공
+// db export (기존 코드와의 호환성)
+// Edge Runtime에서 모듈 로드 시점에 D1이 설정되지 않으므로 Proxy 사용
+// 실제 사용 시점에 getDb()를 호출하여 D1 인스턴스 반환
+// 각 API 라우트에서 setDb(env.DB)를 먼저 호출해야 함
 export const db = new Proxy({} as ReturnType<typeof getDb>, {
   get(target, prop) {
-    // 실제 db 인스턴스 반환 (D1이 설정되어 있어야 함)
-    return getDb()[prop as keyof ReturnType<typeof getDb>];
+    try {
+      // 실제 db 인스턴스 반환 (D1이 설정되어 있어야 함)
+      const dbInstance = getDb();
+      const value = dbInstance[prop as keyof ReturnType<typeof getDb>];
+      // 함수인 경우 this 바인딩 유지
+      if(typeof value === 'function') {
+        return value.bind(dbInstance);
+      }
+      return value;
+    } catch(error) {
+      // D1이 설정되지 않은 경우 에러 발생
+      throw new Error('D1 데이터베이스가 설정되지 않았습니다. API 라우트에서 setDb(env.DB)를 먼저 호출해야 합니다.');
+    }
   }
 });
 

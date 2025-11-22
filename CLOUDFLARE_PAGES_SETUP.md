@@ -40,7 +40,7 @@
 | **Production branch** | `master` |
 | **Framework preset** | `Next.js` |
 | **Build command** | `npm run build` |
-| **Build output directory** | (비워두기) 또는 `.next` |
+| **Build output directory** | (비워두기) |
 | **Root directory** | `/` (기본값) |
 | **Node.js version** | `22.13.1` |
 
@@ -262,7 +262,7 @@ Preview 환경에도 동일한 변수를 추가할 수 있습니다:
    - **Settings** → **Builds & deployments** 이동
    - **Build configuration** 섹션에서 **Build output directory** 확인
    - Framework preset이 **Next.js**로 설정되어 있다면, **Build output directory를 비워두는 것**이 권장됩니다
-   - 만약 `.next`로 설정되어 있다면, **비워두기**로 변경 후 **Save** 클릭
+   - **Build output directory**를 **비워두기**로 설정 (Framework preset이 Next.js이면 자동으로 처리됨)
    - **Deployments** 탭에서 **Retry deployment** 클릭
 
 **추가 확인 사항**:
