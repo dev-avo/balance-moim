@@ -5,12 +5,12 @@ import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 /**
- * GroupResponses 컴포넌트
+ * GroupResponses Component - Apple MacBook Style
  * 
  * 모임 멤버들의 응답 통계를 태그별로 필터링하여 표시합니다.
- * 
- * ## Props
- * - groupId: 모임 ID
+ * - Glassmorphism 효과
+ * - 다크모드 완벽 지원
+ * - Apple 스타일 디자인
  */
 
 interface QuestionStats {
@@ -89,7 +89,7 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
 
   if(isLoading) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
         <Loading text="응답 통계 조회 중..." />
       </div>
     );
@@ -97,20 +97,21 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
 
   if(error) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
         <ErrorMessage message={error} onRetry={fetchResponses} />
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
+    <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
       {/* 헤더 */}
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900">
-          📊 모임 응답 통계
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+          <span className="text-2xl">📊</span>
+          모임 응답 통계
         </h2>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           전체 멤버 {totalMembers}명
         </p>
       </div>
@@ -118,13 +119,13 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
       {/* 태그 필터 */}
       {availableTags.length > 0 && (
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-foreground">
             태그별 필터
           </label>
           <select
             value={selectedTag}
             onChange={(e) => setSelectedTag(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-xl glass border-2 border-border bg-card text-foreground px-4 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 smooth-transition shadow-inner-apple"
           >
             <option value="">전체 질문</option>
             {availableTags.map(tag => (
@@ -139,69 +140,69 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
       {/* 질문 목록 */}
       {questions.length === 0 ? (
         <div className="text-center py-8">
-          <div className="text-5xl mb-4">📭</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="text-6xl mb-4 opacity-80">📭</div>
+          <h3 className="text-lg font-bold text-foreground mb-2">
             응답이 없습니다
           </h3>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {selectedTag
               ? `"${selectedTag}" 태그의 질문에 응답이 없습니다.`
               : '모임 멤버들이 밸런스 게임에 참여하면 여기에 통계가 표시됩니다.'}
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {questions.map((q, index) => (
             <div
               key={q.questionId}
-              className="rounded-lg border border-gray-200 bg-gray-50 p-5"
+              className="rounded-2xl glass border-2 border-border p-5 shadow-apple"
             >
               {/* 질문 제목 */}
               <div className="mb-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-600">
+                  <span className="text-sm font-semibold text-muted-foreground">
                     질문 {index + 1}
                   </span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     {q.totalResponses}명 응답
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-bold text-foreground">
                   {q.title}
                 </h3>
               </div>
 
               {/* 선택지 A */}
-              <div className="mb-3">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+              <div className="mb-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">
                     {q.optionA}
                   </span>
-                  <span className="text-sm font-semibold text-blue-600">
+                  <span className="text-sm font-bold text-primary">
                     {q.optionAPercentage}% ({q.optionACount}명)
                   </span>
                 </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                <div className="h-3 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
+                    className="h-full bg-primary smooth-transition"
                     style={{ width: `${q.optionAPercentage}%` }}
                   />
                 </div>
               </div>
 
               {/* 선택지 B */}
-              <div className="mb-3">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+              <div className="mb-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">
                     {q.optionB}
                   </span>
-                  <span className="text-sm font-semibold text-purple-600">
+                  <span className="text-sm font-bold text-secondary-foreground">
                     {q.optionBPercentage}% ({q.optionBCount}명)
                   </span>
                 </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                <div className="h-3 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all"
+                    className="h-full bg-secondary smooth-transition"
                     style={{ width: `${q.optionBPercentage}%` }}
                   />
                 </div>
@@ -214,7 +215,7 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
                     <button
                       key={tag}
                       onClick={() => setSelectedTag(tag)}
-                      className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-300"
+                      className="rounded-full glass border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground smooth-transition hover:border-primary hover:bg-accent hover:text-accent-foreground shadow-apple-sm"
                     >
                       #{tag}
                     </button>
@@ -228,4 +229,3 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
     </div>
   );
 }
-

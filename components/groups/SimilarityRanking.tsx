@@ -6,12 +6,12 @@ import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 /**
- * SimilarityRanking 컴포넌트
+ * SimilarityRanking Component - Apple MacBook Style
  * 
  * 모임 내에서 나와 취향이 비슷한 사람들의 랭킹을 표시합니다.
- * 
- * ## Props
- * - groupId: 모임 ID
+ * - Glassmorphism 효과
+ * - 다크모드 완벽 지원
+ * - Apple 스타일 디자인
  */
 
 interface SimilarityData {
@@ -61,7 +61,7 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
 
   if(isLoading) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
         <Loading text="유사도 분석 중..." />
       </div>
     );
@@ -69,7 +69,7 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
 
   if(error) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
         <ErrorMessage message={error} onRetry={fetchSimilarities} />
       </div>
     );
@@ -78,12 +78,12 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
   // 응답이 없는 경우
   if(myResponsesCount === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6 text-center">
-        <div className="text-5xl mb-4">📊</div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <div className="rounded-2xl glass border-2 border-border p-6 text-center shadow-apple">
+        <div className="text-6xl mb-4 opacity-80">📊</div>
+        <h3 className="text-lg font-bold text-foreground mb-2">
           아직 응답이 없습니다
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           밸런스 게임에 참여하면 취향이 비슷한 멤버를 찾을 수 있어요!
         </p>
       </div>
@@ -93,12 +93,12 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
   // 유사도 데이터가 없는 경우
   if(similarities.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6 text-center">
-        <div className="text-5xl mb-4">🤔</div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <div className="rounded-2xl glass border-2 border-border p-6 text-center shadow-apple">
+        <div className="text-6xl mb-4 opacity-80">🤔</div>
+        <h3 className="text-lg font-bold text-foreground mb-2">
           비교할 멤버가 없습니다
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           다른 멤버들이 더 많은 질문에 응답하면 비교할 수 있어요!
           <br />
           (최소 5개 공통 질문 필요)
@@ -108,13 +108,14 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
+    <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">
-            🎯 나와 취향이 비슷한 사람들
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <span className="text-2xl">🎯</span>
+            나와 취향이 비슷한 사람들
           </h2>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-muted-foreground">
             TOP {Math.min(similarities.length, 10)}명 · 내 응답 {myResponsesCount}개
           </p>
         </div>
@@ -127,32 +128,32 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
             href={`/groups/${groupId}/compare/${similarity.userId}`}
             className="block"
           >
-            <div className="flex items-center gap-4 rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-300 hover:shadow-md">
+            <div className="flex items-center gap-4 rounded-2xl glass border-2 border-border p-4 smooth-transition hover:border-primary hover:shadow-apple-lg">
               {/* 순위 */}
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-lg font-bold text-white">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-lg font-bold text-primary-foreground shadow-apple">
                 {index + 1}
               </div>
 
               {/* 사용자 정보 */}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 truncate">
+                <p className="font-bold text-foreground truncate">
                   {similarity.userName || '익명 사용자'}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   {similarity.commonQuestions}개 공통 질문 중 {similarity.matchedAnswers}개 일치
                 </p>
               </div>
 
               {/* 일치율 */}
               <div className="flex-shrink-0 text-right">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-primary">
                   {similarity.matchPercentage}%
                 </div>
-                <div className="text-xs text-gray-500">일치율</div>
+                <div className="text-xs text-muted-foreground">일치율</div>
               </div>
 
               {/* 화살표 */}
-              <div className="flex-shrink-0 text-gray-400">
+              <div className="flex-shrink-0 text-muted-foreground">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -173,12 +174,11 @@ export function SimilarityRanking({ groupId }: SimilarityRankingProps) {
       </div>
 
       {/* 안내 문구 */}
-      <div className="mt-6 rounded-lg bg-blue-50 p-4">
-        <p className="text-sm text-blue-800">
+      <div className="mt-6 rounded-2xl glass border-2 border-primary/30 bg-primary/5 p-4 shadow-inner-apple">
+        <p className="text-sm text-foreground">
           💡 <strong>클릭</strong>하면 질문별 선택을 자세히 비교할 수 있어요!
         </p>
       </div>
     </div>
   );
 }
-

@@ -9,11 +9,16 @@ import { getCurrentUser } from '@/lib/auth/session';
  * 
  * 현재 사용자가 속한 모임 목록을 가져옵니다.
  * 
+ * ## Query Parameters
+ * - page: 페이지 번호 (기본값: 1)
+ * - limit: 페이지당 항목 수 (기본값: 20, 최대: 100)
+ * 
  * ## 로직
  * 1. 로그인 확인
- * 2. group_member 테이블에서 user_id = 현재 사용자인 모임 조회
- * 3. 각 모임의 멤버 수, 응답한 질문 수 통계 포함
- * 4. 생성자 여부 확인
+ * 2. 페이지네이션 파라미터 추출
+ * 3. group_member 테이블에서 user_id = 현재 사용자인 모임 조회
+ * 4. 각 모임의 멤버 수, 응답한 질문 수 통계 포함
+ * 5. 생성자 여부 확인
  * 
  * ## 응답 예시
  * ```json
@@ -44,7 +49,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. 사용자가 속한 모임 조회
+    // 2. 페이지네이션 파라미터 추출
+    const searchParams = request.nextUrl.searchParams;
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')));
+    const offset = (page - 1) * limit;
+
+    // 3. 전체 모임 수 조회
+    const totalCountResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(groupMember)
+      .where(eq(groupMember.userId, currentUser.id));
+    
+    const totalCount = Number(totalCountResult[0]?.count || 0);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // 4. 사용자가 속한 모임 조회 (페이지네이션 적용)
     const myGroupMemberships = await db
       .select({
         groupId: groupMember.groupId,
@@ -57,9 +77,11 @@ export async function GET(request: NextRequest) {
       .from(groupMember)
       .innerJoin(userGroup, eq(groupMember.groupId, userGroup.id))
       .where(eq(groupMember.userId, currentUser.id))
-      .orderBy(groupMember.joinedAt);
+      .orderBy(groupMember.joinedAt)
+      .limit(limit)
+      .offset(offset);
 
-    // 3. 각 모임의 통계 계산
+    // 5. 각 모임의 통계 계산
     const groupsWithStats = await Promise.all(
       myGroupMemberships.map(async (membership) => {
         // 멤버 수 계산
@@ -95,10 +117,17 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    // 4. 응답 반환
+    // 6. 응답 반환 (페이지네이션 메타데이터 포함)
     return NextResponse.json({
       groups: groupsWithStats,
-      total: groupsWithStats.length,
+      pagination: {
+        total: totalCount,
+        page,
+        limit,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
     });
   } catch(error) {
     console.error('내 모임 목록 조회 오류:', error);

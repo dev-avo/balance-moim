@@ -133,11 +133,11 @@ export default function InvitePage() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <div className="max-w-md text-center">
-          <div className="text-6xl mb-4">⏰</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="text-6xl mb-4 opacity-80">⏰</div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
             초대 링크가 만료되었습니다
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             이 초대 링크는 더 이상 유효하지 않습니다.
             <br />
             모임 관리자에게 새로운 초대 링크를 요청해주세요.
@@ -151,23 +151,23 @@ export default function InvitePage() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
       <div className="max-w-md w-full px-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-lg">
+        <div className="rounded-2xl glass border-2 border-border p-8 shadow-apple-lg">
           {/* 초대 아이콘 */}
           <div className="mb-6 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-3xl">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full glass border-2 border-primary/30 bg-primary/10 text-3xl shadow-apple">
               👋
             </div>
           </div>
 
           {/* 모임 정보 */}
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               {inviteData.groupName}
             </h1>
             {inviteData.groupDescription && (
-              <p className="text-gray-600 mb-4">{inviteData.groupDescription}</p>
+              <p className="text-muted-foreground mb-4">{inviteData.groupDescription}</p>
             )}
-            <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+            <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -181,13 +181,13 @@ export default function InvitePage() {
                   d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
                 />
               </svg>
-              <span>{inviteData.memberCount}명 참여 중</span>
+              <span className="font-semibold">{inviteData.memberCount}명 참여 중</span>
             </div>
           </div>
 
           {/* 안내 문구 */}
-          <div className="mb-6 rounded-lg bg-blue-50 p-4">
-            <p className="text-sm text-blue-800">
+          <div className="mb-6 rounded-xl glass border-2 border-primary/30 bg-primary/5 p-4 shadow-inner-apple">
+            <p className="text-sm text-foreground">
               이 모임에 참여하면 밸런스 질문에 함께 응답하고,
               다른 멤버들의 선택과 비교할 수 있습니다.
             </p>
@@ -207,7 +207,7 @@ export default function InvitePage() {
               >
                 Google 로그인하고 참여하기
               </Button>
-              <p className="text-center text-xs text-gray-500">
+              <p className="text-center text-xs text-muted-foreground">
                 로그인하면 모임에 참여할 수 있습니다
               </p>
             </div>

@@ -272,7 +272,7 @@ export default function GroupDetailPage() {
 
       {/* 멤버 목록 */}
       <div>
-        <h2 className="mb-4 text-xl font-bold text-gray-900">
+        <h2 className="mb-4 text-xl font-bold text-foreground">
           멤버 목록 ({members.length}명)
         </h2>
 
@@ -280,21 +280,21 @@ export default function GroupDetailPage() {
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4"
+              className="flex items-center justify-between rounded-2xl glass border-2 border-border p-4 shadow-apple"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full glass border border-border text-foreground font-bold">
                   {member.name?.[0] || '?'}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-bold text-foreground">
                     {member.name || '익명 사용자'}
                     {member.id === groupData.creatorId && (
-                      <span className="ml-2 text-sm text-blue-600">👑</span>
+                      <span className="ml-2 text-sm">👑</span>
                     )}
                   </p>
                   {member.status === -1 && (
-                    <p className="text-sm text-gray-500">(탈퇴한 사용자)</p>
+                    <p className="text-sm text-muted-foreground">(탈퇴한 사용자)</p>
                   )}
                 </div>
               </div>

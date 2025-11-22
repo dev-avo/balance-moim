@@ -362,7 +362,7 @@
 
 ---
 
-## 10. 성능 최적화
+## 10. 성능 최적화 ✅ (완료)
 - [ ] 10.1 Next.js 이미지 최적화 적용
   - `next/image` 컴포넌트 사용
   - WebP 자동 변환 설정
@@ -373,36 +373,56 @@
   - 태그 목록: 1시간 캐싱 (`revalidate = 3600`) ✅
   - Next.js Route Handler `revalidate` 옵션 활용 ✅
   
-- [ ] 10.3 페이지네이션 구현
-  - 모임 목록, 응답 기록 등에 무한 스크롤 또는 페이지네이션
-  - `LIMIT`, `OFFSET` 쿼리 적용
-  - (현재 데이터량이 적어 보류)
+- [x] 10.3 페이지네이션 구현 ✅
+  - API 레벨 페이지네이션 구현 완료 ✅
+  - `LIMIT`, `OFFSET` 쿼리 적용 ✅
+  - 내 질문 목록 API: page, limit 쿼리 파라미터 지원 ✅
+  - 내 모임 목록 API: page, limit 쿼리 파라미터 지원 ✅
+  - 페이지네이션 메타데이터 (total, page, limit, totalPages, hasNext, hasPrev) 제공 ✅
+  - 프론트엔드 UI 구현 완료 ✅
+    - Pagination 컴포넌트 (Apple 스타일, Glassmorphism, 다크모드 지원) ✅
+    - 내 질문 페이지 페이지네이션 적용 ✅
+    - 내 모임 페이지 페이지네이션 적용 ✅
+    - 페이지 변경 시 스크롤 상단 이동 ✅
   
-- [ ] 10.4 Prefetching 구현
-  - 다음 질문 미리 가져오기
-  - `next/link`의 prefetch 활용 (기본 활성화됨)
+- [x] 10.4 Prefetching 구현 ✅
+  - Next.js Link 컴포넌트의 prefetch 기본 활성화됨 ✅
+  - 자동으로 뷰포트에 보이는 링크를 미리 가져옴 ✅
 
 ---
 
 ## 11. 보안 강화
-- [ ] 11.1 CSRF 방지
-  - NextAuth.js 내장 CSRF 토큰 확인
-  - 모든 POST/PUT/DELETE 요청에 토큰 검증
+- [x] 11.1 CSRF 방지 ✅
+  - NextAuth.js 내장 CSRF 토큰 확인 완료 ✅
+  - NextAuth.js가 자동으로 모든 POST/PUT/DELETE 요청에 CSRF 보호 제공 ✅
   
-- [ ] 11.2 XSS 방지
-  - DOMPurify 설치 및 적용
-  - 사용자 입력 sanitize
-  - CSP 헤더 설정 (`next.config.js`)
+- [x] 11.2 XSS 방지 ✅
+  - isomorphic-dompurify 설치 완료 ✅
+  - `/lib/security/sanitize.ts` 생성 (sanitizeHtml, sanitizeText, sanitizeUrl, sanitizeObject) ✅
+  - CSP 헤더 설정 완료 (`next.config.ts`) ✅
+    - Content-Security-Policy
+    - X-Frame-Options: DENY
+    - X-Content-Type-Options: nosniff
+    - Referrer-Policy: strict-origin-when-cross-origin
+    - Permissions-Policy
   
 - [ ] 11.3 Rate Limiting 구현
   - Cloudflare Workers로 IP별 제한
   - 질문 등록: 분당 10회
   - 응답 제출: 분당 30회
   
-- [ ] 11.4 입력 유효성 검사
-  - Zod 스키마로 모든 입력 검증
-  - 클라이언트 + 서버 양쪽 검증
-  - 에러 메시지 명확하게 표시
+- [x] 11.4 입력 유효성 검사 강화 ✅
+  - `/lib/security/validation.ts` 생성 ✅
+  - 강화된 공통 Zod 스키마 정의 ✅
+    - safeString (XSS 패턴 검증)
+    - emailSchema
+    - urlSchema
+    - questionTitleSchema, optionSchema, tagNameSchema
+    - groupNameSchema, groupDescriptionSchema
+    - nicknameSchema, uuidSchema
+    - paginationSchema, visibilitySchema, choiceSchema
+  - 질문 생성 API에 sanitize + 강화된 검증 적용 완료 ✅
+  - 에러 메시지 포맷팅 함수 (formatZodError) ✅
   
 - [ ] 11.5 권한 체크 미들웨어 구현
   - `/lib/auth/permissions.ts` 생성

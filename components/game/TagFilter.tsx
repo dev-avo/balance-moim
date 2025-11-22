@@ -106,10 +106,10 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
 
   if(isLoading) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="rounded-2xl glass border-2 border-border p-4 shadow-apple">
         <div className="flex items-center gap-2">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-          <p className="text-sm text-gray-600">태그 불러오는 중...</p>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-primary"></div>
+          <p className="text-sm text-muted-foreground">태그 불러오는 중...</p>
         </div>
       </div>
     );
@@ -120,15 +120,15 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
+    <div className="rounded-2xl glass border-2 border-border p-4 shadow-apple">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">
+        <h3 className="text-sm font-bold text-foreground">
           🏷️ 태그 필터
         </h3>
         {selectedTags.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-primary hover:underline font-semibold smooth-transition"
           >
             모두 해제
           </button>
@@ -143,10 +143,10 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
             <button
               key={tag.id}
               onClick={() => handleTagToggle(tag.name)}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all ${
+              className={`rounded-full px-3 py-1.5 text-sm font-semibold smooth-transition shadow-apple ${
                 isSelected
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-primary-foreground border-2 border-primary'
+                  : 'glass border-2 border-border text-foreground hover:border-primary hover:bg-accent'
               }`}
             >
               {isSelected && '✓ '}#{tag.name}
@@ -156,8 +156,8 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
       </div>
 
       {selectedTags.length > 0 && (
-        <div className="mt-3 rounded-md bg-blue-50 p-2 text-sm text-blue-800">
-          <strong>{selectedTags.length}개 태그</strong> 선택됨: {selectedTags.map(t => `#${t}`).join(', ')}
+        <div className="mt-3 rounded-xl glass border-2 border-primary/30 bg-primary/5 p-2 text-sm text-foreground shadow-inner-apple">
+          <strong className="text-primary">{selectedTags.length}개 태그</strong> 선택됨: {selectedTags.map(t => `#${t}`).join(', ')}
         </div>
       )}
     </div>

@@ -215,7 +215,7 @@ export default function PlayPage() {
           <Button size="lg" onClick={handleNextQuestion} className="px-12">
             다음 질문으로 →
           </Button>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             계속해서 밸런스 게임을 즐겨보세요!
           </p>
         </div>

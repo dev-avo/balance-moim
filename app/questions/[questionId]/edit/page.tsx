@@ -271,8 +271,8 @@ export default function EditQuestionPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* 질문 제목 */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-            질문 제목 <span className="text-red-600">*</span>
+          <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
+            질문 제목 <span className="text-destructive">*</span>
           </label>
           <Input
             id="title"
@@ -285,8 +285,8 @@ export default function EditQuestionPage() {
 
         {/* 선택지 A */}
         <div>
-          <label htmlFor="optionA" className="block text-sm font-medium text-gray-700 mb-2">
-            선택지 A <span className="text-red-600">*</span>
+          <label htmlFor="optionA" className="block text-sm font-medium text-foreground mb-2">
+            선택지 A <span className="text-destructive">*</span>
           </label>
           <Input
             id="optionA"
@@ -299,8 +299,8 @@ export default function EditQuestionPage() {
 
         {/* 선택지 B */}
         <div>
-          <label htmlFor="optionB" className="block text-sm font-medium text-gray-700 mb-2">
-            선택지 B <span className="text-red-600">*</span>
+          <label htmlFor="optionB" className="block text-sm font-medium text-foreground mb-2">
+            선택지 B <span className="text-destructive">*</span>
           </label>
           <Input
             id="optionB"
@@ -313,9 +313,9 @@ export default function EditQuestionPage() {
 
         {/* 태그 입력 */}
         <div>
-          <label htmlFor="tagInput" className="block text-sm font-medium text-gray-700 mb-2">
-            태그 <span className="text-red-600">*</span>
-            <span className="ml-2 text-xs text-gray-500">(최소 1개, 최대 5개)</span>
+          <label htmlFor="tagInput" className="block text-sm font-medium text-foreground mb-2">
+            태그 <span className="text-destructive">*</span>
+            <span className="ml-2 text-xs text-muted-foreground">(최소 1개, 최대 5개)</span>
           </label>
           
           {/* 추가된 태그 목록 */}
@@ -375,27 +375,27 @@ export default function EditQuestionPage() {
 
         {/* 공개 설정 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             공개 설정
           </label>
           <div className="space-y-2">
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="public"
                 {...register('visibility')}
-                className="h-4 w-4 text-blue-600"
+                className="h-4 w-4 text-primary accent-primary"
               />
-              <span className="text-sm text-gray-700">전체 공개 - 모든 사용자가 볼 수 있습니다</span>
+              <span className="text-sm text-foreground">전체 공개 - 모든 사용자가 볼 수 있습니다</span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="private"
                 {...register('visibility')}
-                className="h-4 w-4 text-blue-600"
+                className="h-4 w-4 text-primary accent-primary"
               />
-              <span className="text-sm text-gray-700">비공개 - 나만 볼 수 있습니다</span>
+              <span className="text-sm text-foreground">비공개 - 나만 볼 수 있습니다</span>
             </label>
           </div>
         </div>

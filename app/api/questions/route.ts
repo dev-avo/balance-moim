@@ -5,6 +5,13 @@ import { eq } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
 import { generateId } from '@/lib/utils';
 import { z } from 'zod';
+import { sanitizeObject } from '@/lib/security/sanitize';
+import { 
+  questionTitleSchema, 
+  optionSchema, 
+  tagNameSchema, 
+  visibilitySchema 
+} from '@/lib/security/validation';
 
 /**
  * POST /api/questions
@@ -38,25 +45,14 @@ import { z } from 'zod';
  */
 
 const QuestionSchema = z.object({
-  title: z
-    .string()
-    .min(1, '질문 제목은 필수입니다.')
-    .max(100, '질문 제목은 최대 100자까지 가능합니다.'),
-  optionA: z
-    .string()
-    .min(1, '선택지 A는 필수입니다.')
-    .max(50, '선택지 A는 최대 50자까지 가능합니다.'),
-  optionB: z
-    .string()
-    .min(1, '선택지 B는 필수입니다.')
-    .max(50, '선택지 B는 최대 50자까지 가능합니다.'),
+  title: questionTitleSchema,
+  optionA: optionSchema,
+  optionB: optionSchema,
   tags: z
-    .array(z.string())
+    .array(tagNameSchema)
     .min(1, '최소 1개 이상의 태그를 추가해주세요.')
     .max(5, '최대 5개까지 태그를 추가할 수 있습니다.'),
-  visibility: z.enum(['public', 'group', 'private'], {
-    errorMap: () => ({ message: '공개 설정은 public, group, private 중 하나여야 합니다.' }),
-  }),
+  visibility: visibilitySchema,
   groupId: z.string().optional(),
 });
 
@@ -72,9 +68,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. 요청 본문 파싱 및 검증
+    // 2. 요청 본문 파싱, Sanitize 및 검증
     const body = await request.json();
-    const validation = QuestionSchema.safeParse(body);
+    const sanitizedBody = sanitizeObject(body);
+    const validation = QuestionSchema.safeParse(sanitizedBody);
 
     if(!validation.success) {
       return NextResponse.json(

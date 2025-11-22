@@ -318,27 +318,27 @@ export default function CreateQuestionPage() {
 
         {/* 공개 설정 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             공개 설정
           </label>
           <div className="space-y-2">
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="public"
                 {...register('visibility')}
-                className="h-4 w-4 text-blue-600"
+                className="h-4 w-4 text-primary accent-primary"
               />
-              <span className="text-sm text-gray-700">전체 공개 - 모든 사용자가 볼 수 있습니다</span>
+              <span className="text-sm text-foreground">전체 공개 - 모든 사용자가 볼 수 있습니다</span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="private"
                 {...register('visibility')}
-                className="h-4 w-4 text-blue-600"
+                className="h-4 w-4 text-primary accent-primary"
               />
-              <span className="text-sm text-gray-700">비공개 - 나만 볼 수 있습니다</span>
+              <span className="text-sm text-foreground">비공개 - 나만 볼 수 있습니다</span>
             </label>
           </div>
         </div>
