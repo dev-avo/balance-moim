@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { buttonTap, buttonHover } from '@/lib/animations/variants';
 import { Button, ButtonProps, buttonVariants } from './Button';
 import { forwardRef } from 'react';
@@ -33,8 +33,19 @@ export const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonProps>
     }
 
     // Framer Motion과 Button props의 충돌을 피하기 위해 motion.button 직접 사용
-    // onDrag는 HTML button과 Framer Motion의 타입이 다르므로 제외
-    const { onDrag, ...restProps } = props;
+    // onDrag 관련 props는 HTML button과 Framer Motion의 타입이 다르므로 제외
+    const {
+      onDrag,
+      onDragStart,
+      onDragEnd,
+      ...restProps
+    } = props;
+
+    // motion.button에 전달할 props 타입 정의 (onDrag 관련 제외)
+    type SafeMotionButtonProps = Omit<
+      HTMLMotionProps<'button'>,
+      'onDrag' | 'onDragStart' | 'onDragEnd' | 'ref' | 'className' | 'whileHover' | 'whileTap'
+    >;
 
     return (
       <motion.button
@@ -42,7 +53,7 @@ export const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonProps>
         whileHover={buttonHover}
         whileTap={buttonTap}
         className={cn(buttonVariants({ variant, size, className }))}
-        {...(restProps as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+        {...(restProps as SafeMotionButtonProps)}
       />
     );
   }
