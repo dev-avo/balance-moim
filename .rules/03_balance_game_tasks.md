@@ -159,16 +159,16 @@
 ---
 
 ## 5. 질문 관리 기능
-- [ ] 5.1 태그 검색 API 구현
+- [x] 5.1 태그 검색 API 구현
   - `GET /api/tags/search?q=keyword` 엔드포인트 생성
   - LIKE 검색으로 자동완성 지원
   - 인기 태그 추천 로직
   
-- [ ] 5.2 태그 생성 API 구현
+- [x] 5.2 태그 생성 API 구현
   - `POST /api/tags` 엔드포인트 생성
   - 중복 태그 확인 (UNIQUE 제약조건)
   
-- [ ] 5.3 질문 등록 폼 구현
+- [x] 5.3 질문 등록 폼 구현
   - `/app/questions/create/page.tsx` 페이지 생성
   - React Hook Form + Zod 유효성 검사
   - 질문 제목 입력 (필수, 최대 100자)
@@ -176,20 +176,20 @@
   - 태그 입력 (자동완성, 최소 1개)
   - 공개 설정 라디오 버튼 (전체 공개, 모임 전용, 비공개)
   
-- [ ] 5.4 질문 등록 API 구현
+- [x] 5.4 질문 등록 API 구현
   - `POST /api/questions` 엔드포인트 생성
   - `question` 테이블에 삽입
   - `question_tag` 테이블에 태그 연결
   - 모임 전용일 경우 `group_id` 저장
   
-- [ ] 5.5 내가 만든 질문 목록 페이지 구현
+- [x] 5.5 내가 만든 질문 목록 페이지 구현
   - `/app/questions/my/page.tsx` 페이지 생성
   - 질문 목록 카드 형식으로 표시
   - 공개 설정 배지 표시 (전체 공개, 모임 전용, 비공개)
   - 통계 표시 (응답 수, 선택지별 비율)
   - 편집/삭제 버튼
   
-- [ ] 5.6 내가 만든 질문 조회 API
+- [x] 5.6 내가 만든 질문 조회 API
   - `GET /api/questions/my` 엔드포인트 생성
   - `creator_id = 현재 사용자` 조건
   - `deleted_at IS NULL` 조건
@@ -201,8 +201,8 @@
   - `PATCH /api/questions/:id` 엔드포인트 생성
   - 제목, 선택지, 태그, 공개 설정 수정 가능
   
-- [ ] 5.8 질문 삭제 기능 구현 (Soft Delete)
-  - `DELETE /api/questions/:id` 엔드포인트 생성
+- [x] 5.8 질문 삭제 기능 구현 (Soft Delete)
+  - `DELETE /api/questions/[questionId]` 엔드포인트 생성
   - `deleted_at = unixepoch()` 업데이트
   - 확인 모달 표시
 
