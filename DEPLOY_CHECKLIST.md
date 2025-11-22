@@ -35,11 +35,11 @@
 - [ ] 저장소 선택 및 권한 부여
 
 ### 2. 빌드 설정
-- [ ] **Production branch**: `master`
-- [ ] **Build command**: `npm run build`
-- [ ] **Build output directory**: `.next`
-- [ ] **Framework preset**: Next.js
-- [ ] **Node.js version**: 22.13.1
+- [x] **Production branch**: `master` ✅
+- [x] **Build command**: `npm run build` ✅
+- [x] **Build output directory**: `.next` ✅
+- [x] **Framework preset**: Next.js ✅
+- [x] **Node.js version**: 22.13.1 ✅
 
 ### 3. 환경 변수 설정
 **Settings** → **Environment variables** → **Add variable**
@@ -49,7 +49,7 @@
 | `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID | `123456789-abc.apps.googleusercontent.com` |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth 클라이언트 Secret | `GOCSPX-...` |
 | `NEXTAUTH_SECRET` | NextAuth 암호화 키 | `openssl rand -base64 32` 결과 |
-| `NEXTAUTH_URL` | 배포된 URL | `https://your-project.pages.dev` |
+| `NEXTAUTH_URL` | 배포된 Pages URL | `https://balance-moim-xxxxx.pages.dev` (배포 후 확인) |
 | `NODE_VERSION` | Node.js 버전 | `22.13.1` |
 
 ### 4. D1 바인딩 설정
@@ -64,11 +64,17 @@
 - [ ] 또는 GitHub에 푸시하여 자동 배포 트리거
 - [ ] 빌드 로그 확인 (약 3-5분 소요)
 - [ ] 배포 성공 확인
+- [ ] 배포 URL 확인 (예: `https://balance-moim-xxxxx.pages.dev`)
+
+**⚠️ 중요**: 
+- ❌ Workers로 배포하지 마세요 (Next.js 앱은 Pages로 배포해야 합니다)
+- ✅ Pages 프로젝트를 새로 생성하세요
+- ✅ 배포 URL은 `.pages.dev`로 끝나야 합니다
 
 ## ✅ 배포 후 확인
 
 ### 1. 기본 기능 테스트
-- [ ] 홈 페이지 접속 (`https://your-project.pages.dev`)
+- [ ] 홈 페이지 접속 (배포된 Pages URL)
 - [ ] Google 로그인 테스트
 - [ ] 밸런스 게임 플레이
 - [ ] 질문 응답 및 통계 확인
@@ -122,5 +128,8 @@ npx wrangler d1 execute balance-moim-db-prod --command "SELECT COUNT(*) as count
 
 ---
 
-**배포 URL**: https://your-project.pages.dev
+**⚠️ 참고**: 
+- 기존 Workers 프로젝트(`https://balance-moim.shw5326.workers.dev`)는 삭제하거나 그대로 둬도 됩니다
+- Pages 프로젝트를 새로 생성하여 배포하세요
+- 배포 후 Pages URL을 여기에 업데이트하세요
 
