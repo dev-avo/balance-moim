@@ -4,39 +4,38 @@
 
 ### 1. 파일 구조 확인
 
-- [ ] `index.html` 존재
-- [ ] `css/style.css` 존재
-- [ ] `js/` 디렉토리 및 모든 파일 존재
-- [ ] `public/_redirects` 파일 존재
-- [ ] `public/_headers` 파일 존재
-- [ ] `functions/` 디렉토리 구조 확인 (기존 API)
+- [x] `index.html` 존재
+- [x] `css/style.css` 존재
+- [x] `js/` 디렉토리 및 모든 파일 존재
+- [x] `public/_redirects` 파일 존재
+- [x] `public/_headers` 파일 존재
+- [ ] `functions/` 디렉토리 구조 확인 (기존 API) - **나중에 처리 가능**
 
 ### 2. 환경 변수 확인
 
-- [ ] `GOOGLE_CLIENT_ID` 설정
-- [ ] `GOOGLE_CLIENT_SECRET` 설정
-- [ ] `NEXTAUTH_SECRET` 설정 (32자 이상)
-- [ ] `NEXTAUTH_URL` 설정 (배포된 도메인과 일치)
+- [x] `GOOGLE_CLIENT_ID` 설정 ✅
+- [x] `GOOGLE_CLIENT_SECRET` 설정 ✅
+- [x] `NEXTAUTH_SECRET` 설정 (32자 이상) ✅
+- [x] `NEXTAUTH_URL` 설정 (배포된 도메인과 일치) ✅
 
 ### 3. 데이터베이스 확인
 
-- [ ] D1 데이터베이스 생성 완료
-- [ ] Pages 프로젝트에 D1 바인딩 완료
-- [ ] 마이그레이션 실행 완료
-- [ ] 시드 데이터 필요 시 실행
+- [x] D1 데이터베이스 생성 완료 ✅
+- [x] Pages 프로젝트에 D1 바인딩 완료 (balance-moim-db-prod) ✅
+- [x] 마이그레이션 실행 완료 (또는 기존 데이터 있음) ✅
+- [x] 시드 데이터 있음 (태그, 질문) ✅
 
 ### 4. 빌드 설정 확인
 
-- [ ] Framework preset: `None`
-- [ ] Build command: (비워두기)
-- [ ] Build output directory: `/`
-- [ ] Root directory: (비워두기)
+- [x] Framework preset: `None` ✅
+- [x] Build command: (비워두기) ✅
+- [x] Build output directory: `/` ✅
+- [x] Root directory: (비워두기) ✅
 
 ### 5. Functions 확인
 
-- [ ] `functions/api/` 디렉토리 구조 확인
-- [ ] 기존 Next.js API 라우트가 Functions로 변환되었는지 확인
-- [ ] 인증 관련 Functions 확인
+- [x] Functions 디렉토리 없음 (SPA이므로 불필요) ✅
+- [ ] **나중에 API 필요 시 Functions 설정** (현재는 불필요)
 
 ## 배포 후 테스트
 
@@ -61,6 +60,7 @@
 - [ ] 해시 라우팅 작동 (`#home`, `#play` 등)
 - [ ] 직접 URL 접근 시 리다이렉트 작동
 - [ ] 404 페이지 작동
+- [ ] **정적 파일(css, js)은 리다이렉트되지 않음** ⚠️ **수정 필요**
 
 ### 보안 테스트
 
