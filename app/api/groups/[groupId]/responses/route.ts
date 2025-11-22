@@ -124,30 +124,29 @@ export async function GET(
     }
 
     // 5. 모임 멤버들의 응답 조회
-    let responsesQuery = db
+    // 태그 필터 적용
+    if(filteredQuestionIds !== null && filteredQuestionIds.length === 0) {
+      // 태그가 없으면 빈 결과
+      return NextResponse.json({
+        questions: [],
+        totalMembers: memberIds.length,
+        tagFilter,
+      });
+    }
+
+    // where 조건 구성
+    const whereConditions = [inArray(response.userId, memberIds)];
+    if(filteredQuestionIds !== null && filteredQuestionIds.length > 0) {
+      whereConditions.push(inArray(response.questionId, filteredQuestionIds));
+    }
+
+    const responses = await db
       .select({
         questionId: response.questionId,
         selectedOption: response.selectedOption,
       })
       .from(response)
-      .where(inArray(response.userId, memberIds));
-
-    // 태그 필터 적용
-    if(filteredQuestionIds !== null) {
-      if(filteredQuestionIds.length === 0) {
-        // 태그가 없으면 빈 결과
-        return NextResponse.json({
-          questions: [],
-          totalMembers: memberIds.length,
-          tagFilter,
-        });
-      }
-      responsesQuery = responsesQuery.where(
-        inArray(response.questionId, filteredQuestionIds)
-      ) as any;
-    }
-
-    const responses = await responsesQuery;
+      .where(and(...whereConditions));
 
     // 6. 질문별 응답 집계
     const questionStats = new Map<string, { A: number; B: number }>();
