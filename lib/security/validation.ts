@@ -113,14 +113,14 @@ export const paginationSchema = z.object({
  * 공개 설정 스키마
  */
 export const visibilitySchema = z.enum(['public', 'group', 'private'], {
-  errorMap: () => ({ message: '올바른 공개 설정이 아닙니다.' }),
+  message: '올바른 공개 설정이 아닙니다.',
 });
 
 /**
  * 선택 옵션 스키마 (A 또는 B)
  */
 export const choiceSchema = z.enum(['A', 'B'], {
-  errorMap: () => ({ message: '올바른 선택이 아닙니다.' }),
+  message: '올바른 선택이 아닙니다.',
 });
 
 /**

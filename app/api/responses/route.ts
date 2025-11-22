@@ -35,7 +35,7 @@ import { z } from 'zod';
 const ResponseSchema = z.object({
   questionId: z.string().min(1, '질문 ID는 필수입니다.'),
   selectedOption: z.enum(['A', 'B'], {
-    errorMap: () => ({ message: '선택지는 A 또는 B여야 합니다.' }),
+    message: '선택지는 A 또는 B여야 합니다.',
   }),
 });
 
