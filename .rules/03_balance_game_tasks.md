@@ -70,7 +70,7 @@
   - `google_id`, `email`, `display_name` 매핑
   - 기존 사용자 확인 로직
   
-- [ ] 2.5 인증 상태 관리
+- [x] 2.5 인증 상태 관리
   - `SessionProvider` 설정
   - 클라이언트 컴포넌트에서 `useSession` 훅 사용
   - 서버 컴포넌트에서 `getServerSession` 사용
