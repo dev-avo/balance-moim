@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { WarningModal } from '@/components/game/WarningModal';
 import { QuestionCard, QuestionCardSkeleton, QuestionData } from '@/components/game/QuestionCard';
 import { ResultCard, ResultCardSkeleton } from '@/components/game/ResultCard';
+import { TagFilter } from '@/components/game/TagFilter';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Button } from '@/components/ui/Button';
@@ -14,11 +16,12 @@ import { useToast } from '@/hooks/use-toast';
  * 
  * ## 게임 흐름
  * 1. 주의사항 모달 표시 (첫 방문 시)
- * 2. 랜덤 질문 가져오기
- * 3. 질문 표시 및 선택
- * 4. 응답 제출
- * 5. 결과 표시 (전체 통계 + 모임별 통계)
- * 6. 다음 질문으로 이동
+ * 2. 태그 필터 선택 (선택사항)
+ * 3. 랜덤 질문 가져오기
+ * 4. 질문 표시 및 선택
+ * 5. 응답 제출
+ * 6. 결과 표시 (전체 통계 + 모임별 통계)
+ * 7. 다음 질문으로 이동
  */
 
 type GameState = 'loading' | 'question' | 'submitting' | 'result' | 'error';
@@ -42,6 +45,7 @@ interface StatsData {
 }
 
 export default function PlayPage() {
+  const searchParams = useSearchParams();
   const [gameStarted, setGameStarted] = useState(false);
   const [gameState, setGameState] = useState<GameState>('loading');
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
@@ -55,7 +59,13 @@ export default function PlayPage() {
       setGameState('loading');
       setError(null);
 
-      const response = await fetch('/api/questions/random');
+      // URL에서 태그 파라미터 가져오기
+      const tags = searchParams.get('tags');
+      const url = tags 
+        ? `/api/questions/random?tags=${encodeURIComponent(tags)}`
+        : '/api/questions/random';
+
+      const response = await fetch(url);
 
       if(!response.ok) {
         const data = await response.json();
@@ -134,6 +144,13 @@ export default function PlayPage() {
     fetchRandomQuestion();
   };
 
+  // 태그가 변경되면 게임을 다시 시작
+  useEffect(() => {
+    if(gameStarted) {
+      fetchRandomQuestion();
+    }
+  }, [searchParams.get('tags')]);
+
   // 주의사항 모달 표시 중
   if(!gameStarted) {
     return (
@@ -170,12 +187,20 @@ export default function PlayPage() {
   // 질문 표시
   if(gameState === 'question' || gameState === 'submitting') {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
-        <QuestionCard
-          question={currentQuestion}
-          onSelect={handleSelect}
-          disabled={gameState === 'submitting'}
-        />
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        {/* 태그 필터 */}
+        <div className="mb-6">
+          <TagFilter />
+        </div>
+
+        {/* 질문 카드 */}
+        <div className="flex items-center justify-center">
+          <QuestionCard
+            question={currentQuestion}
+            onSelect={handleSelect}
+            disabled={gameState === 'submitting'}
+          />
+        </div>
       </div>
     );
   }
