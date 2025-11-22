@@ -1,49 +1,40 @@
 'use client';
 
-import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 /**
- * QuestionCard 컴포넌트
+ * QuestionCard Component - Apple MacBook Style
  * 
- * 밸런스 질문과 2개의 선택지를 표시합니다.
- * 
- * ## 디자인 요구사항
- * - 질문 제목을 명확히 표시
- * - 2개의 선택지를 큰 버튼으로 표시 (터치하기 쉽게)
- * - 태그 표시
- * - 모바일 친화적인 UI
- * 
- * ## Props
- * - question: 질문 데이터 (제목, 선택지, 태그)
- * - onSelect: 선택지 클릭 핸들러
- * - disabled: 버튼 비활성화 여부
+ * Apple 스타일의 밸런스 질문 카드입니다.
+ * - Glassmorphism 효과
+ * - 부드러운 애니메이션
+ * - 다크모드 지원
  */
 
-export interface QuestionData {
+interface Question {
   id: string;
   title: string;
   optionA: string;
   optionB: string;
-  tags: Array<{ id: string; name: string }>;
+  tags?: Array<{ id: string; name: string }>;
 }
 
 interface QuestionCardProps {
-  question: QuestionData;
+  question: Question;
   onSelect: (option: 'A' | 'B') => void;
   disabled?: boolean;
 }
 
 export function QuestionCard({ question, onSelect, disabled = false }: QuestionCardProps) {
   return (
-    <div className="w-full max-w-2xl mx-auto px-4">
+    <div className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* 태그 */}
-      {question.tags.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2 justify-center">
+      {question.tags && question.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 justify-center animate-in fade-in slide-in-from-bottom-2 duration-500">
           {question.tags.map((tag) => (
             <span
               key={tag.id}
-              className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
+              className="inline-flex items-center rounded-full glass border-2 border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary shadow-apple"
             >
               #{tag.name}
             </span>
@@ -52,42 +43,45 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
       )}
 
       {/* 질문 제목 */}
-      <div className="mb-8 rounded-lg bg-white p-6 shadow-md border border-gray-200">
-        <h2 className="text-2xl font-bold text-center text-gray-900 sm:text-3xl">
+      <div className="rounded-3xl glass border-2 border-border p-8 shadow-apple-lg animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
+        <h2 className="text-3xl font-bold text-center text-foreground sm:text-4xl">
           {question.title}
         </h2>
       </div>
 
       {/* VS 아이콘 */}
-      <div className="flex justify-center mb-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-lg">
+      <div className="flex justify-center animate-in fade-in zoom-in duration-500 delay-200">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl glass border-2 border-primary bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-bold text-xl shadow-apple-lg">
           VS
         </div>
       </div>
 
       {/* 선택지 버튼 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
         {/* 선택지 A */}
         <button
           onClick={() => onSelect('A')}
           disabled={disabled}
           className={cn(
-            'group relative overflow-hidden rounded-xl p-8 transition-all duration-200',
-            'bg-gradient-to-br from-blue-500 to-blue-600',
-            'hover:from-blue-600 hover:to-blue-700',
-            'hover:shadow-xl hover:scale-105',
+            'group relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 smooth-transition',
+            'min-h-[120px] sm:min-h-[160px]',
+            'glass border-2 border-primary/50 bg-gradient-to-br from-primary/20 to-primary/10',
+            'hover:from-primary/30 hover:to-primary/20',
+            'hover:shadow-apple-lg md:hover:scale-105 hover:border-primary',
+            'active:scale-95',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
-            'focus:outline-none focus:ring-4 focus:ring-blue-300'
+            'focus:outline-none focus:ring-4 focus:ring-primary/30',
+            'touch-manipulation'
           )}
           aria-label={`선택지 A: ${question.optionA}`}
         >
           {/* 배경 효과 */}
-          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/10 opacity-0 group-hover:opacity-100 smooth-transition" />
           
           {/* 선택지 레이블 */}
-          <div className="relative flex flex-col items-center gap-3">
-            <span className="text-4xl font-bold text-white opacity-80">A</span>
-            <span className="text-xl font-semibold text-white text-center break-words">
+          <div className="relative flex flex-col items-center gap-3 sm:gap-4">
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-primary opacity-80 group-hover:opacity-100 smooth-transition">A</span>
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-foreground text-center break-words group-hover:text-primary smooth-transition">
               {question.optionA}
             </span>
           </div>
@@ -98,22 +92,25 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
           onClick={() => onSelect('B')}
           disabled={disabled}
           className={cn(
-            'group relative overflow-hidden rounded-xl p-8 transition-all duration-200',
-            'bg-gradient-to-br from-purple-500 to-purple-600',
-            'hover:from-purple-600 hover:to-purple-700',
-            'hover:shadow-xl hover:scale-105',
+            'group relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 smooth-transition',
+            'min-h-[120px] sm:min-h-[160px]',
+            'glass border-2 border-secondary/50 bg-gradient-to-br from-secondary/20 to-secondary/10',
+            'hover:from-secondary/30 hover:to-secondary/20',
+            'hover:shadow-apple-lg md:hover:scale-105 hover:border-secondary',
+            'active:scale-95',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
-            'focus:outline-none focus:ring-4 focus:ring-purple-300'
+            'focus:outline-none focus:ring-4 focus:ring-secondary/30',
+            'touch-manipulation'
           )}
           aria-label={`선택지 B: ${question.optionB}`}
         >
           {/* 배경 효과 */}
-          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/0 to-secondary/10 opacity-0 group-hover:opacity-100 smooth-transition" />
           
           {/* 선택지 레이블 */}
-          <div className="relative flex flex-col items-center gap-3">
-            <span className="text-4xl font-bold text-white opacity-80">B</span>
-            <span className="text-xl font-semibold text-white text-center break-words">
+          <div className="relative flex flex-col items-center gap-3 sm:gap-4">
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-secondary-foreground opacity-80 group-hover:opacity-100 smooth-transition">B</span>
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-foreground text-center break-words group-hover:text-secondary-foreground smooth-transition">
               {question.optionB}
             </span>
           </div>
@@ -121,43 +118,11 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
       </div>
 
       {/* 안내 문구 */}
-      <p className="mt-6 text-center text-sm text-gray-500">
-        💡 한 번 선택하면 수정할 수 없습니다. 신중하게 선택해주세요!
-      </p>
+      {!disabled && (
+        <div className="text-center text-sm text-muted-foreground animate-in fade-in duration-500 delay-500">
+          ⚠️ 선택 후에는 수정할 수 없습니다
+        </div>
+      )}
     </div>
   );
 }
-
-/**
- * QuestionCardSkeleton 컴포넌트
- * 
- * 질문을 불러오는 동안 표시할 스켈레톤 UI입니다.
- */
-export function QuestionCardSkeleton() {
-  return (
-    <div className="w-full max-w-2xl mx-auto px-4 animate-pulse">
-      {/* 태그 스켈레톤 */}
-      <div className="mb-4 flex gap-2 justify-center">
-        <div className="h-6 w-16 bg-gray-200 rounded-full" />
-        <div className="h-6 w-20 bg-gray-200 rounded-full" />
-      </div>
-
-      {/* 질문 스켈레톤 */}
-      <div className="mb-8 rounded-lg bg-gray-100 p-6 shadow-md">
-        <div className="h-8 bg-gray-200 rounded mx-auto w-3/4" />
-      </div>
-
-      {/* VS 아이콘 */}
-      <div className="flex justify-center mb-8">
-        <div className="h-12 w-12 bg-gray-200 rounded-full" />
-      </div>
-
-      {/* 선택지 스켈레톤 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="h-40 bg-gray-200 rounded-xl" />
-        <div className="h-40 bg-gray-200 rounded-xl" />
-      </div>
-    </div>
-  );
-}
-

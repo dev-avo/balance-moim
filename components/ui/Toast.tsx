@@ -5,10 +5,12 @@ import * as ToastPrimitives from '@radix-ui/react-toast';
 import { cn } from '@/lib/utils';
 
 /**
- * Toast 컴포넌트
+ * Toast Component - Apple MacBook Style
  * 
- * 성공, 에러, 정보 등의 알림 메시지를 표시하는 토스트 컴포넌트입니다.
- * Radix UI Toast를 기반으로 구현되었습니다.
+ * Apple 스타일의 알림 토스트 컴포넌트입니다.
+ * - Glassmorphism 효과
+ * - 부드러운 애니메이션
+ * - 다크모드 지원
  * 
  * @example
  * ```tsx
@@ -55,19 +57,19 @@ const Toast = React.forwardRef<
     variant?: 'default' | 'success' | 'error' | 'warning';
   }
 >(({ className, variant = 'default', ...props }, ref) => {
-  // variant별 스타일
+  // variant별 스타일 (Apple 스타일)
   const variantStyles = {
-    default: 'bg-white border-gray-200',
-    success: 'bg-green-50 border-green-200',
-    error: 'bg-red-50 border-red-200',
-    warning: 'bg-yellow-50 border-yellow-200',
+    default: 'glass border-border',
+    success: 'glass border-green-500/30 bg-green-500/10',
+    error: 'glass border-red-500/30 bg-red-500/10',
+    warning: 'glass border-yellow-500/30 bg-yellow-500/10',
   };
 
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(
-        'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-lg border p-4 pr-8 shadow-lg transition-all',
+        'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border-2 p-5 pr-10 shadow-apple-lg smooth-transition backdrop-blur-xl',
         'data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full',
         variantStyles[variant],
@@ -86,7 +88,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2',
+      'inline-flex h-9 shrink-0 items-center justify-center rounded-lg border-2 border-border bg-transparent px-4 text-sm font-semibold smooth-transition hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
       className
     )}
     {...props}
@@ -101,7 +103,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      'absolute right-2 top-2 rounded-md p-1 text-gray-500 opacity-0 transition-opacity hover:text-gray-900 focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100',
+      'absolute right-3 top-3 rounded-lg p-1.5 text-muted-foreground opacity-70 transition-all hover:text-foreground hover:opacity-100 hover:bg-accent focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100',
       className
     )}
     toast-close=""
@@ -111,7 +113,7 @@ const ToastClose = React.forwardRef<
       className="h-4 w-4"
       fill="none"
       viewBox="0 0 24 24"
-      strokeWidth="2"
+      strokeWidth="2.5"
       stroke="currentColor"
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -126,7 +128,7 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
-    className={cn('text-sm font-semibold', className)}
+    className={cn('text-sm font-bold text-foreground', className)}
     {...props}
   />
 ));
@@ -138,7 +140,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn('text-sm opacity-90', className)}
+    className={cn('text-sm text-muted-foreground', className)}
     {...props}
   />
 ));

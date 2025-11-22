@@ -4,14 +4,23 @@ import Link from 'next/link';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { signIn, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { MobileNav } from './MobileNav';
 
+/**
+ * Header Component - Apple MacBook Style
+ * 
+ * Apple 스타일의 상단 네비게이션 바입니다.
+ * - Glassmorphism 효과
+ * - 다크모드 지원
+ * - 부드러운 애니메이션
+ */
 export function Header() {
   const { user, isAuthenticated, isLoading } = useCurrentUser();
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-white">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-40 w-full glass border-b border-border/40 backdrop-blur-xl">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8 max-w-[1400px] mx-auto">
         {/* 모바일 메뉴 + 로고 */}
         <div className="flex items-center space-x-2">
           <MobileNav />
@@ -45,18 +54,20 @@ export function Header() {
         </nav>
 
         {/* 사용자 메뉴 */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
           {isLoading ? (
-            <div className="h-9 w-20 animate-pulse rounded-md bg-gray-200" />
+            <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : isAuthenticated && user ? (
             <>
-              <span className="hidden lg:inline text-sm font-medium text-gray-700">
+              <span className="hidden lg:inline text-sm font-medium text-muted-foreground px-2">
                 {user.name}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => signOut()}
+                className="smooth-transition"
               >
                 로그아웃
               </Button>
@@ -65,6 +76,7 @@ export function Header() {
             <Button
               size="sm"
               onClick={() => signIn('google')}
+              className="smooth-transition"
             >
               로그인
             </Button>

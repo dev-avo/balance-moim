@@ -160,10 +160,10 @@ export default function GroupSettingsPage() {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               모임 관리
             </h1>
-            <p className="text-gray-600">{groupData.name}</p>
+            <p className="text-muted-foreground">{groupData.name}</p>
           </div>
           <Button
             variant="outline"
@@ -176,11 +176,11 @@ export default function GroupSettingsPage() {
 
       {/* 멤버 관리 */}
       <div>
-        <h2 className="mb-4 text-xl font-bold text-gray-900">
+        <h2 className="mb-4 text-xl font-bold text-foreground">
           멤버 관리 ({members.length}명)
         </h2>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {members.map((member) => {
             const isCreator = member.id === groupData.id;
             const isRemoving = removingMemberId === member.id;
@@ -188,21 +188,21 @@ export default function GroupSettingsPage() {
             return (
               <div
                 key={member.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4"
+                className="flex items-center justify-between rounded-2xl glass border-2 border-border p-4 shadow-apple"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-600">
-                    {member.name?.[0] || '?'}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full glass border border-border text-foreground font-semibold">
+                    {member.name?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-semibold text-foreground">
                       {member.name || '익명 사용자'}
                       {isCreator && (
-                        <span className="ml-2 text-sm text-blue-600">👑 생성자</span>
+                        <span className="ml-2 text-sm text-primary font-semibold">👑 생성자</span>
                       )}
                     </p>
                     {member.status === -1 && (
-                      <p className="text-sm text-gray-500">(탈퇴한 사용자)</p>
+                      <p className="text-sm text-muted-foreground">(탈퇴한 사용자)</p>
                     )}
                   </div>
                 </div>
@@ -224,14 +224,24 @@ export default function GroupSettingsPage() {
       </div>
 
       {/* 안내 문구 */}
-      <div className="mt-8 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-        <h3 className="text-sm font-semibold text-yellow-900 mb-2">
-          ⚠️ 주의사항
+      <div className="mt-8 rounded-2xl glass border-2 border-yellow-500/30 bg-yellow-500/10 p-6 shadow-apple">
+        <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+          <span className="text-2xl">⚠️</span>
+          주의사항
         </h3>
-        <ul className="space-y-1 text-sm text-yellow-800">
-          <li>• 추방된 멤버는 초대 링크를 통해 다시 참여할 수 있습니다.</li>
-          <li>• 추방된 멤버의 기존 응답은 유지됩니다.</li>
-          <li>• 생성자는 추방할 수 없습니다.</li>
+        <ul className="space-y-2 text-sm text-muted-foreground">
+          <li className="flex items-start gap-2">
+            <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+            <span>추방된 멤버는 초대 링크를 통해 다시 참여할 수 있습니다.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+            <span>추방된 멤버의 기존 응답은 유지됩니다.</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+            <span>생성자는 추방할 수 없습니다.</span>
+          </li>
         </ul>
       </div>
     </div>

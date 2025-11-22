@@ -1,10 +1,12 @@
 import { cn } from '@/lib/utils';
 
 /**
- * ErrorMessage 컴포넌트
+ * ErrorMessage Component - Apple MacBook Style
  * 
- * 에러 메시지를 표시합니다.
- * API 호출 실패, 폼 검증 오류 등에 사용됩니다.
+ * Apple 스타일의 에러 메시지 컴포넌트입니다.
+ * - Glassmorphism 효과
+ * - 부드러운 애니메이션
+ * - 다크모드 지원
  * 
  * @example
  * ```tsx
@@ -40,19 +42,19 @@ export function ErrorMessage({
   const content = (
     <div
       className={cn(
-        'rounded-lg border border-red-200 bg-red-50 p-4',
+        'rounded-2xl border-2 border-destructive/30 glass bg-destructive/10 p-6 shadow-apple smooth-transition',
         fullScreen && 'max-w-md',
         className
       )}
       role="alert"
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         {/* 에러 아이콘 */}
         <svg
-          className="h-5 w-5 flex-shrink-0 text-red-600"
+          className="h-6 w-6 flex-shrink-0 text-destructive"
           fill="none"
           viewBox="0 0 24 24"
-          strokeWidth="2"
+          strokeWidth="2.5"
           stroke="currentColor"
           aria-hidden="true"
         >
@@ -65,16 +67,16 @@ export function ErrorMessage({
 
         <div className="flex-1">
           {/* 제목 */}
-          <h3 className="text-sm font-semibold text-red-800">{title}</h3>
+          <h3 className="text-base font-bold text-foreground">{title}</h3>
           {/* 메시지 */}
-          <p className="mt-1 text-sm text-red-700">{message}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">{message}</p>
 
           {/* 재시도 버튼 */}
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-red-800 hover:text-red-900 underline"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/20 smooth-transition"
             >
               <svg
                 className="h-4 w-4"
@@ -110,7 +112,7 @@ export function ErrorMessage({
 }
 
 /**
- * FieldError 컴포넌트
+ * FieldError Component - Apple MacBook Style
  * 
  * 폼 필드의 검증 오류를 표시합니다.
  * 
@@ -122,14 +124,14 @@ export function ErrorMessage({
  */
 export function FieldError({ message }: { message: string }) {
   return (
-    <p className="mt-1 text-sm text-red-600" role="alert">
+    <p className="mt-2 text-sm font-medium text-destructive smooth-transition" role="alert">
       {message}
     </p>
   );
 }
 
 /**
- * NotFound 컴포넌트
+ * NotFound Component - Apple MacBook Style
  * 
  * 리소스를 찾을 수 없을 때 표시하는 컴포넌트입니다.
  * 
@@ -148,13 +150,13 @@ export function NotFound({
   backLabel?: string;
 }) {
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 p-4 text-center">
-      <div className="text-6xl">🔍</div>
-      <h2 className="text-2xl font-bold text-gray-900">404</h2>
-      <p className="text-gray-600">{message}</p>
+    <div className="flex min-h-[400px] flex-col items-center justify-center gap-6 p-6 text-center">
+      <div className="text-7xl opacity-80">🔍</div>
+      <h2 className="text-3xl font-bold text-foreground">404</h2>
+      <p className="text-base text-muted-foreground">{message}</p>
       <a
         href={backUrl}
-        className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90 smooth-transition active:scale-95"
       >
         {backLabel}
       </a>

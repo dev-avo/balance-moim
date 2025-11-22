@@ -105,8 +105,8 @@ export default function GroupsPage() {
       {/* 헤더 */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">내 모임</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground">내 모임</h1>
+          <p className="mt-2 text-muted-foreground">
             참여 중인 모임 {groups.length}개
           </p>
         </div>
@@ -117,12 +117,12 @@ export default function GroupsPage() {
 
       {/* 모임 목록 */}
       {groups.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <div className="text-5xl mb-4">👥</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div className="rounded-2xl border-2 border-dashed border-border glass p-12 text-center">
+          <div className="text-6xl mb-4 opacity-80">👥</div>
+          <h3 className="text-xl font-bold text-foreground mb-2">
             아직 참여한 모임이 없습니다
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             첫 번째 모임을 만들거나 초대 링크로 참여해보세요!
           </p>
           <Link href="/groups/create">
@@ -130,22 +130,22 @@ export default function GroupsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
           {groups.map((group) => (
             <Link
               key={group.id}
               href={`/groups/${group.id}`}
               className="block"
             >
-              <div className="h-full rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="h-full rounded-2xl border-2 border-border glass p-6 shadow-apple smooth-transition hover:shadow-apple-lg hover:border-primary/50">
                 {/* 모임 헤더 */}
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    <h3 className="text-xl font-bold text-foreground mb-2">
                       {group.name}
                     </h3>
                     {group.isCreator && (
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                      <span className="inline-flex items-center rounded-full bg-primary/20 px-3 py-1 text-xs font-semibold text-primary">
                         👑 생성자
                       </span>
                     )}
@@ -154,13 +154,13 @@ export default function GroupsPage() {
 
                 {/* 모임 설명 */}
                 {group.description && (
-                  <p className="mb-4 text-sm text-gray-600 line-clamp-2">
+                  <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
                     {group.description}
                   </p>
                 )}
 
                 {/* 통계 */}
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <svg
                       className="h-4 w-4"

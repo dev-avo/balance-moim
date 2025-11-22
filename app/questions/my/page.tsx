@@ -142,8 +142,8 @@ export default function MyQuestionsPage() {
       {/* 헤더 */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">내 질문</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground">내 질문</h1>
+          <p className="mt-2 text-muted-foreground">
             내가 만든 질문 {questions.length}개
           </p>
         </div>
@@ -154,12 +154,12 @@ export default function MyQuestionsPage() {
 
       {/* 질문 목록 */}
       {questions.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <div className="text-5xl mb-4">📝</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div className="rounded-2xl border-2 border-dashed border-border glass p-12 text-center">
+          <div className="text-6xl mb-4 opacity-80">📝</div>
+          <h3 className="text-xl font-bold text-foreground mb-2">
             아직 만든 질문이 없습니다
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             첫 번째 밸런스 질문을 만들어보세요!
           </p>
           <Link href="/questions/create">
@@ -181,22 +181,22 @@ export default function MyQuestionsPage() {
             return (
               <div
                 key={question.id}
-                className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-2xl glass border-2 border-border p-6 shadow-apple hover:shadow-apple-lg smooth-transition"
               >
                 {/* 질문 헤더 */}
-                <div className="mb-4 flex items-start justify-between">
+                <div className="mb-5 flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-foreground mb-3">
                       {question.title}
                     </h3>
                     
                     {/* 태그 */}
                     {question.tags.length > 0 && (
-                      <div className="mb-2 flex flex-wrap gap-2">
+                      <div className="mb-3 flex flex-wrap gap-2">
                         {question.tags.map((tag) => (
                           <span
                             key={tag.id}
-                            className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
+                            className="inline-flex items-center rounded-full glass border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
                           >
                             #{tag.name}
                           </span>
@@ -207,10 +207,10 @@ export default function MyQuestionsPage() {
                     {/* 공개 설정 배지 */}
                     <span
                       className={cn(
-                        'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
-                        question.visibility === 'public' && 'bg-green-100 text-green-800',
-                        question.visibility === 'private' && 'bg-gray-100 text-gray-800',
-                        question.visibility === 'group' && 'bg-purple-100 text-purple-800'
+                        'inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold shadow-apple',
+                        question.visibility === 'public' && 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30',
+                        question.visibility === 'private' && 'glass border border-border text-muted-foreground',
+                        question.visibility === 'group' && 'bg-secondary/20 text-secondary-foreground border border-secondary/30'
                       )}
                     >
                       {question.visibility === 'public' && '🌍 전체 공개'}
@@ -221,20 +221,20 @@ export default function MyQuestionsPage() {
                 </div>
 
                 {/* 선택지 및 통계 */}
-                <div className="mb-4 space-y-3">
+                <div className="mb-5 space-y-4">
                   {/* 선택지 A */}
                   <div>
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-sm font-semibold text-foreground">
                         A. {question.optionA}
                       </span>
-                      <span className="text-sm font-semibold text-blue-600">
+                      <span className="text-sm font-bold text-primary">
                         {question.stats.optionACount}명 ({optionAPercentage}%)
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div className="h-3 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
                       <div
-                        className="h-full bg-blue-500 transition-all duration-300"
+                        className="h-full bg-primary smooth-transition"
                         style={{ width: `${optionAPercentage}%` }}
                       />
                     </div>
@@ -242,17 +242,17 @@ export default function MyQuestionsPage() {
 
                   {/* 선택지 B */}
                   <div>
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-sm font-semibold text-foreground">
                         B. {question.optionB}
                       </span>
-                      <span className="text-sm font-semibold text-purple-600">
+                      <span className="text-sm font-bold text-secondary-foreground">
                         {question.stats.optionBCount}명 ({optionBPercentage}%)
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div className="h-3 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
                       <div
-                        className="h-full bg-purple-500 transition-all duration-300"
+                        className="h-full bg-secondary smooth-transition"
                         style={{ width: `${optionBPercentage}%` }}
                       />
                     </div>
@@ -260,14 +260,14 @@ export default function MyQuestionsPage() {
                 </div>
 
                 {/* 통계 요약 */}
-                <div className="mb-4 text-sm text-gray-600">
-                  총 <strong>{question.stats.totalResponses}명</strong>이 응답했습니다
+                <div className="mb-4 text-sm text-muted-foreground pt-4 border-t border-border/40">
+                  총 <strong className="text-foreground">{question.stats.totalResponses}명</strong>이 응답했습니다
                 </div>
 
                 {/* 액션 버튼 */}
-                <div className="flex gap-2">
-                  <Link href={`/questions/${question.id}/edit`}>
-                    <Button variant="outline" size="sm">
+                <div className="flex gap-3">
+                  <Link href={`/questions/${question.id}/edit`} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">
                       수정
                     </Button>
                   </Link>
@@ -275,6 +275,7 @@ export default function MyQuestionsPage() {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDelete(question.id)}
+                    className="flex-1"
                   >
                     삭제
                   </Button>

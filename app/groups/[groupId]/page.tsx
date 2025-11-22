@@ -144,12 +144,12 @@ export default function GroupDetailPage() {
   if(!groupData.isMember && isAuthenticated) {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="max-w-md text-center">
+        <div className="max-w-md text-center glass rounded-2xl border-2 border-border p-8 shadow-apple">
           <div className="text-6xl mb-4">🔒</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
             모임 멤버만 볼 수 있습니다
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             이 모임에 참여하려면 초대 링크가 필요합니다.
           </p>
           <Button onClick={() => router.push('/groups')}>내 모임으로 이동</Button>
@@ -164,11 +164,11 @@ export default function GroupDetailPage() {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               {groupData.name}
             </h1>
             {groupData.isCreator && (
-              <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+              <span className="inline-flex items-center rounded-full glass border border-primary/30 bg-primary/20 px-3 py-1 text-sm font-semibold text-primary shadow-apple">
                 👑 내가 만든 모임
               </span>
             )}
@@ -188,17 +188,17 @@ export default function GroupDetailPage() {
         </div>
 
         {groupData.description && (
-          <p className="text-gray-600">{groupData.description}</p>
+          <p className="text-muted-foreground">{groupData.description}</p>
         )}
       </div>
 
       {/* 통계 */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full glass border border-primary/30 bg-primary/20">
               <svg
-                className="h-6 w-6 text-blue-600"
+                className="h-6 w-6 text-primary"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth="2"
@@ -212,17 +212,17 @@ export default function GroupDetailPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-600">총 멤버</p>
-              <p className="text-2xl font-bold text-gray-900">{groupData.memberCount}명</p>
+              <p className="text-sm text-muted-foreground">총 멤버</p>
+              <p className="text-2xl font-bold text-foreground">{groupData.memberCount}명</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full glass border border-secondary/30 bg-secondary/20">
               <svg
-                className="h-6 w-6 text-purple-600"
+                className="h-6 w-6 text-secondary-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth="2"
@@ -236,8 +236,8 @@ export default function GroupDetailPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-600">총 응답</p>
-              <p className="text-2xl font-bold text-gray-900">{groupData.responseCount}개</p>
+              <p className="text-sm text-muted-foreground">총 응답</p>
+              <p className="text-2xl font-bold text-foreground">{groupData.responseCount}개</p>
             </div>
           </div>
         </div>

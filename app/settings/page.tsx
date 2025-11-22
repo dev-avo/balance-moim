@@ -227,65 +227,65 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">설정</h1>
-        <p className="mt-2 text-gray-600">계정 정보 및 설정을 관리합니다.</p>
+        <h1 className="text-3xl font-bold text-foreground">설정</h1>
+        <p className="mt-2 text-muted-foreground">계정 정보 및 설정을 관리합니다.</p>
       </div>
 
       {/* 계정 정보 */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">계정 정보</h2>
+      <div className="mb-8 rounded-2xl border-2 border-border glass p-6 shadow-apple">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">계정 정보</h2>
         <div className="space-y-3">
           <div>
-            <p className="text-sm text-gray-600">이메일</p>
-            <p className="font-medium text-gray-900">{userSettings.email}</p>
+            <p className="text-sm text-muted-foreground">이메일</p>
+            <p className="font-medium text-foreground">{userSettings.email}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">구글 계정명</p>
-            <p className="font-medium text-gray-900">{userSettings.displayName || '없음'}</p>
+            <p className="text-sm text-muted-foreground">구글 계정명</p>
+            <p className="font-medium text-foreground">{userSettings.displayName || '없음'}</p>
           </div>
         </div>
       </div>
 
       {/* 표시 이름 설정 */}
       <form onSubmit={handleSubmit(onSubmit)} className="mb-8">
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">표시 이름 설정</h2>
-          <p className="mb-4 text-sm text-gray-600">
+        <div className="rounded-2xl border-2 border-border glass p-6 shadow-apple">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">표시 이름 설정</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
             다른 사용자에게 어떻게 표시될지 선택하세요.
           </p>
 
           <div className="space-y-4">
             {/* 구글 계정명 사용 */}
-            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4 cursor-pointer hover:border-blue-300">
+            <label className="flex items-start gap-3 rounded-xl border-2 border-border p-4 cursor-pointer hover:border-primary smooth-transition bg-card">
               <input
                 type="radio"
                 value="false"
                 {...register('useNickname')}
                 checked={!useNickname}
                 onChange={() => reset({ useNickname: false, customNickname: '' })}
-                className="mt-1 h-4 w-4 text-blue-600"
+                className="mt-1 h-4 w-4 text-primary"
               />
               <div className="flex-1">
-                <p className="font-medium text-gray-900">구글 계정명 사용</p>
-                <p className="text-sm text-gray-600">
+                <p className="font-medium text-foreground">구글 계정명 사용</p>
+                <p className="text-sm text-muted-foreground">
                   {userSettings.displayName || '계정명이 없습니다'}
                 </p>
               </div>
             </label>
 
             {/* 익명 별명 사용 */}
-            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4 cursor-pointer hover:border-blue-300">
+            <label className="flex items-start gap-3 rounded-xl border-2 border-border p-4 cursor-pointer hover:border-primary smooth-transition bg-card">
               <input
                 type="radio"
                 value="true"
                 {...register('useNickname')}
                 checked={useNickname}
                 onChange={() => reset({ useNickname: true, customNickname: userSettings.customNickname || '' })}
-                className="mt-1 h-4 w-4 text-blue-600"
+                className="mt-1 h-4 w-4 text-primary"
               />
               <div className="flex-1">
-                <p className="font-medium text-gray-900">익명 별명 사용</p>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="font-medium text-foreground">익명 별명 사용</p>
+                <p className="text-sm text-muted-foreground mb-3">
                   다른 사용자에게 별명으로 표시됩니다
                 </p>
                 {useNickname && (
@@ -313,9 +313,9 @@ export default function SettingsPage() {
       </form>
 
       {/* 회원 탈퇴 */}
-      <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-        <h2 className="mb-2 text-lg font-semibold text-red-900">회원 탈퇴</h2>
-        <p className="mb-4 text-sm text-red-800">
+      <div className="rounded-2xl border-2 border-destructive/30 glass bg-destructive/10 p-6 shadow-apple">
+        <h2 className="mb-2 text-lg font-semibold text-foreground">회원 탈퇴</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
           탈퇴 시 모든 데이터가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
         </p>
         <Button
@@ -334,19 +334,19 @@ export default function SettingsPage() {
           </ModalHeader>
           <div className="space-y-4">
           {userSettings.createdGroupsCount > 0 && (
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-              <p className="text-sm font-semibold text-yellow-900">
+            <div className="rounded-xl border-2 border-yellow-500/30 bg-yellow-500/10 p-4">
+              <p className="text-sm font-semibold text-foreground">
                 ⚠️ 생성한 모임이 {userSettings.createdGroupsCount}개 있습니다
               </p>
-              <p className="mt-1 text-sm text-yellow-800">
+              <p className="mt-1 text-sm text-muted-foreground">
                 생성자가 탈퇴하면 모임이 남아있지만 관리할 수 없습니다.
                 먼저 다른 멤버에게 관리자 권한을 위임하거나 모임을 삭제해주세요.
               </p>
             </div>
           )}
 
-          <div className="text-sm text-gray-600">
-            <p className="font-semibold mb-2">탈퇴 시 삭제되는 정보:</p>
+          <div className="text-sm text-muted-foreground">
+            <p className="font-semibold mb-2 text-foreground">탈퇴 시 삭제되는 정보:</p>
             <ul className="list-disc list-inside space-y-1">
               <li>계정 정보</li>
               <li>작성한 질문 (통계에는 유지됩니다)</li>
@@ -356,7 +356,7 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               확인을 위해 "<strong>탈퇴하기</strong>"를 입력하세요
             </label>
             <Input

@@ -50,6 +50,7 @@ export default function CreateQuestionPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagSuggestions, setTagSuggestions] = useState<Array<{ id: string; name: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
 
   const {
     register,
@@ -125,13 +126,21 @@ export default function CreateQuestionPage() {
   };
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if(e.key === 'Enter') {
+    if(e.key === 'Enter' && !isComposing) {
       e.preventDefault();
       const value = tagInput.trim();
       if(value) {
         addTag(value);
       }
     }
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
   };
 
   const onSubmit = async (data: QuestionFormData) => {
@@ -196,8 +205,8 @@ export default function CreateQuestionPage() {
   return (
     <div className="mx-auto max-w-2xl py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">새 질문 만들기</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground">새 질문 만들기</h1>
+        <p className="mt-2 text-muted-foreground">
           재미있는 밸런스 질문을 만들어 친구들과 공유하세요!
         </p>
       </div>
@@ -205,8 +214,8 @@ export default function CreateQuestionPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* 질문 제목 */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-            질문 제목 <span className="text-red-600">*</span>
+          <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
+            질문 제목 <span className="text-destructive">*</span>
           </label>
           <Input
             id="title"
@@ -219,8 +228,8 @@ export default function CreateQuestionPage() {
 
         {/* 선택지 A */}
         <div>
-          <label htmlFor="optionA" className="block text-sm font-medium text-gray-700 mb-2">
-            선택지 A <span className="text-red-600">*</span>
+          <label htmlFor="optionA" className="block text-sm font-medium text-foreground mb-2">
+            선택지 A <span className="text-destructive">*</span>
           </label>
           <Input
             id="optionA"
@@ -233,8 +242,8 @@ export default function CreateQuestionPage() {
 
         {/* 선택지 B */}
         <div>
-          <label htmlFor="optionB" className="block text-sm font-medium text-gray-700 mb-2">
-            선택지 B <span className="text-red-600">*</span>
+          <label htmlFor="optionB" className="block text-sm font-medium text-foreground mb-2">
+            선택지 B <span className="text-destructive">*</span>
           </label>
           <Input
             id="optionB"
@@ -247,24 +256,24 @@ export default function CreateQuestionPage() {
 
         {/* 태그 입력 */}
         <div>
-          <label htmlFor="tagInput" className="block text-sm font-medium text-gray-700 mb-2">
-            태그 <span className="text-red-600">*</span>
-            <span className="ml-2 text-xs text-gray-500">(최소 1개, 최대 5개)</span>
+          <label htmlFor="tagInput" className="block text-sm font-medium text-foreground mb-2">
+            태그 <span className="text-destructive">*</span>
+            <span className="ml-2 text-xs text-muted-foreground">(최소 1개, 최대 5개)</span>
           </label>
           
           {/* 추가된 태그 목록 */}
           {tags.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-2">
+            <div className="mb-3 flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
+                  className="inline-flex items-center gap-2 rounded-full glass border-2 border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary shadow-apple"
                 >
                   #{tag}
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="ml-1 text-blue-600 hover:text-blue-800"
+                    className="text-primary hover:text-primary-foreground smooth-transition"
                   >
                     ×
                   </button>
@@ -281,18 +290,20 @@ export default function CreateQuestionPage() {
               placeholder="태그 입력 후 Enter"
               {...register('tagInput')}
               onKeyDown={handleTagInputKeyDown}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
               disabled={tags.length >= 5}
             />
 
             {/* 자동완성 제안 */}
             {tagSuggestions.length > 0 && (
-              <div className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg">
+              <div className="absolute z-10 mt-1 w-full rounded-2xl glass border-2 border-border shadow-apple-lg">
                 {tagSuggestions.map((suggestion) => (
                   <button
                     key={suggestion.id}
                     type="button"
                     onClick={() => addTag(suggestion.name)}
-                    className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                    className="block w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-xl smooth-transition first:rounded-t-2xl last:rounded-b-2xl"
                   >
                     #{suggestion.name}
                   </button>
@@ -300,7 +311,7 @@ export default function CreateQuestionPage() {
               </div>
             )}
           </div>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             태그를 입력하고 Enter를 누르세요. 기존 태그를 선택하거나 새로 만들 수 있습니다.
           </p>
         </div>

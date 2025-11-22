@@ -63,6 +63,7 @@ export default function EditQuestionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingQuestion, setIsLoadingQuestion] = useState(true);
   const [questionData, setQuestionData] = useState<QuestionData | null>(null);
+  const [isComposing, setIsComposing] = useState(false);
 
   const {
     register,
@@ -183,13 +184,21 @@ export default function EditQuestionPage() {
   };
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if(e.key === 'Enter') {
+    if(e.key === 'Enter' && !isComposing) {
       e.preventDefault();
       const value = tagInput.trim();
       if(value) {
         addTag(value);
       }
     }
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
   };
 
   const onSubmit = async (data: QuestionFormData) => {
@@ -338,6 +347,8 @@ export default function EditQuestionPage() {
               placeholder="태그 입력 후 Enter"
               {...register('tagInput')}
               onKeyDown={handleTagInputKeyDown}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
               disabled={tags.length >= 5}
             />
 

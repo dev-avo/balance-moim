@@ -106,8 +106,8 @@ export default function CreateGroupPage() {
   return (
     <div className="mx-auto max-w-2xl py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">새 모임 만들기</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground">새 모임 만들기</h1>
+        <p className="mt-2 text-muted-foreground">
           친구, 동료, 팀원들과 함께 밸런스 게임을 즐겨보세요!
         </p>
       </div>
@@ -115,8 +115,8 @@ export default function CreateGroupPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* 모임 이름 */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            모임 이름 <span className="text-red-600">*</span>
+          <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+            모임 이름 <span className="text-destructive">*</span>
           </label>
           <Input
             id="name"
@@ -125,14 +125,14 @@ export default function CreateGroupPage() {
             {...register('name')}
           />
           {errors.name && <FieldError message={errors.name.message!} />}
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             최대 30자까지 입력 가능합니다.
           </p>
         </div>
 
         {/* 모임 설명 */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
             모임 설명 (선택)
           </label>
           <textarea
@@ -140,24 +140,37 @@ export default function CreateGroupPage() {
             rows={4}
             placeholder="모임에 대한 간단한 설명을 입력하세요"
             {...register('description')}
-            className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="block w-full rounded-xl border-2 border-border glass px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 smooth-transition shadow-inner-apple"
           />
           {errors.description && <FieldError message={errors.description.message!} />}
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             최대 200자까지 입력 가능합니다.
           </p>
         </div>
 
         {/* 안내 문구 */}
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <h3 className="text-sm font-semibold text-blue-900 mb-2">
-            💡 모임 생성 후 할 수 있는 일
+        <div className="rounded-2xl border-2 border-primary/30 glass bg-primary/5 p-6">
+          <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+            <span className="text-xl">💡</span>
+            모임 생성 후 할 수 있는 일
           </h3>
-          <ul className="space-y-1 text-sm text-blue-800">
-            <li>• 초대 링크를 생성하여 친구들을 초대</li>
-            <li>• 모임 전용 밸런스 질문 만들기</li>
-            <li>• 모임 멤버들의 답변 비교 및 통계 확인</li>
-            <li>• 나와 취향이 비슷한 멤버 찾기</li>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>초대 링크를 생성하여 친구들을 초대</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>모임 전용 밸런스 질문 만들기</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>모임 멤버들의 답변 비교 및 통계 확인</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>나와 취향이 비슷한 멤버 찾기</span>
+            </li>
           </ul>
         </div>
 

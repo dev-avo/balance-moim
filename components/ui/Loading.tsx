@@ -1,9 +1,11 @@
 import { cn } from '@/lib/utils';
 
 /**
- * Loading 컴포넌트
+ * Loading Component - Apple MacBook Style
  * 
- * 로딩 상태를 나타내는 스피너를 표시합니다.
+ * Apple 스타일의 로딩 인디케이터입니다.
+ * - 부드러운 애니메이션
+ * - 다크모드 지원
  * 
  * @example
  * ```tsx
@@ -39,23 +41,23 @@ export function Loading({
   };
 
   const spinner = (
-    <div className={cn('flex flex-col items-center justify-center gap-2', className)}>
+    <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
       <div
         className={cn(
-          'animate-spin rounded-full border-blue-600 border-t-transparent',
+          'animate-spin rounded-full border-primary border-t-transparent smooth-transition',
           sizeClasses[size]
         )}
         role="status"
         aria-label="로딩 중"
       />
-      {text && <p className="text-sm text-gray-600">{text}</p>}
+      {text && <p className="text-sm font-medium text-muted-foreground">{text}</p>}
     </div>
   );
 
   // 전체 화면 로딩
   if(fullScreen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md smooth-transition">
         {spinner}
       </div>
     );
