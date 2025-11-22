@@ -59,8 +59,8 @@ export async function POST(
     }
 
     // 3. 초대 링크 만료 확인
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    if(invite[0].expiresAt && invite[0].expiresAt < currentTimestamp) {
+    const now = new Date();
+    if(invite[0].expiresAt && invite[0].expiresAt < now) {
       return NextResponse.json(
         { error: '초대 링크가 만료되었습니다.' },
         { status: 400 }
@@ -140,8 +140,8 @@ export async function GET(
     }
 
     // 2. 만료 여부 확인
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const isExpired = invite[0].expiresAt ? invite[0].expiresAt < currentTimestamp : false;
+    const now = new Date();
+    const isExpired = invite[0].expiresAt ? invite[0].expiresAt < now : false;
 
     // 3. 멤버 수 계산
     const memberCountResult = await db
@@ -157,7 +157,7 @@ export async function GET(
       groupName: invite[0].groupName,
       groupDescription: invite[0].groupDescription,
       memberCount,
-      expiresAt: invite[0].expiresAt,
+      expiresAt: invite[0].expiresAt ? Math.floor(invite[0].expiresAt.getTime() / 1000) : null,
       isExpired,
     });
   } catch(error) {

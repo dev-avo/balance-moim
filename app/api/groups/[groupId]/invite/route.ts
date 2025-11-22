@@ -83,8 +83,8 @@ export async function POST(
     // 4. 초대 링크 생성
     const inviteCode = generateId();
     
-    // 만료 시간: 현재 시간 + 30일
-    const expiresAt = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
+    // 만료 시간: 현재 시간 + 30일 (Date 객체로 생성)
+    const expiresAt = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000));
 
     const newInviteLink = {
       id: inviteCode,
@@ -104,7 +104,7 @@ export async function POST(
         message: '초대 링크가 생성되었습니다.',
         inviteCode,
         inviteUrl,
-        expiresAt,
+        expiresAt: expiresAt ? Math.floor(expiresAt.getTime() / 1000) : null,
       },
       { status: 201 }
     );
@@ -172,8 +172,8 @@ export async function GET(
         inviteUrl: `${process.env.NEXTAUTH_URL}/invite/${link.id}`,
         createdBy: link.createdBy,
         createdAt: link.createdAt,
-        expiresAt: link.expiresAt,
-        isExpired: link.expiresAt ? link.expiresAt < Math.floor(Date.now() / 1000) : false,
+        expiresAt: link.expiresAt ? Math.floor(link.expiresAt.getTime() / 1000) : null,
+        isExpired: link.expiresAt ? link.expiresAt < new Date() : false,
       })),
     });
   } catch(error) {
