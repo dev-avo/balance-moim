@@ -10,7 +10,11 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
         // 동적 import
+        const { setDb } = await import('../../../lib/db');
         const { getCurrentUser } = await import('../../../lib/auth/session');
+        
+        // D1 데이터베이스 설정 (getCurrentUser가 auth()를 호출하고 auth()가 DB를 사용하므로 필수)
+        setDb(context.env.DB);
         
         const currentUser = await getCurrentUser();
         
