@@ -3,6 +3,10 @@ import { db } from '@/lib/db';
 import { userGroup, groupMember, user as userTable, response } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth/session';
+import { z } from 'zod';
+import { sanitizeObject } from '@/lib/security/sanitize';
+import { groupNameSchema, groupDescriptionSchema } from '@/lib/security/validation';
+import { checkCanModifyGroup } from '@/lib/auth/permissions';
 
 /**
  * GET /api/groups/[groupId]
@@ -142,6 +146,105 @@ export async function GET(
     console.error('모임 상세 조회 오류:', error);
     return NextResponse.json(
       { error: '모임 정보를 가져오는 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/groups/[groupId]
+ * 
+ * 모임 정보를 수정합니다 (생성자 전용).
+ * 
+ * ## Request Body
+ * ```json
+ * {
+ *   "name": "새로운 모임 이름",
+ *   "description": "새로운 설명"
+ * }
+ * ```
+ * 
+ * ## 로직
+ * 1. 로그인 확인
+ * 2. 모임 존재 확인
+ * 3. 생성자 권한 확인
+ * 4. 입력 검증 및 Sanitize
+ * 5. 모임 정보 업데이트
+ * 
+ * ## 응답
+ * - 200: 수정 성공
+ * - 401: 로그인 필요
+ * - 403: 권한 없음
+ * - 404: 모임 없음
+ * - 400: 잘못된 요청
+ */
+
+const UpdateGroupSchema = z.object({
+  name: groupNameSchema,
+  description: groupDescriptionSchema,
+});
+
+export async function PATCH(
+  request: NextRequest,
+  context: RouteContext
+) {
+  try {
+    const { groupId } = await context.params;
+
+    // 1. 로그인 확인
+    const currentUser = await getCurrentUser();
+
+    if(!currentUser) {
+      return NextResponse.json(
+        { error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
+    }
+
+    // 2. 권한 확인 (모임 존재 + 생성자 권한)
+    const permissionCheck = await checkCanModifyGroup(currentUser.id, groupId);
+    if(!permissionCheck.allowed) {
+      return NextResponse.json(
+        { error: permissionCheck.reason || '권한이 없습니다.' },
+        { status: permissionCheck.reason?.includes('찾을 수 없습니다') ? 404 : 403 }
+      );
+    }
+
+    // 3. 요청 본문 파싱, Sanitize 및 검증
+    const body = await request.json();
+    const sanitizedBody = sanitizeObject(body);
+    const validation = UpdateGroupSchema.safeParse(sanitizedBody);
+
+    if(!validation.success) {
+      return NextResponse.json(
+        { error: validation.error.errors[0].message },
+        { status: 400 }
+      );
+    }
+
+    const { name, description } = validation.data;
+
+    // 4. 모임 정보 업데이트
+    await db
+      .update(userGroup)
+      .set({
+        name,
+        description: description || null,
+      })
+      .where(eq(userGroup.id, groupId));
+
+    return NextResponse.json({
+      message: '모임 정보가 수정되었습니다.',
+      group: {
+        id: groupId,
+        name,
+        description,
+      },
+    });
+  } catch(error) {
+    console.error('모임 정보 수정 오류:', error);
+    return NextResponse.json(
+      { error: '모임 정보를 수정하는 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

@@ -259,11 +259,10 @@ export default function SettingsPage() {
             <label className="flex items-start gap-3 rounded-xl border-2 border-border p-4 cursor-pointer hover:border-primary smooth-transition bg-card">
               <input
                 type="radio"
-                value="false"
-                {...register('useNickname')}
+                name="displayNameOption"
                 checked={!useNickname}
                 onChange={() => reset({ useNickname: false, customNickname: '' })}
-                className="mt-1 h-4 w-4 text-primary"
+                className="mt-1 h-4 w-4 text-primary accent-primary"
               />
               <div className="flex-1">
                 <p className="font-medium text-foreground">구글 계정명 사용</p>
@@ -277,11 +276,10 @@ export default function SettingsPage() {
             <label className="flex items-start gap-3 rounded-xl border-2 border-border p-4 cursor-pointer hover:border-primary smooth-transition bg-card">
               <input
                 type="radio"
-                value="true"
-                {...register('useNickname')}
-                checked={useNickname}
+                name="displayNameOption"
+                checked={useNickname === true}
                 onChange={() => reset({ useNickname: true, customNickname: userSettings.customNickname || '' })}
-                className="mt-1 h-4 w-4 text-primary"
+                className="mt-1 h-4 w-4 text-primary accent-primary"
               />
               <div className="flex-1">
                 <p className="font-medium text-foreground">익명 별명 사용</p>

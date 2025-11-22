@@ -2,20 +2,34 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { FieldError } from '@/components/ui/ErrorMessage';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useToast } from '@/hooks/use-toast';
+import { groupNameSchema, groupDescriptionSchema } from '@/lib/security/validation';
 
 /**
  * 모임 관리 페이지 (생성자 전용)
  * 
  * ## 기능
+ * - 모임 정보 수정 (이름, 설명)
  * - 멤버 목록 표시
  * - 멤버 추방 기능
  * - 생성자만 접근 가능
  */
+
+const GroupInfoSchema = z.object({
+  name: groupNameSchema,
+  description: groupDescriptionSchema,
+});
+
+type GroupInfoFormData = z.infer<typeof GroupInfoSchema>;
 
 interface GroupData {
   id: string;
@@ -43,6 +57,20 @@ export default function GroupSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [isSavingInfo, setIsSavingInfo] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<GroupInfoFormData>({
+    resolver: zodResolver(GroupInfoSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+    },
+  });
 
   // 모임 정보 가져오기
   useEffect(() => {
@@ -88,11 +116,56 @@ export default function GroupSettingsPage() {
 
       setGroupData(data.group);
       setMembers(data.members);
+
+      // 폼 초기값 설정
+      reset({
+        name: data.group.name,
+        description: data.group.description || '',
+      });
     } catch(err) {
       console.error('모임 정보 가져오기 오류:', err);
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const onSubmitGroupInfo = async (data: GroupInfoFormData) => {
+    try {
+      setIsSavingInfo(true);
+
+      const response = await fetch(`/api/groups/${groupId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          description: data.description || null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if(!response.ok) {
+        throw new Error(result.error || '모임 정보를 수정하는 데 실패했습니다.');
+      }
+
+      toast({
+        title: '저장 완료',
+        description: '모임 정보가 수정되었습니다.',
+        variant: 'success',
+      });
+
+      // 그룹 데이터 새로고침
+      fetchGroupData();
+    } catch(err) {
+      console.error('모임 정보 수정 오류:', err);
+      toast({
+        title: '저장 실패',
+        description: err instanceof Error ? err.message : '모임 정보를 수정하는 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
+    } finally {
+      setIsSavingInfo(false);
     }
   };
 
@@ -155,9 +228,9 @@ export default function GroupSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8">
+    <div className="mx-auto max-w-4xl py-8 space-y-8">
       {/* 헤더 */}
-      <div className="mb-8">
+      <div>
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -174,8 +247,52 @@ export default function GroupSettingsPage() {
         </div>
       </div>
 
+      {/* 모임 정보 수정 */}
+      <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
+        <h2 className="mb-4 text-xl font-bold text-foreground">
+          모임 정보
+        </h2>
+        
+        <form onSubmit={handleSubmit(onSubmitGroupInfo)} className="space-y-4">
+          {/* 모임 이름 */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+              모임 이름 <span className="text-destructive">*</span>
+            </label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="모임 이름 (2~50자)"
+              {...register('name')}
+            />
+            {errors.name && <FieldError message={errors.name.message!} />}
+          </div>
+
+          {/* 모임 설명 */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+              모임 설명
+            </label>
+            <textarea
+              id="description"
+              placeholder="모임에 대한 설명을 입력하세요 (최대 500자)"
+              {...register('description')}
+              className="w-full rounded-xl glass border-2 border-border bg-card text-foreground px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 smooth-transition shadow-inner-apple min-h-[100px] resize-y"
+            />
+            {errors.description && <FieldError message={errors.description.message!} />}
+          </div>
+
+          {/* 저장 버튼 */}
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSavingInfo}>
+              {isSavingInfo ? '저장 중...' : '변경사항 저장'}
+            </Button>
+          </div>
+        </form>
+      </div>
+
       {/* 멤버 관리 */}
-      <div>
+      <div className="rounded-2xl glass border-2 border-border p-6 shadow-apple">
         <h2 className="mb-4 text-xl font-bold text-foreground">
           멤버 관리 ({members.length}명)
         </h2>

@@ -391,7 +391,7 @@
 
 ---
 
-## 11. 보안 강화
+## 11. 보안 강화 ✅ (완료)
 - [x] 11.1 CSRF 방지 ✅
   - NextAuth.js 내장 CSRF 토큰 확인 완료 ✅
   - NextAuth.js가 자동으로 모든 POST/PUT/DELETE 요청에 CSRF 보호 제공 ✅
@@ -424,11 +424,19 @@
   - 질문 생성 API에 sanitize + 강화된 검증 적용 완료 ✅
   - 에러 메시지 포맷팅 함수 (formatZodError) ✅
   
-- [ ] 11.5 권한 체크 미들웨어 구현
-  - `/lib/auth/permissions.ts` 생성
-  - 모임 생성자 확인 함수
-  - 질문 작성자 확인 함수
-  - 모임 멤버 확인 함수
+- [x] 11.5 권한 체크 미들웨어 구현 ✅
+  - `/lib/auth/permissions.ts` 생성 완료 ✅
+  - 제공 함수:
+    - `checkIsGroupCreator` - 모임 생성자 확인 ✅
+    - `checkIsGroupMember` - 모임 멤버 확인 ✅
+    - `checkIsQuestionCreator` - 질문 작성자 확인 ✅
+    - `checkGroupExists` - 모임 존재 확인 ✅
+    - `checkQuestionExists` - 질문 존재 확인 ✅
+    - `checkIsGroupCreatorOrMember` - 생성자 또는 멤버 확인 ✅
+    - `checkCanModifyGroup` - 모임 수정 권한 확인 ✅
+    - `checkCanModifyQuestion` - 질문 수정 권한 확인 ✅
+    - `checkCanViewGroupResponses` - 모임 응답 조회 권한 확인 ✅
+  - 모임 수정 API에 권한 체크 적용 완료 ✅
 
 ---
 
