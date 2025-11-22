@@ -68,12 +68,10 @@ INSERT OR IGNORE INTO tag (id, name) VALUES
     sql += `INSERT OR IGNORE INTO question (id, title, option_a, option_b, visibility, creator_id, group_id, created_at, updated_at, status) VALUES `;
     sql += `('${questionId}', '${escapeSql(q.title)}', '${escapeSql(q.optionA)}', '${escapeSql(q.optionB)}', 'public', NULL, NULL, '${now}', '${now}', 1);\n`;
 
-    // 질문-태그 연결
+    // 질문-태그 연결 (태그 이름으로 조회하여 안전하게 삽입)
     q.tags.forEach((tagName) => {
-      const tagId = tagMap.get(tagName);
-      if (tagId) {
-        sql += `INSERT OR IGNORE INTO question_tag (question_id, tag_id) VALUES ('${questionId}', '${tagId}');\n`;
-      }
+      const escapedTagName = escapeSql(tagName);
+      sql += `INSERT OR IGNORE INTO question_tag (question_id, tag_id) SELECT '${questionId}', id FROM tag WHERE name = '${escapedTagName}' LIMIT 1;\n`;
     });
 
     sql += '\n';
