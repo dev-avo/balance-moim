@@ -75,7 +75,7 @@
   - 클라이언트 컴포넌트에서 `useSession` 훅 사용
   - 서버 컴포넌트에서 `getServerSession` 사용
   
-- [ ] 2.6 사용자 설정 API 구현
+- [x] 2.6 사용자 설정 API 구현
   - `PATCH /api/users/settings` 엔드포인트 생성
   - 표시 이름 설정 로직 (구글 계정명 vs 익명 별명)
   - `use_nickname`, `custom_nickname` 업데이트
