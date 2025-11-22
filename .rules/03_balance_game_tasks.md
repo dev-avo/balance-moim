@@ -88,13 +88,13 @@
 ---
 
 ## 3. 디자인 시스템 및 공통 컴포넌트 구축
-- [ ] 3.1 Radix UI 설치 및 기본 컴포넌트 래핑
+- [x] 3.1 Radix UI 설치 및 기본 컴포넌트 래핑
   - `@radix-ui/react-*` 필요한 패키지 설치
   - `/components/ui/Button.tsx` 생성
   - `/components/ui/Modal.tsx` 생성
   - `/components/ui/Input.tsx` 생성
   
-- [ ] 3.2 레이아웃 컴포넌트 구현
+- [x] 3.2 레이아웃 컴포넌트 구현
   - `/components/layout/Header.tsx` (로고, 로그인 버튼, 네비게이션)
   - `/components/layout/Sidebar.tsx` (모임 목록)
   - `/app/layout.tsx` 루트 레이아웃 설정
