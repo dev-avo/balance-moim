@@ -1,0 +1,6 @@
+# Cloudflare Pages 빌드 시 무시할 파일
+# wrangler.toml은 로컬 개발용이므로 Pages 빌드에서는 무시
+
+wrangler.toml
+.wrangler/
+

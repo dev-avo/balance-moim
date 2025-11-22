@@ -44,12 +44,20 @@
 | **Root directory** | `/` (기본값) |
 | **Node.js version** | `22.13.1` |
 
-**참고**: Framework preset을 Next.js로 선택하면 일부 설정이 자동으로 채워집니다.
+**중요**: 
+- Framework preset을 **반드시 `Next.js`로 선택**해야 합니다
+- `wrangler.toml` 파일이 있어도 Next.js 빌드에는 영향을 주지 않습니다
+- `.cloudflareignore` 파일이 `wrangler.toml`을 빌드에서 제외합니다
 
 **빌드 최적화**: 
 - 타입 체크와 린트는 빌드 단계에서 제외되어 빌드 시간이 단축됩니다
 - 타입 에러와 린트 에러는 로컬에서 확인 후 푸시하세요
 - 빌드 타임아웃(20분)을 방지하기 위해 최적화 설정이 적용되어 있습니다
+
+**Wrangler 에러 발생 시**:
+- Framework preset이 `Next.js`로 설정되어 있는지 확인
+- Build command가 `npm run build`인지 확인
+- Build output directory가 `.next`인지 확인
 
 ### Step 5: 환경 변수 설정 (나중에)
 
