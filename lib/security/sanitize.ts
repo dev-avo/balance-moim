@@ -1,4 +1,5 @@
-import DOMPurify from 'isomorphic-dompurify';
+// Edge Runtime 호환: isomorphic-dompurify를 사용하지 않고 정규식 기반 sanitize 사용
+// Edge Runtime에서는 window 객체가 없으므로 DOMPurify를 사용할 수 없음
 
 /**
  * XSS 방지를 위한 HTML Sanitize 유틸리티
@@ -12,7 +13,23 @@ import DOMPurify from 'isomorphic-dompurify';
  * ## 설명
  * - sanitizeHtml: HTML 태그를 허용하되 위험한 스크립트는 제거
  * - sanitizeText: 모든 HTML 태그 제거 (순수 텍스트만)
+ * 
+ * ## Edge Runtime 호환
+ * - Edge Runtime에서는 DOMPurify를 사용할 수 없으므로 정규식 기반 sanitize 사용
  */
+
+/**
+ * 간단한 정규식 기반 HTML sanitize (Edge Runtime 호환)
+ */
+function simpleSanitizeHtml(dirty: string): string {
+  return dirty
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '');
+}
 
 /**
  * HTML을 sanitize합니다.
@@ -22,11 +39,8 @@ import DOMPurify from 'isomorphic-dompurify';
  * @returns 안전한 HTML
  */
 export function sanitizeHtml(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
-    ALLOWED_ATTR: ['href'],
-    ALLOW_DATA_ATTR: false,
-  });
+  // Edge Runtime 호환: 정규식 기반 sanitize 사용
+  return simpleSanitizeHtml(dirty);
 }
 
 /**
@@ -36,10 +50,14 @@ export function sanitizeHtml(dirty: string): string {
  * @returns 안전한 순수 텍스트
  */
 export function sanitizeText(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
+  // Edge Runtime 호환: 모든 HTML 태그 제거
+  return dirty
+    .replace(/<[^>]*>/g, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
 }
 
 /**

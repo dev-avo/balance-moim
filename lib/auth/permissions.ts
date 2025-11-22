@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { userGroup, groupMember, question } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
@@ -31,6 +31,7 @@ export async function checkIsGroupCreator(
   groupId: string
 ): Promise<boolean> {
   try {
+    const db = getDb();
     const result = await db
       .select({ creatorId: userGroup.creatorId })
       .from(userGroup)
@@ -60,6 +61,7 @@ export async function checkIsGroupMember(
   groupId: string
 ): Promise<boolean> {
   try {
+    const db = getDb();
     const result = await db
       .select()
       .from(groupMember)
@@ -90,6 +92,7 @@ export async function checkIsQuestionCreator(
   questionId: string
 ): Promise<boolean> {
   try {
+    const db = getDb();
     const result = await db
       .select({ creatorId: question.creatorId })
       .from(question)
@@ -115,6 +118,7 @@ export async function checkIsQuestionCreator(
  */
 export async function checkGroupExists(groupId: string): Promise<boolean> {
   try {
+    const db = getDb();
     const result = await db
       .select({ id: userGroup.id })
       .from(userGroup)
@@ -136,6 +140,7 @@ export async function checkGroupExists(groupId: string): Promise<boolean> {
  */
 export async function checkQuestionExists(questionId: string): Promise<boolean> {
   try {
+    const db = getDb();
     const result = await db
       .select({ id: question.id })
       .from(question)
