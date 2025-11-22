@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { type ThemeProviderProps } from 'next-themes/dist/types';
 
 /**
  * Theme Provider
@@ -12,7 +11,10 @@ import { type ThemeProviderProps } from 'next-themes/dist/types';
  * - localStorage에 사용자 선택 저장
  * - 부드러운 테마 전환
  */
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
