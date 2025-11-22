@@ -266,6 +266,11 @@ export default function MyQuestionsPage() {
 
                 {/* 액션 버튼 */}
                 <div className="flex gap-2">
+                  <Link href={`/questions/${question.id}/edit`}>
+                    <Button variant="outline" size="sm">
+                      수정
+                    </Button>
+                  </Link>
                   <Button
                     variant="destructive"
                     size="sm"

@@ -195,10 +195,10 @@
   - `deleted_at IS NULL` 조건
   - 정렬: 최신순
   
-- [ ] 5.7 질문 수정 기능 구현
-  - `/app/questions/[id]/edit/page.tsx` 페이지 생성
+- [x] 5.7 질문 수정 기능 구현
+  - `/app/questions/[questionId]/edit/page.tsx` 페이지 생성
   - 기존 질문 데이터 불러오기
-  - `PATCH /api/questions/:id` 엔드포인트 생성
+  - `PATCH /api/questions/[questionId]` 엔드포인트 생성
   - 제목, 선택지, 태그, 공개 설정 수정 가능
   
 - [x] 5.8 질문 삭제 기능 구현 (Soft Delete)
