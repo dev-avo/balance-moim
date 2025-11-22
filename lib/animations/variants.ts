@@ -18,7 +18,7 @@
  * ```
  */
 
-import { Variants } from 'framer-motion';
+import { Variants, TargetAndTransition } from 'framer-motion';
 
 /**
  * 페이드 인 애니메이션
@@ -193,11 +193,11 @@ export const scaleDown: Variants = {
  * 버튼 탭 애니메이션
  * 클릭 시 약간 줄어드는 효과
  */
-export const buttonTap = {
+export const buttonTap: TargetAndTransition = {
   scale: 0.95,
   transition: {
     duration: 0.1,
-    ease: 'easeInOut',
+    ease: [0.42, 0, 0.58, 1], // easeInOut
   },
 };
 
@@ -205,11 +205,11 @@ export const buttonTap = {
  * 버튼 호버 애니메이션
  * 호버 시 약간 커지는 효과
  */
-export const buttonHover = {
+export const buttonHover: TargetAndTransition = {
   scale: 1.02,
   transition: {
     duration: 0.2,
-    ease: 'easeOut',
+    ease: [0.25, 0.46, 0.45, 0.94], // easeOut
   },
 };
 
