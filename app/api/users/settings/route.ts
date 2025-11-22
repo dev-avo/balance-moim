@@ -8,7 +8,17 @@ import { eq } from 'drizzle-orm';
 // 입력 유효성 검사 스키마
 const updateSettingsSchema = z.object({
   useNickname: z.boolean(),
-  customNickname: z.string().min(2, '별명은 최소 2자 이상이어야 합니다').max(12, '별명은 최대 12자까지 가능합니다').optional(),
+  customNickname: z.string()
+    .refine((val) => {
+      // 빈 문자열이나 null은 허용 (구글 계정명 사용 시)
+      if(!val || val === '') return true;
+      // 별명 사용 시 검증
+      return val.length >= 2 && val.length <= 12;
+    }, {
+      message: '별명은 2~12자여야 합니다.',
+    })
+    .nullable()
+    .optional(),
 });
 
 /**

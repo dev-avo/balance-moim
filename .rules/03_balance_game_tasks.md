@@ -532,28 +532,53 @@
 
 ---
 
-## 15. Cloudflare Pages 배포 설정
-- [ ] 15.1 Cloudflare Pages 프로젝트 생성
+## 15. Cloudflare Pages 배포 설정 ✅ (문서 완성)
+- [x] 15.1 배포 문서 작성 ✅
+  - README.md 생성 완료 ✅
+  - DEPLOYMENT.md 상세 가이드 작성 완료 ✅
+  - 프로젝트 구조 문서화 ✅
+  - 개발 가이드 작성 ✅
+  
+- [ ] 15.2 Google OAuth 설정 (수동)
+  - Google Cloud Console에서 OAuth 클라이언트 생성
+  - 프로덕션 도메인 승인된 JavaScript 원본에 추가
+  - 리디렉션 URI 설정
+  
+- [ ] 15.3 Cloudflare D1 프로덕션 DB 설정 (수동)
+  - `npx wrangler d1 create balance-moim-db-prod` 실행
+  - `wrangler.toml`에 프로덕션 DB ID 추가
+  - `npm run db:migrate:prod` 실행
+  - 프로덕션 DB 시딩
+  
+- [ ] 15.4 Cloudflare Pages 프로젝트 생성 (수동)
   - GitHub 저장소 연결
-  - 빌드 설정 (`next build`)
-  - 출력 디렉토리 (`out` 또는 `.next`)
+  - 빌드 설정: `npm run build`, `.next`
+  - D1 바인딩 설정 (Variable: DB)
+  - 환경 변수 설정:
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
+    - NEXTAUTH_SECRET
+    - NEXTAUTH_URL
+    - NODE_VERSION=22.13.1
   
-- [ ] 15.2 환경 변수 설정
-  - Cloudflare Pages 대시보드에서 환경 변수 추가
-  - `NEXTAUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` 등
+- [ ] 15.5 첫 배포 실행 (수동)
+  - Git push로 자동 배포 트리거
+  - 빌드 로그 확인
+  - 배포 성공 확인
   
-- [ ] 15.3 next.config.js 설정
-  - `output: 'export'` 또는 Cloudflare Pages 어댑터 설정
-  - 이미지 최적화 설정
+- [ ] 15.6 배포 후 테스트 (수동)
+  - 홈 페이지 접속
+  - Google 로그인 테스트
+  - 밸런스 게임 플레이
+  - 모임 생성 및 초대
+  - 다크모드 전환
+  - 모바일/태블릿 반응형 확인
   
-- [ ] 15.4 도메인 연결
-  - Cloudflare DNS 설정
-  - 커스텀 도메인 연결
+- [ ] 15.7 커스텀 도메인 설정 (선택사항)
+  - Cloudflare Pages에서 커스텀 도메인 추가
+  - DNS 레코드 설정 (CNAME)
   - SSL/TLS 설정 확인
-  
-- [ ] 15.5 배포 테스트
-  - Git push로 자동 배포 확인
-  - 프로덕션 환경에서 전체 기능 테스트
+  - Google OAuth 리디렉션 URI 업데이트
 
 ---
 

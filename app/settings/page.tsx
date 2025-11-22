@@ -27,9 +27,14 @@ const SettingsFormSchema = z.object({
   useNickname: z.boolean(),
   customNickname: z
     .string()
-    .min(2, '별명은 최소 2자 이상이어야 합니다.')
-    .max(12, '별명은 최대 12자까지 가능합니다.')
-    .regex(/^[가-힣a-zA-Z0-9_]+$/, '별명은 한글, 영문, 숫자, _만 사용 가능합니다.')
+    .refine((val) => {
+      // 빈 문자열은 허용 (구글 계정명 사용 시)
+      if(val === '' || val === undefined) return true;
+      // 별명 사용 시 검증
+      return val.length >= 2 && val.length <= 12 && /^[가-힣a-zA-Z0-9_]+$/.test(val);
+    }, {
+      message: '별명은 2~12자의 한글, 영문, 숫자, _만 사용 가능합니다.',
+    })
     .optional(),
 });
 

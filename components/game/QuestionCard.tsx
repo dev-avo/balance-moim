@@ -67,7 +67,7 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
         className="flex justify-center"
         variants={staggerItem}
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl glass border-2 border-primary bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-bold text-xl shadow-apple-lg">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl glass border-2 border-primary bg-gradient-to-br from-primary/80 to-primary text-white font-bold text-xl shadow-apple-lg">
           VS
         </div>
       </motion.div>

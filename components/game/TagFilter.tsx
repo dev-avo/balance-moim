@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * TagFilter 컴포넌트
@@ -29,6 +30,14 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(() => {
+    // localStorage에서 초기 상태 로드 (기본값: true)
+    if(typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tagFilterExpanded');
+      return saved === null ? true : saved === 'true';
+    }
+    return true;
+  });
 
   // URL에서 선택된 태그 로드
   useEffect(() => {
@@ -104,6 +113,15 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
     }
   };
 
+  const toggleExpanded = () => {
+    const newExpanded = !isExpanded;
+    setIsExpanded(newExpanded);
+    // localStorage에 상태 저장
+    if(typeof window !== 'undefined') {
+      localStorage.setItem('tagFilterExpanded', String(newExpanded));
+    }
+  };
+
   if(isLoading) {
     return (
       <div className="rounded-2xl glass border-2 border-border p-4 shadow-apple">
@@ -120,12 +138,24 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
   }
 
   return (
-    <div className="rounded-2xl glass border-2 border-border p-4 shadow-apple">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-bold text-foreground">
+    <div className="rounded-2xl glass border-2 border-border shadow-apple overflow-hidden">
+      {/* 헤더 (항상 표시) */}
+      <div className="p-4 flex items-center justify-between">
+        <button
+          onClick={toggleExpanded}
+          className="flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary smooth-transition"
+        >
+          <span className="text-lg smooth-transition" style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+            ▼
+          </span>
           🏷️ 태그 필터
-        </h3>
-        {selectedTags.length > 0 && (
+          {selectedTags.length > 0 && (
+            <span className="ml-2 rounded-full glass border-2 border-primary bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+              {selectedTags.length}
+            </span>
+          )}
+        </button>
+        {selectedTags.length > 0 && isExpanded && (
           <button
             onClick={handleClearAll}
             className="text-sm text-primary hover:underline font-semibold smooth-transition"
@@ -135,31 +165,48 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {tags.map((tag) => {
-          const isSelected = selectedTags.includes(tag.name);
-          
-          return (
-            <button
-              key={tag.id}
-              onClick={() => handleTagToggle(tag.name)}
-              className={`rounded-full px-3 py-1.5 text-sm font-semibold smooth-transition shadow-apple ${
-                isSelected
-                  ? 'bg-primary text-primary-foreground border-2 border-primary'
-                  : 'glass border-2 border-border text-foreground hover:border-primary hover:bg-accent'
-              }`}
-            >
-              {isSelected && '✓ '}#{tag.name}
-            </button>
-          );
-        })}
-      </div>
+      {/* 콘텐츠 (접을 수 있음) */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-3">
+              {/* 태그 버튼들 */}
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => {
+                  const isSelected = selectedTags.includes(tag.name);
+                  
+                  return (
+                    <button
+                      key={tag.id}
+                      onClick={() => handleTagToggle(tag.name)}
+                      className={`rounded-full px-3 py-1.5 text-sm font-semibold smooth-transition shadow-apple ${
+                        isSelected
+                          ? 'bg-primary text-white border-2 border-primary'
+                          : 'glass border-2 border-border text-foreground hover:border-primary hover:bg-accent'
+                      }`}
+                    >
+                      {isSelected && '✓ '}#{tag.name}
+                    </button>
+                  );
+                })}
+              </div>
 
-      {selectedTags.length > 0 && (
-        <div className="mt-3 rounded-xl glass border-2 border-primary/30 bg-primary/5 p-2 text-sm text-foreground shadow-inner-apple">
-          <strong className="text-primary">{selectedTags.length}개 태그</strong> 선택됨: {selectedTags.map(t => `#${t}`).join(', ')}
-        </div>
-      )}
+              {/* 선택된 태그 요약 */}
+              {selectedTags.length > 0 && (
+                <div className="rounded-xl glass border-2 border-primary/30 bg-primary/5 p-2 text-sm text-foreground shadow-inner-apple">
+                  <strong className="text-primary">{selectedTags.length}개 태그</strong> 선택됨: {selectedTags.map(t => `#${t}`).join(', ')}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
