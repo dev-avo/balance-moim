@@ -123,10 +123,10 @@ export function ResultCard({ question, stats }: ResultCardProps) {
               <div className="flex items-center gap-3">
                 <span
                   className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-xl text-base font-bold text-secondary-foreground shadow-apple smooth-transition',
+                    'flex h-10 w-10 items-center justify-center rounded-xl text-base font-bold text-white shadow-apple smooth-transition',
                     userSelection === 'B' 
-                      ? 'bg-secondary ring-4 ring-secondary/30 scale-110' 
-                      : 'bg-secondary/80'
+                      ? 'bg-orange-500 ring-4 ring-orange-500/30 scale-110' 
+                      : 'bg-orange-500/80'
                   )}
                 >
                   B
@@ -136,20 +136,20 @@ export function ResultCard({ question, stats }: ResultCardProps) {
                     {question.optionB}
                   </span>
                   {userSelection === 'B' && (
-                    <span className="text-sm text-secondary-foreground font-medium flex items-center gap-1 mt-1">
+                    <span className="text-sm text-orange-600 dark:text-orange-400 font-medium flex items-center gap-1 mt-1">
                       <span>✓</span>
                       내 선택
                     </span>
                   )}
                 </div>
               </div>
-              <span className="text-2xl font-bold text-secondary-foreground">
+              <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {stats.optionBPercentage}%
               </span>
             </div>
             <ProgressBar
               percentage={stats.optionBPercentage}
-              color="bg-gradient-to-r from-secondary/80 to-secondary"
+              color="bg-gradient-to-r from-orange-500/80 to-orange-500"
               height="h-6"
               delay={0.3}
             />
@@ -205,18 +205,18 @@ export function ResultCard({ question, stats }: ResultCardProps) {
 
                   {/* 모임 내 옵션 B */}
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-xs font-bold text-secondary-foreground shadow-apple">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500 text-xs font-bold text-white shadow-apple">
                       B
                     </span>
                     <div className="flex-1">
                       <ProgressBar
                         percentage={groupStat.optionBPercentage}
-                        color="bg-secondary"
+                        color="bg-orange-500"
                         height="h-4"
                         delay={0.6 + index * 0.1}
                       />
                     </div>
-                    <span className="w-14 text-right text-sm font-bold text-secondary-foreground">
+                    <span className="w-14 text-right text-sm font-bold text-orange-600 dark:text-orange-400">
                       {groupStat.optionBPercentage}%
                     </span>
                   </div>

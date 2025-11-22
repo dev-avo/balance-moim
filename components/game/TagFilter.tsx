@@ -177,7 +177,7 @@ export function TagFilter({ onTagChange }: TagFilterProps) {
           >
             <div className="px-4 pb-4 space-y-3">
               {/* 태그 버튼들 */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2">
                 {tags.map((tag) => {
                   const isSelected = selectedTags.includes(tag.name);
                   

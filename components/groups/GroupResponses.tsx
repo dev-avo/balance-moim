@@ -202,7 +202,7 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
                 <ProgressBar
                   percentage={q.optionBPercentage}
                   label={q.optionB}
-                  color="bg-secondary"
+                  color="bg-orange-500"
                   height="h-3"
                   delay={index * 0.1 + 0.1}
                 />

@@ -62,21 +62,15 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
         </h2>
       </motion.div>
 
-      {/* VS 아이콘 */}
-      <motion.div
-        className="flex justify-center"
-        variants={staggerItem}
-      >
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl glass border-2 border-primary bg-gradient-to-br from-primary/80 to-primary text-white font-bold text-xl shadow-apple-lg">
-          VS
-        </div>
-      </motion.div>
-
       {/* 선택지 버튼 */}
       <motion.div
-        className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2"
+        className="relative grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2"
         variants={staggerItem}
       >
+        {/* VS 텍스트 (선택지 사이 중앙) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none hidden md:block">
+          <span className="text-4xl font-black text-foreground/60 drop-shadow-lg">VS</span>
+        </div>
         {/* 선택지 A */}
         <motion.button
           onClick={() => onSelect('A')}
@@ -116,22 +110,22 @@ export function QuestionCard({ question, onSelect, disabled = false }: QuestionC
           className={cn(
             'group relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 smooth-transition',
             'min-h-[120px] sm:min-h-[160px]',
-            'glass border-2 border-secondary/50 bg-gradient-to-br from-secondary/20 to-secondary/10',
-            'hover:from-secondary/30 hover:to-secondary/20',
-            'hover:shadow-apple-lg hover:border-secondary',
+            'glass border-2 border-orange-500/50 bg-gradient-to-br from-orange-500/20 to-orange-500/10',
+            'hover:from-orange-500/30 hover:to-orange-500/20',
+            'hover:shadow-apple-lg hover:border-orange-500',
             'disabled:opacity-50 disabled:cursor-not-allowed',
-            'focus:outline-none focus:ring-4 focus:ring-secondary/30',
+            'focus:outline-none focus:ring-4 focus:ring-orange-500/30',
             'touch-manipulation'
           )}
           aria-label={`선택지 B: ${question.optionB}`}
         >
           {/* 배경 효과 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/0 to-secondary/10 opacity-0 group-hover:opacity-100 smooth-transition" />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-orange-500/10 opacity-0 group-hover:opacity-100 smooth-transition" />
           
           {/* 선택지 레이블 */}
           <div className="relative flex flex-col items-center gap-3 sm:gap-4">
-            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-secondary-foreground opacity-80 group-hover:opacity-100 smooth-transition">B</span>
-            <span className="text-lg sm:text-xl md:text-2xl font-bold text-foreground text-center break-words group-hover:text-secondary-foreground smooth-transition">
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black text-orange-600 dark:text-orange-400 opacity-80 group-hover:opacity-100 smooth-transition">B</span>
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-foreground text-center break-words group-hover:text-orange-600 dark:group-hover:text-orange-400 smooth-transition">
               {question.optionB}
             </span>
           </div>
