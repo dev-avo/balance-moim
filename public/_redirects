@@ -1,16 +1,1 @@
-# 정적 파일은 제외하고 나머지만 index.html로
-/css/*    /css/*    200
-/js/*     /js/*     200
-/public/* /public/*  200
-/*.css    /*.css     200
-/*.js     /*.js      200
-/*.json   /*.json    200
-/*.svg    /*.svg     200
-/*.png    /*.png     200
-/*.jpg    /*.jpg     200
-/*.jpeg   /*.jpeg    200
-/*.gif    /*.gif     200
-/*.ico    /*.ico     200
-
-# 나머지 모든 경로는 index.html로
 /*    /index.html   200
