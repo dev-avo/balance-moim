@@ -12,6 +12,8 @@
     "db:migrate:prod": "wrangler d1 migrations apply balance-moim-db-prod --remote",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",
+    "db:seed:prod": "tsx scripts/generate-seed-sql.ts && npx wrangler d1 execute balance-moim-db-prod --remote --file=scripts/seed-prod.sql",
+    "db:seed:sql": "tsx scripts/generate-seed-sql.ts",
     "cf:dev": "wrangler dev"
   },
   "dependencies": {
