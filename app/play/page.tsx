@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WarningModal } from '@/components/game/WarningModal';
@@ -46,7 +46,7 @@ interface StatsData {
   }>;
 }
 
-export default function PlayPage() {
+function PlayPageContent() {
   const searchParams = useSearchParams();
   const [gameStarted, setGameStarted] = useState(false);
   const [gameState, setGameState] = useState<GameState>('loading');
@@ -281,4 +281,16 @@ export default function PlayPage() {
   }
 
   return null;
+}
+
+export default function PlayPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <QuestionCardSkeleton />
+      </div>
+    }>
+      <PlayPageContent />
+    </Suspense>
+  );
 }
