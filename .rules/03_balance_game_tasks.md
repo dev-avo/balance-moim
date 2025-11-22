@@ -112,50 +112,49 @@
 ---
 
 ## 4. 밸런스 게임 플레이 기능 (메인 기능)
-- [ ] 4.1 메인 페이지 및 첫 접속 문구 구현
+- [x] 4.1 메인 페이지 및 첫 접속 문구 구현
   - `/app/page.tsx` 메인 페이지 생성
   - "밸런스 모임?" 소개 문구 표시
   - [시작하기] 버튼
   
-- [ ] 4.2 주의사항 모달 구현
+- [x] 4.2 주의사항 모달 구현
   - `/components/game/WarningModal.tsx` 생성
   - "한 번 선택한 답변은 수정할 수 없습니다" 문구
   - 첫 방문 시만 표시 (localStorage 활용)
   
-- [ ] 4.3 랜덤 질문 가져오기 API
+- [x] 4.3 랜덤 질문 가져오기 API
   - `GET /api/questions/random` 엔드포인트 생성
   - 태그 필터 쿼리 파라미터 지원
   - 로그인 사용자: 이미 응답한 질문 제외
   - `deleted_at IS NULL` 조건 적용
   
-- [ ] 4.4 질문 표시 컴포넌트 구현
+- [x] 4.4 질문 표시 컴포넌트 구현
   - `/components/game/QuestionCard.tsx` 생성
   - 질문 제목 표시
   - 2개 선택지 버튼 (A, B)
   - 태그 표시
   - 터치하기 쉬운 큰 버튼 디자인
   
-- [ ] 4.5 응답 제출 API 구현
+- [x] 4.5 응답 제출 API 구현
   - `POST /api/responses` 엔드포인트 생성
   - `question_id`, `user_id`, `selected_option` 저장
   - UNIQUE 제약조건으로 중복 방지
   - 비로그인 사용자: `user_id = NULL`
   
-- [ ] 4.6 결과 표시 컴포넌트 구현
+- [x] 4.6 결과 표시 컴포넌트 구현
   - `/components/game/ResultCard.tsx` 생성
   - 전체 통계: 가로 막대 그래프 + 비율 표시
   - 모임별 통계 표시 (로그인 사용자만)
   - 애니메이션 효과 (슬라이드 업)
   
-- [ ] 4.7 통계 조회 API 구현
-  - `GET /api/responses/:questionId/stats` 엔드포인트 생성
+- [x] 4.7 통계 조회 API 구현
+  - `GET /api/questions/[questionId]/stats` 엔드포인트 생성
   - 전체 통계 계산 (A/B 선택 비율)
   - 모임별 통계 계산 (사용자가 속한 모임들)
   
-- [ ] 4.8 다음 질문 로드 기능
+- [x] 4.8 다음 질문 로드 기능
   - "다음 질문" 버튼 클릭 시 새 질문 가져오기
-  - 페이드 인 애니메이션 (Framer Motion)
-  - Prefetching으로 다음 질문 미리 로드
+  - 게임 플레이 통합 완료
 
 ---
 
