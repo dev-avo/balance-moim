@@ -39,8 +39,8 @@
 | **Project name** | `balance-moim` (또는 원하는 이름) |
 | **Production branch** | `master` |
 | **Framework preset** | `Next.js` |
-| **Build command** | `npm run build` |
-| **Build output directory** | (비워두기) |
+| **Build command** | `npm run build:cloudflare` |
+| **Build output directory** | `.open-next` |
 | **Root directory** | `/` (기본값) |
 | **Node.js version** | `22.13.1` |
 

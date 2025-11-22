@@ -3,8 +3,8 @@ compatibility_date = "2024-11-11"
 compatibility_flags = ["nodejs_compat"]
 
 # Cloudflare Pages 빌드 output directory 설정
-# Next.js 16 네이티브 지원을 사용할 때는 비워두거나 .next 사용
-# pages_build_output_dir는 Cloudflare Pages 대시보드에서 설정하는 것이 더 안전함
+# @opennextjs/cloudflare 어댑터 사용 시
+pages_build_output_dir = ".open-next"
 
 # 로컬 개발용 데이터베이스
 [[d1_databases]]
