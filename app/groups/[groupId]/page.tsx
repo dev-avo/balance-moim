@@ -188,7 +188,7 @@ export default function GroupDetailPage() {
         </div>
 
         {groupData.description && (
-          <p className="text-muted-foreground">{groupData.description}</p>
+          <p className="text-muted-foreground whitespace-pre-line">{groupData.description}</p>
         )}
       </div>
 

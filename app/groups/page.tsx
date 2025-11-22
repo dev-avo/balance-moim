@@ -176,7 +176,7 @@ export default function GroupsPage() {
 
                   {/* 모임 설명 */}
                   {group.description && (
-                    <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
+                    <p className="mb-4 text-sm text-muted-foreground line-clamp-2 whitespace-pre-line">
                       {group.description}
                     </p>
                   )}

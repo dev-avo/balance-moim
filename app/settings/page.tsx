@@ -60,6 +60,7 @@ export default function SettingsPage() {
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<SettingsFormData>({
     resolver: zodResolver(SettingsFormSchema),
@@ -261,7 +262,10 @@ export default function SettingsPage() {
                 type="radio"
                 name="displayNameOption"
                 checked={!useNickname}
-                onChange={() => reset({ useNickname: false, customNickname: '' })}
+                onChange={() => {
+                  setValue('useNickname', false);
+                  setValue('customNickname', '');
+                }}
                 className="mt-1 h-4 w-4 text-primary accent-primary"
               />
               <div className="flex-1">
@@ -278,7 +282,12 @@ export default function SettingsPage() {
                 type="radio"
                 name="displayNameOption"
                 checked={useNickname === true}
-                onChange={() => reset({ useNickname: true, customNickname: userSettings.customNickname || '' })}
+                onChange={() => {
+                  setValue('useNickname', true);
+                  if(userSettings?.customNickname) {
+                    setValue('customNickname', userSettings.customNickname);
+                  }
+                }}
                 className="mt-1 h-4 w-4 text-primary accent-primary"
               />
               <div className="flex-1">

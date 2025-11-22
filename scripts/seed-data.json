@@ -1,0 +1,627 @@
+{
+  "tags": [
+    "음식",
+    "연애",
+    "취미",
+    "직장생활",
+    "여행",
+    "패션",
+    "운동",
+    "영화",
+    "음악",
+    "게임",
+    "MBTI",
+    "일상",
+    "관계",
+    "가치관",
+    "습관",
+    "건강",
+    "돈",
+    "라이프스타일",
+    "자기계발",
+    "sns"
+  ],
+  "questions": [
+    {
+      "title": "더 맛있는 진라면은?",
+      "optionA": "매운맛",
+      "optionB": "순한맛",
+      "tags": ["음식"]
+    },
+    {
+      "title": "치킨은 어떻게 먹을래?",
+      "optionA": "양념치킨",
+      "optionB": "후라이드치킨",
+      "tags": ["음식"]
+    },
+    {
+      "title": "피자 선택의 기로",
+      "optionA": "페퍼로니 피자",
+      "optionB": "하와이안 피자",
+      "tags": ["음식"]
+    },
+    {
+      "title": "커피 vs 녹차",
+      "optionA": "커피",
+      "optionB": "녹차",
+      "tags": ["음식", "일상"]
+    },
+    {
+      "title": "아침 식사로 뭐가 나아?",
+      "optionA": "밥",
+      "optionB": "빵",
+      "tags": ["음식", "일상"]
+    },
+    {
+      "title": "라면 끓일 때",
+      "optionA": "계란 넣기",
+      "optionB": "치즈 넣기",
+      "tags": ["음식"]
+    },
+    {
+      "title": "여름 디저트",
+      "optionA": "팥빙수",
+      "optionB": "아이스크림",
+      "tags": ["음식"]
+    },
+    {
+      "title": "술자리에서",
+      "optionA": "소주",
+      "optionB": "맥주",
+      "tags": ["음식", "일상"]
+    },
+    {
+      "title": "더 먹고 싶은 한식",
+      "optionA": "김치찌개",
+      "optionB": "된장찌개",
+      "tags": ["음식"]
+    },
+    {
+      "title": "분식 메뉴 선택",
+      "optionA": "떡볶이",
+      "optionB": "튀김",
+      "tags": ["음식"]
+    },
+    {
+      "title": "첫 데이트 장소는?",
+      "optionA": "영화관",
+      "optionB": "카페",
+      "tags": ["연애"]
+    },
+    {
+      "title": "연애 스타일",
+      "optionA": "연락 자주하기",
+      "optionB": "적당한 거리두기",
+      "tags": ["연애", "관계"]
+    },
+    {
+      "title": "선물로 받고 싶은 건?",
+      "optionA": "손편지",
+      "optionB": "비싼 선물",
+      "tags": ["연애", "관계"]
+    },
+    {
+      "title": "썸 단계에서",
+      "optionA": "직접 고백하기",
+      "optionB": "상대방 고백 기다리기",
+      "tags": ["연애"]
+    },
+    {
+      "title": "이상형",
+      "optionA": "귀여운 타입",
+      "optionB": "섹시한 타입",
+      "tags": ["연애"]
+    },
+    {
+      "title": "여행 스타일",
+      "optionA": "계획적인 여행",
+      "optionB": "즉흥적인 여행",
+      "tags": ["여행", "라이프스타일"]
+    },
+    {
+      "title": "해외여행 vs 국내여행",
+      "optionA": "해외여행",
+      "optionB": "국내여행",
+      "tags": ["여행"]
+    },
+    {
+      "title": "여행지 숙소",
+      "optionA": "호텔",
+      "optionB": "게스트하우스",
+      "tags": ["여행"]
+    },
+    {
+      "title": "여행 중 식사",
+      "optionA": "현지 맛집 탐방",
+      "optionB": "편의점 간편식",
+      "tags": ["여행", "음식"]
+    },
+    {
+      "title": "휴가 때 하고 싶은 일",
+      "optionA": "여행 가기",
+      "optionB": "집에서 쉬기",
+      "tags": ["여행", "일상"]
+    },
+    {
+      "title": "출근 시간",
+      "optionA": "일찍 출근, 일찍 퇴근",
+      "optionB": "늦게 출근, 늦게 퇴근",
+      "tags": ["직장생활"]
+    },
+    {
+      "title": "점심시간",
+      "optionA": "동료들과 함께",
+      "optionB": "혼자 먹기",
+      "tags": ["직장생활", "일상"]
+    },
+    {
+      "title": "회식 vs 회식비 n빵",
+      "optionA": "회식 참여",
+      "optionB": "회식비 받고 집에 가기",
+      "tags": ["직장생활"]
+    },
+    {
+      "title": "업무 스타일",
+      "optionA": "미리미리 끝내기",
+      "optionB": "데드라인에 맞춰서",
+      "tags": ["직장생활", "습관"]
+    },
+    {
+      "title": "이직 vs 현직 유지",
+      "optionA": "좋은 기회면 이직",
+      "optionB": "현직에서 성장",
+      "tags": ["직장생활"]
+    },
+    {
+      "title": "주말 취미",
+      "optionA": "실내 활동",
+      "optionB": "야외 활동",
+      "tags": ["취미", "일상"]
+    },
+    {
+      "title": "독서 vs 영화 감상",
+      "optionA": "책 읽기",
+      "optionB": "영화 보기",
+      "tags": ["취미"]
+    },
+    {
+      "title": "운동은",
+      "optionA": "헬스장",
+      "optionB": "홈트레이닝",
+      "tags": ["운동", "건강"]
+    },
+    {
+      "title": "음악 듣는 방법",
+      "optionA": "멜론, 지니 등 스트리밍",
+      "optionB": "유튜브",
+      "tags": ["음악", "취미"]
+    },
+    {
+      "title": "게임 장르",
+      "optionA": "RPG, 어드벤처",
+      "optionB": "FPS, AOS",
+      "tags": ["게임", "취미"]
+    },
+    {
+      "title": "MBTI 믿는 편?",
+      "optionA": "믿는다",
+      "optionB": "안 믿는다",
+      "tags": ["MBTI", "가치관"]
+    },
+    {
+      "title": "외향적 vs 내향적",
+      "optionA": "E (외향형)",
+      "optionB": "I (내향형)",
+      "tags": ["MBTI", "일상"]
+    },
+    {
+      "title": "계획형 vs 즉흥형",
+      "optionA": "J (계획형)",
+      "optionB": "P (즉흥형)",
+      "tags": ["MBTI", "습관"]
+    },
+    {
+      "title": "감정형 vs 사고형",
+      "optionA": "F (감정형)",
+      "optionB": "T (사고형)",
+      "tags": ["MBTI"]
+    },
+    {
+      "title": "패션 스타일",
+      "optionA": "편한 옷",
+      "optionB": "멋진 옷",
+      "tags": ["패션", "라이프스타일"]
+    },
+    {
+      "title": "신발 선택",
+      "optionA": "운동화",
+      "optionB": "구두/힐",
+      "tags": ["패션"]
+    },
+    {
+      "title": "옷 쇼핑",
+      "optionA": "온라인",
+      "optionB": "오프라인",
+      "tags": ["패션", "일상"]
+    },
+    {
+      "title": "악세서리",
+      "optionA": "착용",
+      "optionB": "미착용",
+      "tags": ["패션"]
+    },
+    {
+      "title": "아침형 vs 저녁형 인간",
+      "optionA": "아침형",
+      "optionB": "저녁형",
+      "tags": ["일상", "습관"]
+    },
+    {
+      "title": "샤워 시간",
+      "optionA": "아침 샤워",
+      "optionB": "저녁 샤워",
+      "tags": ["일상", "습관"]
+    },
+    {
+      "title": "장 보는 방법",
+      "optionA": "마트에서 직접",
+      "optionB": "온라인 배송",
+      "tags": ["일상", "라이프스타일"]
+    },
+    {
+      "title": "청소는",
+      "optionA": "매일 조금씩",
+      "optionB": "주말에 한번에",
+      "tags": ["일상", "습관"]
+    },
+    {
+      "title": "휴대폰 충전",
+      "optionA": "밤에 완충",
+      "optionB": "수시로 충전",
+      "tags": ["일상", "습관"]
+    },
+    {
+      "title": "SNS 사용",
+      "optionA": "자주 올린다",
+      "optionB": "거의 안 올린다",
+      "tags": ["sns", "일상"]
+    },
+    {
+      "title": "인스타그램 계정",
+      "optionA": "공개 계정",
+      "optionB": "비공개 계정",
+      "tags": ["sns"]
+    },
+    {
+      "title": "단톡방 알림",
+      "optionA": "바로바로 확인",
+      "optionB": "모아서 확인",
+      "tags": ["일상", "습관"]
+    },
+    {
+      "title": "전화 vs 문자",
+      "optionA": "전화 선호",
+      "optionB": "문자 선호",
+      "tags": ["일상", "관계"]
+    },
+    {
+      "title": "친구 만나는 빈도",
+      "optionA": "자주 만나기",
+      "optionB": "가끔 만나기",
+      "tags": ["관계", "일상"]
+    },
+    {
+      "title": "새로운 사람 만나기",
+      "optionA": "좋아함",
+      "optionB": "부담스러움",
+      "tags": ["관계"]
+    },
+    {
+      "title": "논쟁이 생기면",
+      "optionA": "끝까지 토론",
+      "optionB": "적당히 넘어가기",
+      "tags": ["관계", "가치관"]
+    },
+    {
+      "title": "고민 상담",
+      "optionA": "해결책 원함",
+      "optionB": "공감만 해주면 됨",
+      "tags": ["관계"]
+    },
+    {
+      "title": "돈 vs 시간",
+      "optionA": "돈이 더 중요",
+      "optionB": "시간이 더 중요",
+      "tags": ["가치관", "돈"]
+    },
+    {
+      "title": "복권 당첨 1억",
+      "optionA": "투자하기",
+      "optionB": "저축하기",
+      "tags": ["돈", "가치관"]
+    },
+    {
+      "title": "소비 패턴",
+      "optionA": "플렉스 (과시적 소비)",
+      "optionB": "짠테크 (알뜰 소비)",
+      "tags": ["돈", "라이프스타일"]
+    },
+    {
+      "title": "카페 음료",
+      "optionA": "비싸도 스타벅스",
+      "optionB": "저렴한 카페",
+      "tags": ["돈", "일상"]
+    },
+    {
+      "title": "건강 관리",
+      "optionA": "꾸준히 관리",
+      "optionB": "아프면 관리",
+      "tags": ["건강", "습관"]
+    },
+    {
+      "title": "영양제",
+      "optionA": "챙겨 먹는다",
+      "optionB": "안 먹는다",
+      "tags": ["건강"]
+    },
+    {
+      "title": "스트레스 해소",
+      "optionA": "운동",
+      "optionB": "먹방",
+      "tags": ["건강", "일상"]
+    },
+    {
+      "title": "잠",
+      "optionA": "질보다 양",
+      "optionB": "양보다 질",
+      "tags": ["건강", "습관"]
+    },
+    {
+      "title": "공부 vs 경험",
+      "optionA": "자격증/학위",
+      "optionB": "실무 경험",
+      "tags": ["자기계발", "가치관"]
+    },
+    {
+      "title": "책 읽는 방법",
+      "optionA": "종이책",
+      "optionB": "전자책",
+      "tags": ["자기계발", "취미"]
+    },
+    {
+      "title": "영어 공부",
+      "optionA": "문법/독해",
+      "optionB": "회화",
+      "tags": ["자기계발"]
+    },
+    {
+      "title": "자기계발 시간",
+      "optionA": "아침",
+      "optionB": "저녁",
+      "tags": ["자기계발", "습관"]
+    },
+    {
+      "title": "영화 장르",
+      "optionA": "액션/스릴러",
+      "optionB": "로맨스/코미디",
+      "tags": ["영화", "취미"]
+    },
+    {
+      "title": "영화 보는 방법",
+      "optionA": "극장에서",
+      "optionB": "OTT로 집에서",
+      "tags": ["영화", "일상"]
+    },
+    {
+      "title": "영화 볼 때 간식",
+      "optionA": "팝콘",
+      "optionB": "없음",
+      "tags": ["영화", "음식"]
+    },
+    {
+      "title": "드라마 시청",
+      "optionA": "몰아보기",
+      "optionB": "한 편씩",
+      "tags": ["취미", "습관"]
+    },
+    {
+      "title": "음악 듣는 상황",
+      "optionA": "집중할 때",
+      "optionB": "쉴 때",
+      "tags": ["음악", "일상"]
+    },
+    {
+      "title": "좋아하는 음악 장르",
+      "optionA": "발라드/인디",
+      "optionB": "힙합/EDM",
+      "tags": ["음악"]
+    },
+    {
+      "title": "콘서트 vs 페스티벌",
+      "optionA": "콘서트",
+      "optionB": "페스티벌",
+      "tags": ["음악", "취미"]
+    },
+    {
+      "title": "노래방에서",
+      "optionA": "적극적으로 부르기",
+      "optionB": "듣기만",
+      "tags": ["음악", "일상"]
+    },
+    {
+      "title": "게임 플레이",
+      "optionA": "PC 게임",
+      "optionB": "모바일 게임",
+      "tags": ["게임", "취미"]
+    },
+    {
+      "title": "게임 스타일",
+      "optionA": "혼자",
+      "optionB": "친구들과",
+      "tags": ["게임"]
+    },
+    {
+      "title": "게임 과금",
+      "optionA": "한다",
+      "optionB": "안 한다",
+      "tags": ["게임", "돈"]
+    },
+    {
+      "title": "e스포츠 관심",
+      "optionA": "있다",
+      "optionB": "없다",
+      "tags": ["게임"]
+    },
+    {
+      "title": "운동 선호",
+      "optionA": "혼자 운동",
+      "optionB": "단체 운동",
+      "tags": ["운동"]
+    },
+    {
+      "title": "러닝 vs 사이클",
+      "optionA": "러닝",
+      "optionB": "사이클",
+      "tags": ["운동"]
+    },
+    {
+      "title": "운동 시간대",
+      "optionA": "아침",
+      "optionB": "저녁",
+      "tags": ["운동", "습관"]
+    },
+    {
+      "title": "다이어트 방법",
+      "optionA": "운동",
+      "optionB": "식단 조절",
+      "tags": ["운동", "건강"]
+    },
+    {
+      "title": "반려동물",
+      "optionA": "강아지",
+      "optionB": "고양이",
+      "tags": ["일상", "라이프스타일"]
+    },
+    {
+      "title": "계절",
+      "optionA": "봄/여름",
+      "optionB": "가을/겨울",
+      "tags": ["일상"]
+    },
+    {
+      "title": "날씨",
+      "optionA": "맑은 날",
+      "optionB": "비 오는 날",
+      "tags": ["일상"]
+    },
+    {
+      "title": "교통수단",
+      "optionA": "대중교통",
+      "optionB": "자가용",
+      "tags": ["일상", "라이프스타일"]
+    },
+    {
+      "title": "집에서",
+      "optionA": "TV 보기",
+      "optionB": "핸드폰 보기",
+      "tags": ["일상", "습관"]
+    },
+    {
+      "title": "배달 vs 직접 요리",
+      "optionA": "배달 음식",
+      "optionB": "직접 요리",
+      "tags": ["음식", "일상"]
+    },
+    {
+      "title": "요리 실력",
+      "optionA": "잘하는 편",
+      "optionB": "못하는 편",
+      "tags": ["음식", "일상"]
+    },
+    {
+      "title": "집 vs 회사",
+      "optionA": "재택근무",
+      "optionB": "사무실 출근",
+      "tags": ["직장생활", "라이프스타일"]
+    },
+    {
+      "title": "야근 수당 vs 칼퇴",
+      "optionA": "야근 수당",
+      "optionB": "칼퇴근",
+      "tags": ["직장생활", "돈"]
+    },
+    {
+      "title": "직장 위치",
+      "optionA": "집 근처",
+      "optionB": "좋은 회사면 먼 곳도 OK",
+      "tags": ["직장생활"]
+    },
+    {
+      "title": "스타트업 vs 대기업",
+      "optionA": "스타트업",
+      "optionB": "대기업",
+      "tags": ["직장생활"]
+    },
+    {
+      "title": "연차 사용",
+      "optionA": "아끼지 않고 쓰기",
+      "optionB": "아껴서 쓰기",
+      "tags": ["직장생활"]
+    },
+    {
+      "title": "점심 메뉴 결정",
+      "optionA": "내가 정한다",
+      "optionB": "따라간다",
+      "tags": ["일상", "음식"]
+    },
+    {
+      "title": "메신저 답장",
+      "optionA": "바로 답장",
+      "optionB": "생각하고 답장",
+      "tags": ["일상", "관계"]
+    },
+    {
+      "title": "일정 관리",
+      "optionA": "디지털 (앱)",
+      "optionB": "아날로그 (노트)",
+      "tags": ["습관", "자기계발"]
+    },
+    {
+      "title": "집 정리",
+      "optionA": "미니멀리즘",
+      "optionB": "맥시멀리즘",
+      "tags": ["라이프스타일", "습관"]
+    },
+    {
+      "title": "인테리어",
+      "optionA": "모던/심플",
+      "optionB": "빈티지/앤틱",
+      "tags": ["라이프스타일"]
+    },
+    {
+      "title": "면 vs 밥",
+      "optionA": "면 요리",
+      "optionB": "밥 요리",
+      "tags": ["음식"]
+    },
+    {
+      "title": "독서 장소",
+      "optionA": "도서관/카페",
+      "optionB": "집",
+      "tags": ["취미", "일상"]
+    },
+    {
+      "title": "여름 vs 겨울",
+      "optionA": "여름",
+      "optionB": "겨울",
+      "tags": ["일상"]
+    },
+    {
+      "title": "자기 전 루틴",
+      "optionA": "독서",
+      "optionB": "유튜브/넷플릭스",
+      "tags": ["일상", "습관"]
+    }
+  ]
+}
+
