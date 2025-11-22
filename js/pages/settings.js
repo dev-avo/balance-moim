@@ -63,7 +63,7 @@ async function loadSettings() {
             createdGroupsCount: profileData.createdGroupsCount || 0
         };
         
-        renderSettings();
+        renderSettingsContent();
     } catch(error) {
         console.error('설정 가져오기 오류:', error);
         showErrorToast('오류', '설정을 가져오는 중 오류가 발생했습니다.');
@@ -74,7 +74,7 @@ async function loadSettings() {
 /**
  * 설정 페이지 렌더링
  */
-function renderSettings() {
+function renderSettingsContent() {
     if(!userSettings) return;
     
     const mainEl = document.getElementById('main');

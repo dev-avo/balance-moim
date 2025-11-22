@@ -62,7 +62,7 @@ async function loadGroupData() {
             return;
         }
         
-        renderSettings();
+        renderGroupSettingsContent();
     } catch(error) {
         console.error('모임 정보 가져오기 오류:', error);
         showErrorToast('오류', error.message || '모임을 찾을 수 없습니다.');
@@ -73,7 +73,7 @@ async function loadGroupData() {
 /**
  * 설정 페이지 렌더링
  */
-function renderSettings() {
+function renderGroupSettingsContent() {
     if(!groupData) return;
     
     const mainEl = document.getElementById('main');

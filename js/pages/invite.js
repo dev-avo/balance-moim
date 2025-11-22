@@ -57,7 +57,7 @@ async function loadInviteData() {
             return;
         }
         
-        renderInvite();
+        renderInviteContent();
     } catch(error) {
         console.error('초대 링크 정보 가져오기 오류:', error);
         showErrorToast('오류', error.message || '초대 링크를 찾을 수 없습니다.');
@@ -68,7 +68,7 @@ async function loadInviteData() {
 /**
  * 초대 페이지 렌더링
  */
-function renderInvite() {
+function renderInviteContent() {
     if(!inviteData) return;
     
     const mainEl = document.getElementById('main');
