@@ -111,17 +111,23 @@ export default function SettingsPage() {
 
       const settings = {
         email: user?.email || '',
-        displayName: user?.name || settingsData.displayName || '',
-        customNickname: settingsData.customNickname,
-        useNickname: settingsData.useNickname,
+        displayName: user?.name || settingsData.user?.displayName || '',
+        customNickname: settingsData.user?.customNickname,
+        useNickname: settingsData.user?.useNickname ?? false,
         createdGroupsCount: profileData.createdGroupsCount,
       };
 
       setUserSettings(settings);
 
+      console.log('🔍 Settings loaded:', {
+        useNickname: settings.useNickname,
+        customNickname: settings.customNickname,
+        type: typeof settings.useNickname
+      });
+
       // 폼 초기값 설정
       reset({
-        useNickname: settings.useNickname,
+        useNickname: Boolean(settings.useNickname),
         customNickname: settings.customNickname || '',
       });
     } catch(err) {

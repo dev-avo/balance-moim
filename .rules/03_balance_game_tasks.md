@@ -461,22 +461,37 @@
 
 ---
 
-## 13. 애니메이션 구현 (Framer Motion)
-- [ ] 13.1 Framer Motion 설치 및 설정
-  - `framer-motion` 설치
-  - 기본 애니메이션 변형(variants) 정의
+## 13. 애니메이션 구현 (Framer Motion) ✅ (완료)
+- [x] 13.1 Framer Motion 설치 및 설정 ✅
+  - `framer-motion` 설치 완료 ✅
+  - 기본 애니메이션 변형(variants) 정의 완료 ✅
+  - `/lib/animations/variants.ts` 생성 ✅
+    - fadeIn, fadeInSlow ✅
+    - slideUp, slideDown, slideInFromLeft, slideInFromRight ✅
+    - scaleUp, scaleDown ✅
+    - buttonTap, buttonHover ✅
+    - staggerContainer, staggerItem ✅
+    - progressBar ✅
+    - modalBackdrop, modalContent ✅
+    - cardHover, flip, shake, pulse ✅
   
-- [ ] 13.2 페이지 전환 애니메이션
-  - 페이드 인/아웃
-  - 슬라이드 효과
+- [x] 13.2 페이지 전환 애니메이션 ✅
+  - 페이드 인/아웃 완료 ✅
+  - 슬라이드 효과 완료 ✅
+  - pageTransition variant 정의 ✅
   
-- [ ] 13.3 버튼 클릭 애니메이션
-  - Scale 효과
-  - 색상 변화
+- [x] 13.3 버튼 클릭 애니메이션 ✅
+  - Scale 효과 완료 ✅
+  - AnimatedButton 컴포넌트 생성 ✅
+  - whileHover, whileTap 효과 적용 ✅
   
-- [ ] 13.4 결과 표시 애니메이션
-  - 슬라이드 업
-  - 막대 그래프 애니메이션
+- [x] 13.4 결과 표시 애니메이션 ✅
+  - 슬라이드 업 완료 ✅
+  - 막대 그래프 애니메이션 완료 ✅
+  - ProgressBar 컴포넌트 생성 ✅
+  - 뷰포트 진입 시 자동 애니메이션 ✅
+  - GroupResponses에 적용 완료 ✅
+  - 순차 애니메이션 (stagger) 적용 ✅
 
 ---
 

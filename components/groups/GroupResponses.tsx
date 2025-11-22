@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { staggerContainer, staggerItem } from '@/lib/animations/variants';
 
 /**
  * GroupResponses Component - Apple MacBook Style
@@ -151,10 +154,16 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <motion.div
+          className="space-y-4"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
           {questions.map((q, index) => (
-            <div
+            <motion.div
               key={q.questionId}
+              variants={staggerItem}
               className="rounded-2xl glass border-2 border-border p-5 shadow-apple"
             >
               {/* 질문 제목 */}
@@ -174,37 +183,33 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
 
               {/* 선택지 A */}
               <div className="mb-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground">
-                    {q.optionA}
+                <ProgressBar
+                  percentage={q.optionAPercentage}
+                  label={q.optionA}
+                  color="bg-primary"
+                  height="h-3"
+                  delay={index * 0.1}
+                />
+                <div className="mt-1 text-right">
+                  <span className="text-xs text-muted-foreground">
+                    {q.optionACount}명
                   </span>
-                  <span className="text-sm font-bold text-primary">
-                    {q.optionAPercentage}% ({q.optionACount}명)
-                  </span>
-                </div>
-                <div className="h-3 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
-                  <div
-                    className="h-full bg-primary smooth-transition"
-                    style={{ width: `${q.optionAPercentage}%` }}
-                  />
                 </div>
               </div>
 
               {/* 선택지 B */}
               <div className="mb-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground">
-                    {q.optionB}
+                <ProgressBar
+                  percentage={q.optionBPercentage}
+                  label={q.optionB}
+                  color="bg-secondary"
+                  height="h-3"
+                  delay={index * 0.1 + 0.1}
+                />
+                <div className="mt-1 text-right">
+                  <span className="text-xs text-muted-foreground">
+                    {q.optionBCount}명
                   </span>
-                  <span className="text-sm font-bold text-secondary-foreground">
-                    {q.optionBPercentage}% ({q.optionBCount}명)
-                  </span>
-                </div>
-                <div className="h-3 w-full overflow-hidden rounded-full glass border border-border shadow-inner-apple">
-                  <div
-                    className="h-full bg-secondary smooth-transition"
-                    style={{ width: `${q.optionBPercentage}%` }}
-                  />
                 </div>
               </div>
 
@@ -222,9 +227,9 @@ export function GroupResponses({ groupId }: GroupResponsesProps) {
                   ))}
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );
