@@ -22,8 +22,8 @@ export function createButton({
     const baseClasses = 'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold smooth-transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95';
     
     const variantClasses = {
-        default: 'bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground shadow-apple hover:shadow-apple-lg hover:bg-destructive/90',
+        default: 'bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/80',
+        destructive: 'bg-destructive text-destructive-foreground shadow-apple hover:shadow-apple-lg hover:bg-destructive/80',
         outline: 'border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground shadow-apple hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground'

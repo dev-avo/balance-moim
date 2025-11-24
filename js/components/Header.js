@@ -65,7 +65,7 @@ export async function renderHeader() {
                             로그아웃
                         </button>
                     ` : `
-                        <button id="sign-in-btn" class="px-4 py-2 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
+                        <button id="sign-in-btn" class="px-4 py-2 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                             로그인
                         </button>
                     `}

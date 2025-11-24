@@ -6,7 +6,7 @@ import { user as userTable } from './lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from './lib/utils';
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const nextAuthConfig = NextAuth({
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -98,4 +98,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
+
+// Cloudflare Pages Functions에서 동적 import 시 문제를 해결하기 위해 명시적으로 export
+export const { handlers, signIn, signOut, auth } = nextAuthConfig;
+
+// auth 함수를 별도로 export (동적 import 호환성을 위해)
+// NextAuth의 auth는 함수이므로 직접 export
+export default auth;
 

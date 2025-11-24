@@ -22,10 +22,21 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         // 원본 요청 URL 유지 (NextAuth가 경로를 파싱할 수 있도록)
         const request = context.request;
         const url = new URL(request.url);
-        
-        // NextAuth는 /api/auth/[...nextauth] 경로를 기대하므로
-        // 요청 URL이 /api/auth/* 형식인지 확인하고 처리
         const pathname = url.pathname;
+        
+        // 더 구체적인 경로는 해당 Functions에서 처리하도록 404 반환
+        // (Cloudflare Pages Functions는 더 구체적인 경로가 우선순위가 높음)
+        const specificPaths = [
+            '/api/auth/signin/google',
+            '/api/auth/signout',
+            '/api/auth/callback/google',
+            '/api/auth/session'
+        ];
+        
+        if(specificPaths.some(path => pathname === path || pathname.startsWith(path + '/'))) {
+            // 더 구체적인 경로는 해당 Functions에서 처리
+            return new Response('Not found', { status: 404 });
+        }
         
         // /api/auth로 시작하는 경로인지 확인
         if(!pathname.startsWith('/api/auth')) {

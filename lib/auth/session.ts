@@ -5,11 +5,20 @@ let authFunction: (() => Promise<any>) | null = null;
 async function getAuthFunction() {
   if(!authFunction) {
     const authModule = await import('../../auth');
-    // auth가 함수인지 확인
+    // auth가 함수인지 확인 (여러 방법 시도)
     if(typeof authModule.auth === 'function') {
       authFunction = authModule.auth;
+    } else if(typeof authModule.default === 'function') {
+      authFunction = authModule.default;
     } else {
-      throw new Error('auth is not a function. authModule: ' + JSON.stringify(Object.keys(authModule)));
+      // 디버깅을 위한 상세 정보
+      console.error('auth 모듈 구조:', {
+        keys: Object.keys(authModule),
+        authType: typeof authModule.auth,
+        defaultType: typeof authModule.default,
+        authValue: authModule.auth,
+      });
+      throw new Error('auth is not a function. authModule keys: ' + JSON.stringify(Object.keys(authModule)) + ', auth type: ' + typeof authModule.auth);
     }
   }
   return authFunction;
