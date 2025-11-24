@@ -10,8 +10,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
         // 동적 import로 NextAuth handlers 로드
-        const { handlers } = await import('../../../../auth');
-        const { setDb } = await import('../../../../lib/db');
+        const { handlers } = await import('../../../auth');
+        const { setDb } = await import('../../../lib/db');
         
         // D1 데이터베이스 설정
         if(context.env.DB) {
