@@ -13,10 +13,17 @@
 # testing
 /coverage
 
-# next.js
+# next.js (SPA로 전환 전 파일들)
 /.next/
 /out/
 /.open-next/
+/app/
+/components/
+/hooks/
+/next.config.ts
+/open-next.config.ts
+/postcss.config.mjs
+/types/next-auth.d.ts
 
 # production
 /build

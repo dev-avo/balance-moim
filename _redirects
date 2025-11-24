@@ -3,9 +3,9 @@
 # 지원되는 상태 코드: 301, 302 (기본값), 303, 307, 308
 # 200 코드는 rewrite를 의미하며 SPA 라우팅에 사용됩니다
 
-# API 경로는 Functions로 처리되므로 리다이렉트하지 않음
-# /api/* 경로는 _routes.json의 include 규칙에 의해 Functions가 처리됨
+# 중요: Functions가 우선순위가 높지만, API 경로를 명시적으로 제외하여 안전하게 처리
+# _redirects는 Functions가 처리하지 않는 경로에만 적용됩니다
 
-# SPA 라우팅: API 경로와 정적 파일을 제외한 모든 경로를 index.html로 rewrite
-# 정적 파일(/js/*, /css/* 등)은 _routes.json의 exclude 규칙에 의해 제외됨
+# SPA 라우팅: API 경로를 제외한 모든 경로를 index.html로 rewrite
+# API 경로(/api/*)는 Functions가 처리하므로 여기서 제외됨
 /*    /index.html   200

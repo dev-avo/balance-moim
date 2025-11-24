@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "include": ["/*"],
+  "include": [
+    "/api/*"
+  ],
   "exclude": [
     "/js/*",
     "/css/*",
@@ -18,6 +20,7 @@
     "/*.ttf",
     "/*.eot",
     "/favicon.ico",
-    "/robots.txt"
+    "/robots.txt",
+    "/index.html"
   ]
 }
