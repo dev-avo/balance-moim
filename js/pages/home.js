@@ -51,13 +51,13 @@ export async function renderHome() {
 
                 <!-- CTA 버튼 -->
                 <div class="flex flex-col items-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                    <button id="start-btn" class="w-full max-w-md mx-4 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple hover:bg-primary/90 smooth-transition">
+                    <button id="start-btn" class="max-w-md mx-4 w-full px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                         시작하기
                     </button>
 
                     <!-- 추가 안내 (비로그인 사용자) -->
                     ${!isAuthenticated ? `
-                        <div class="rounded-xl glass border-2 border-border p-3 sm:p-4 max-w-md mx-4">
+                        <div class="rounded-xl glass border-2 border-border p-3 sm:p-4 max-w-md mx-4 w-full">
                             <p class="text-xs sm:text-sm text-muted-foreground">
                                 💡 로그인하지 않아도 플레이할 수 있습니다.<br>
                                 <span class="text-[10px] sm:text-xs">
@@ -89,8 +89,8 @@ export async function renderHome() {
                     </ul>
                     <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/40">
                         <p class="text-xs sm:text-sm italic text-muted-foreground leading-relaxed">
-                            같은 모임에 속한 사람들이 수십, 수백 개의 질문에 답하며 서로의 취향을 알아가는 것은
-                            마치 사람들 간의 균형을 맞춰나가는 과정과 같습니다.
+                            같은 모임에 속한 사람들이 서로의 질문에 답하며 취향을 알아가는 것은
+                            사람들 간의 균형을 맞춰나가는 과정과 같습니다.
                         </p>
                     </div>
                 </div>

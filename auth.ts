@@ -1,9 +1,10 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import { getDb } from '@/lib/db';
-import { user as userTable } from '@/lib/db/schema';
+// Cloudflare Pages Functions에서는 경로 별칭(@/)이 작동하지 않으므로 상대 경로 사용
+import { getDb } from './lib/db';
+import { user as userTable } from './lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateId } from '@/lib/utils';
+import { generateId } from './lib/utils';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [

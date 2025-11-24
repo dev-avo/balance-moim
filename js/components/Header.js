@@ -61,11 +61,11 @@ export async function renderHeader() {
                         <span class="hidden lg:inline text-sm font-medium text-muted-foreground px-2">
                             ${currentUser.name || currentUser.email}
                         </span>
-                        <button id="sign-out-btn" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground smooth-transition">
+                        <button id="sign-out-btn" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                             로그아웃
                         </button>
                     ` : `
-                        <button id="sign-in-btn" class="px-4 py-2 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90 smooth-transition">
+                        <button id="sign-in-btn" class="px-4 py-2 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                             로그인
                         </button>
                     `}

@@ -74,7 +74,7 @@ function showWarningModal() {
                     </div>
                     
                     
-                    <button id="start-game-btn" class="w-full px-8 py-6 text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple hover:bg-primary/90 smooth-transition">
+                    <button id="start-game-btn" class="w-full px-8 py-6 text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                         시작하기
                     </button>
                     <p class="text-center text-xs text-muted-foreground">
@@ -371,7 +371,7 @@ function renderResult() {
                 
                 <!-- 다음 질문 버튼 -->
                 <div class="mt-8 flex flex-col items-center gap-4">
-                    <button id="next-question-btn" class="px-12 py-6 text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple hover:bg-primary/90 smooth-transition">
+                    <button id="next-question-btn" class="px-12 py-6 text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                         다음 질문으로 →
                     </button>
                     <p class="text-sm text-muted-foreground">
@@ -400,7 +400,7 @@ function renderError(message) {
                 <div class="text-6xl">😕</div>
                 <h2 class="text-2xl font-bold text-foreground">질문을 불러올 수 없습니다</h2>
                 <p class="text-muted-foreground">${message}</p>
-                <button id="retry-btn" class="px-6 py-3 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90 smooth-transition">
+                <button id="retry-btn" class="px-6 py-3 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:shadow-apple-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                     다시 시도
                 </button>
             </div>
