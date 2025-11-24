@@ -4,16 +4,20 @@
 export const onRequest: PagesFunction = async (context) => {
     try {
         // 세션 쿠키 삭제
-        const clearCookie = 'session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
+        const clearCookie = 'bm_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
+        const clearLegacyCookie = 'session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
+        
+        const headers = new Headers({
+            'Content-Type': 'application/json',
+        });
+        headers.append('Set-Cookie', clearCookie);
+        headers.append('Set-Cookie', clearLegacyCookie);
         
         return new Response(
             JSON.stringify({ success: true }),
             {
                 status: 200,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Set-Cookie': clearCookie,
-                }
+                headers,
             }
         );
     } catch(error) {

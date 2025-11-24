@@ -149,7 +149,8 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         }, secret);
         
         // 세션 쿠키 설정
-        const sessionCookie = `session=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${30 * 24 * 60 * 60}`;
+        const sessionCookie = `bm_session=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${30 * 24 * 60 * 60}`;
+        const clearLegacySessionCookie = 'session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
         
         // state 및 callback 쿠키 삭제
         const clearStateCookie = 'auth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
@@ -170,6 +171,7 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         headers.append('Set-Cookie', sessionCookie);
         headers.append('Set-Cookie', clearStateCookie);
         headers.append('Set-Cookie', clearCallbackCookie);
+        headers.append('Set-Cookie', clearLegacySessionCookie);
         
         return new Response(null, {
             status: 302,

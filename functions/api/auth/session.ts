@@ -4,7 +4,7 @@
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
         const cookies = context.request.headers.get('Cookie') || '';
-        const sessionCookie = cookies.split(';').find(c => c.trim().startsWith('session='));
+        const sessionCookie = cookies.split(';').find(c => c.trim().startsWith('bm_session='));
         
         if(!sessionCookie) {
             return new Response(
@@ -16,7 +16,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
         
-        const token = sessionCookie.split('=')[1];
+        const token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
         if(!token) {
             return new Response(
                 JSON.stringify({ user: null }),
@@ -34,7 +34,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         
         if(!payload) {
             // 유효하지 않은 토큰 - 쿠키 삭제
-            const clearCookie = 'session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
+            const clearCookie = 'bm_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
             return new Response(
                 JSON.stringify({ user: null }),
                 { 

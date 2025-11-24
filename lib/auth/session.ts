@@ -13,13 +13,13 @@ export async function getCurrentUser(request: Request, secret: string): Promise<
         }
         
         const cookies = request.headers.get('Cookie') || '';
-        const sessionCookie = cookies.split(';').find(c => c.trim().startsWith('session='));
+        const sessionCookie = cookies.split(';').find(c => c.trim().startsWith('bm_session='));
         
         if(!sessionCookie) {
             return null;
         }
         
-        const token = sessionCookie.split('=')[1];
+        const token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
         if(!token) {
             return null;
         }
