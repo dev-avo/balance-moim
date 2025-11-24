@@ -4,7 +4,6 @@
 
 import { userApi } from '../services/api.js';
 import { checkAuth, signOut } from '../utils/auth.js';
-import { router } from '../services/router.js';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../components/Toast.js';
 import { createLoading } from '../components/Loading.js';
 import { createModal } from '../components/Modal.js';
@@ -22,7 +21,7 @@ export async function renderSettings() {
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '설정을 변경하려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -364,4 +363,11 @@ function renderError(message) {
     retryBtn.addEventListener('click', () => {
         loadSettings();
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderSettings);
+} else {
+    renderSettings();
 }

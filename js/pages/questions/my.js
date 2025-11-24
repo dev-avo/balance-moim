@@ -4,7 +4,6 @@
 
 import { questionApi } from '../../services/api.js';
 import { checkAuth } from '../../utils/auth.js';
-import { router } from '../../services/router.js';
 import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
 import { createLoading } from '../../components/Loading.js';
 import { showConfirmModal } from '../../components/Modal.js';
@@ -24,7 +23,7 @@ export async function renderMyQuestions() {
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '내 질문을 보려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -173,7 +172,7 @@ function renderQuestionsList() {
                                 
                                 <!-- 액션 버튼 -->
                                 <div class="flex gap-3">
-                                    <a href="#questions/${question.id}/edit" class="flex-1">
+                                    <a href="/questions/edit.html?id=${question.id}" class="flex-1">
                                         <button class="w-full px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground smooth-transition">
                                             수정
                                         </button>
@@ -221,13 +220,13 @@ function renderQuestionsList() {
     
     if(createBtn) {
         createBtn.addEventListener('click', () => {
-            router.navigate('#questions/create');
+            window.location.href = '/questions/create.html';
         });
     }
     
     if(createEmptyBtn) {
         createEmptyBtn.addEventListener('click', () => {
-            router.navigate('#questions/create');
+            window.location.href = '/questions/create.html';
         });
     }
     
@@ -269,17 +268,14 @@ function renderQuestionsList() {
         });
     }
     
-    // 링크 클릭 이벤트
-    const links = mainEl.querySelectorAll('a[href^="#"]');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = link.getAttribute('href');
-            if(href) {
-                router.navigate(href);
-            }
-        });
-    });
+    // 해시 링크 처리 제거 - 일반 링크로 동작
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMyQuestions);
+} else {
+    renderMyQuestions();
 }
 
 /**

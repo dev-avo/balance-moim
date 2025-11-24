@@ -10,20 +10,25 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
         // D1 데이터베이스 설정 (handlers import 전에 설정)
+        // Cloudflare Pages Functions에서는 상대 경로가 Functions 파일 위치를 기준으로 해석됨
         if(context.env.DB) {
+            let dbModule;
             try {
-                const dbModule = await import('../../../../../lib/db/index.js');
-                dbModule.setDb(context.env.DB);
-            } catch(error) {
-                // .js 확장자 실패 시 .ts 시도
+                // 먼저 확장자 없이 시도 (가장 일반적)
+                dbModule = await import('../../../../../lib/db');
+            } catch(error1) {
                 try {
-                    const dbModule = await import('../../../../../lib/db/index.ts');
-                    dbModule.setDb(context.env.DB);
+                    // .js 확장자 시도
+                    dbModule = await import('../../../../../lib/db/index.js');
                 } catch(error2) {
-                    // 확장자 없이 시도
-                    const dbModule = await import('../../../../../lib/db');
-                    dbModule.setDb(context.env.DB);
+                    console.error('DB 모듈 import 실패:', error1, error2);
+                    throw new Error('DB 모듈을 로드할 수 없습니다.');
                 }
+            }
+            if(dbModule && dbModule.setDb) {
+                dbModule.setDb(context.env.DB);
+            } else {
+                throw new Error('setDb 함수를 찾을 수 없습니다.');
             }
         }
         
@@ -45,47 +50,19 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         const request = context.request;
         const method = request.method;
         
-        // URL에서 popup 파라미터 확인 (콜백 URL에 포함되어 있을 수 있음)
-        const url = new URL(request.url);
-        const isPopup = url.searchParams.get('popup') === 'true';
-        
-        // Referer 헤더에서도 popup 파라미터 확인 (signin 페이지에서 전달된 경우)
-        const referer = request.headers.get('referer');
-        let isPopupFromReferer = false;
-        if(referer) {
-            try {
-                const refererUrl = new URL(referer);
-                isPopupFromReferer = refererUrl.searchParams.get('popup') === 'true';
-            } catch(e) {
-                // referer 파싱 실패 시 무시
-            }
-        }
-        
-        const shouldUsePopup = isPopup || isPopupFromReferer;
-        
         if(method === 'GET') {
             if(!handlers.GET) {
                 throw new Error('handlers.GET이 없습니다');
             }
             const response = await handlers.GET(request as any);
             
-            // 팝업 모드이고 성공한 경우 성공 페이지로 리다이렉트
-            if(shouldUsePopup && (response.status === 302 || response.status === 307 || response.status === 308)) {
-                // 리다이렉트 응답인 경우 성공 페이지로 변경
-                return Response.redirect(new URL('/auth/callback-success', request.url).toString());
-            }
-            
+            // NextAuth가 설정한 기본 리다이렉트를 그대로 사용
             return response;
         } else if(method === 'POST') {
             if(!handlers.POST) {
-                throw new Error('handlers.POST가 없습니다');
+                throw new Error('handlers.POST이 없습니다');
             }
             const response = await handlers.POST(request as any);
-            
-            // 팝업 모드이고 성공한 경우 성공 페이지로 리다이렉트
-            if(shouldUsePopup && (response.status === 302 || response.status === 307 || response.status === 308)) {
-                return Response.redirect(new URL('/auth/callback-success', request.url).toString());
-            }
             
             return response;
         } else {

@@ -10,20 +10,31 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
         // D1 데이터베이스 설정 (handlers import 전에 설정)
+        // Cloudflare Pages Functions에서는 상대 경로가 Functions 파일 위치를 기준으로 해석됨
+        // functions/api/auth/signin/google.ts → ../../../lib/db = 루트/lib/db
         if(context.env.DB) {
+            let dbModule;
             try {
-                const dbModule = await import('../../../lib/db/index.js');
-                dbModule.setDb(context.env.DB);
-            } catch(error) {
-                // .js 확장자 실패 시 .ts 시도
+                // 먼저 확장자 없이 시도 (가장 일반적)
+                dbModule = await import('../../../lib/db');
+            } catch(error1) {
                 try {
-                    const dbModule = await import('../../../lib/db/index.ts');
-                    dbModule.setDb(context.env.DB);
+                    // .js 확장자 시도
+                    dbModule = await import('../../../lib/db/index.js');
                 } catch(error2) {
-                    // 확장자 없이 시도
-                    const dbModule = await import('../../../lib/db');
-                    dbModule.setDb(context.env.DB);
+                    try {
+                        // 절대 경로 시도 (루트 기준)
+                        dbModule = await import('/lib/db');
+                    } catch(error3) {
+                        console.error('DB 모듈 import 실패:', error1, error2, error3);
+                        throw new Error('DB 모듈을 로드할 수 없습니다.');
+                    }
                 }
+            }
+            if(dbModule && dbModule.setDb) {
+                dbModule.setDb(context.env.DB);
+            } else {
+                throw new Error('setDb 함수를 찾을 수 없습니다.');
             }
         }
         

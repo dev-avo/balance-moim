@@ -106,7 +106,43 @@ const nextAuthConfig = {
 
 // NextAuth 초기화 및 export
 // NextAuth v5 beta.30에서는 구조 분해 할당으로 handlers, signIn, signOut을 가져옵니다
-const { handlers, signIn, signOut } = NextAuth(nextAuthConfig);
+const nextAuthResult = NextAuth(nextAuthConfig);
+
+// handlers가 실제로 존재하는지 확인하고 export
+// NextAuth v5 beta에서는 구조 분해 할당이 제대로 작동하지 않을 수 있으므로
+// 직접 접근하여 확인
+let handlers: { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> } | undefined;
+let signIn: any;
+let signOut: any;
+
+// 여러 방법으로 접근 시도
+if(nextAuthResult.handlers) {
+    handlers = nextAuthResult.handlers;
+    signIn = nextAuthResult.signIn;
+    signOut = nextAuthResult.signOut;
+} else {
+    // 구조 분해 할당으로 시도
+    const destructured = nextAuthResult as any;
+    if(destructured.handlers) {
+        handlers = destructured.handlers;
+        signIn = destructured.signIn;
+        signOut = destructured.signOut;
+    } else {
+        // 직접 구조 분해 할당
+        ({ handlers, signIn, signOut } = nextAuthResult as any);
+    }
+}
+
+// handlers가 없으면 에러
+if(!handlers || !handlers.GET || !handlers.POST) {
+    console.error('NextAuth handlers를 가져올 수 없습니다:', {
+        hasHandlers: !!handlers,
+        handlersType: typeof handlers,
+        resultKeys: Object.keys(nextAuthResult),
+        resultType: typeof nextAuthResult,
+    });
+    throw new Error('NextAuth handlers를 초기화할 수 없습니다.');
+}
 
 // 명시적으로 export하여 Cloudflare Pages Functions에서 안정적으로 작동하도록 함
 export { handlers, signIn, signOut };

@@ -4,7 +4,6 @@
 
 import { groupApi } from '../services/api.js';
 import { checkAuth, signInWithGoogle } from '../utils/auth.js';
-import { router } from '../services/router.js';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../components/Toast.js';
 import { createLoading } from '../components/Loading.js';
 
@@ -14,18 +13,18 @@ let inviteData = null;
 /**
  * 초대 링크 페이지 렌더링
  */
-export async function renderInvite(route) {
+export async function renderInvite() {
     const mainEl = document.getElementById('main');
     if(!mainEl) return;
     
-    // inviteCode 추출 (#invite/123 -> 123)
-    const match = route.match(/^invite\/(.+)$/);
-    if(!match) {
-        router.navigate('#404');
+    // inviteCode 추출 (URL 쿼리 파라미터에서)
+    const url = new URL(window.location.href);
+    inviteCode = url.searchParams.get('code');
+    
+    if(!inviteCode) {
+        window.location.href = '/404.html';
         return;
     }
-    
-    inviteCode = match[1];
     
     await loadInviteData();
 }
@@ -187,7 +186,7 @@ async function handleJoinGroup() {
         }
         
         showSuccessToast('모임 참여 완료', `${inviteData.groupName} 모임에 참여했습니다!`);
-        router.navigate(`#groups/${data.groupId}`);
+        window.location.href = `/groups/detail.html?id=${data.groupId}`;
     } catch(error) {
         console.error('모임 참여 오류:', error);
         showErrorToast('참여 실패', error.message || '모임 참여 중 오류가 발생했습니다.');
@@ -221,8 +220,15 @@ function renderExpired() {
     
     const goHomeBtn = document.getElementById('go-home-btn');
     goHomeBtn.addEventListener('click', () => {
-        router.navigate('#home');
+        window.location.href = '/home.html';
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderInvite);
+} else {
+    renderInvite();
 }
 
 /**

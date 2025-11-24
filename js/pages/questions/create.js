@@ -4,7 +4,6 @@
 
 import { questionApi, tagApi } from '../../services/api.js';
 import { checkAuth } from '../../utils/auth.js';
-import { router } from '../../services/router.js';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../../components/Toast.js';
 import { createLoading } from '../../components/Loading.js';
 
@@ -23,7 +22,7 @@ export async function renderCreateQuestion() {
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '질문을 등록하려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -358,7 +357,7 @@ function renderForm() {
             });
             
             showSuccessToast('질문 등록 완료', '질문이 성공적으로 등록되었습니다!');
-            router.navigate('#questions/my');
+            window.location.href = '/questions/my.html';
         } catch(error) {
             console.error('질문 등록 오류:', error);
             showErrorToast('등록 실패', error.message || '질문을 등록하는 중 오류가 발생했습니다.');
@@ -371,6 +370,13 @@ function renderForm() {
     
     // 취소 버튼
     cancelBtn.addEventListener('click', () => {
-        router.navigate('#questions/my');
+        window.location.href = '/questions/my.html';
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderCreateQuestion);
+} else {
+    renderCreateQuestion();
 }

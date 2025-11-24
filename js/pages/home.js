@@ -3,8 +3,6 @@
  */
 
 import { checkAuth } from '../utils/auth.js';
-import { router } from '../services/router.js';
-import { createButton } from '../components/Button.js';
 
 let isAuthenticated = false;
 
@@ -51,9 +49,9 @@ export async function renderHome() {
 
                 <!-- CTA 버튼 -->
                 <div class="flex flex-col items-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                    <button id="start-btn" class="px-10 sm:px-12 md:px-16 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
+                    <a href="/play.html" class="px-10 sm:px-12 md:px-16 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200 inline-block text-center">
                         시작하기
-                    </button>
+                    </a>
 
                     <!-- 추가 안내 (비로그인 사용자) -->
                     ${!isAuthenticated ? `
@@ -97,12 +95,11 @@ export async function renderHome() {
             </div>
         </div>
     `;
-    
-    // 시작하기 버튼 이벤트
-    const startBtn = document.getElementById('start-btn');
-    if(startBtn) {
-        startBtn.addEventListener('click', () => {
-            router.navigate('#play');
-        });
-    }
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderHome);
+} else {
+    renderHome();
 }

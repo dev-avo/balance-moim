@@ -4,7 +4,6 @@
 
 import { groupApi } from '../../services/api.js';
 import { checkAuth } from '../../utils/auth.js';
-import { router } from '../../services/router.js';
 import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
 import { createLoading } from '../../components/Loading.js';
 
@@ -15,24 +14,24 @@ let members = [];
 /**
  * 모임 설정 페이지 렌더링
  */
-export async function renderGroupSettings(route) {
+export async function renderGroupSettings() {
     const mainEl = document.getElementById('main');
     if(!mainEl) return;
     
-    // groupId 추출 (#groups/123/settings -> 123)
-    const match = route.match(/^groups\/(.+)\/settings$/);
-    if(!match) {
-        router.navigate('#404');
+    // groupId 추출 (URL 쿼리 파라미터에서)
+    const url = new URL(window.location.href);
+    groupId = url.searchParams.get('id');
+    
+    if(!groupId) {
+        window.location.href = '/404.html';
         return;
     }
-    
-    groupId = match[1];
     
     // 로그인 확인
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -58,7 +57,7 @@ async function loadGroupData() {
         // 생성자 권한 확인
         if(!groupData.isCreator) {
             showErrorToast('권한 없음', '모임 생성자만 접근할 수 있습니다.');
-            router.navigate(`#groups/${groupId}`);
+            window.location.href = `/groups/detail.html?id=${groupId}`;
             return;
         }
         
@@ -91,7 +90,7 @@ function renderGroupSettingsContent() {
                         </h1>
                         <p class="text-muted-foreground">${groupData.name}</p>
                     </div>
-                    <a href="#groups/${groupId}" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground smooth-transition">
+                    <a href="/groups/detail.html?id=${groupId}" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground smooth-transition">
                         ← 모임으로 돌아가기
                     </a>
                 </div>
@@ -297,16 +296,14 @@ function renderGroupSettingsContent() {
     });
     
     // 링크 클릭 이벤트
-    const links = mainEl.querySelectorAll('a[href^="#"]');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = link.getAttribute('href');
-            if(href) {
-                router.navigate(href);
-            }
-        });
-    });
+    // 해시 링크 처리 제거 - 일반 링크로 동작
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderGroupSettings);
+} else {
+    renderGroupSettings();
 }
 
 /**

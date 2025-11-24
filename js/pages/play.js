@@ -5,7 +5,7 @@
 import { questionApi, responseApi } from '../services/api.js';
 import { showErrorToast, showSuccessToast } from '../components/Toast.js';
 import { createLoading } from '../components/Loading.js';
-import { getRouteFromHash, parseQueryString } from '../utils/helpers.js';
+import { parseQueryString } from '../utils/helpers.js';
 
 let gameStarted = false;
 let currentQuestion = null;
@@ -106,10 +106,8 @@ async function loadQuestion() {
     
     try {
         // URL에서 태그 파라미터 가져오기
-        const hash = window.location.hash;
-        const queryString = hash.includes('?') ? hash.split('?')[1] : '';
-        const params = parseQueryString(queryString);
-        const tags = params.tags ? params.tags.split(',') : [];
+        const url = new URL(window.location.href);
+        const tags = url.searchParams.get('tags') ? url.searchParams.get('tags').split(',') : [];
         selectedTags = tags;
         
         const tagsParam = tags.length > 0 ? tags.join(',') : null;
@@ -374,9 +372,9 @@ function renderResult() {
                     <button id="next-question-btn" class="px-12 py-6 text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                         다음 질문으로 →
                     </button>
-                    <p class="text-sm text-muted-foreground">
-                        계속해서 밸런스 게임을 즐겨보세요!
-                    </p>
+                    <a href="/home.html" class="text-sm text-muted-foreground hover:text-foreground smooth-transition">
+                        홈으로 돌아가기
+                    </a>
                 </div>
             </div>
         </div>
@@ -411,4 +409,11 @@ function renderError(message) {
     retryBtn.addEventListener('click', () => {
         loadQuestion();
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderPlay);
+} else {
+    renderPlay();
 }

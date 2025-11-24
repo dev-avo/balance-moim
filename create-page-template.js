@@ -1,9 +1,25 @@
-<!DOCTYPE html>
+/**
+ * 페이지 HTML 생성 템플릿
+ * 사용법: node create-page-template.js [페이지명] [제목]
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const pageName = process.argv[2];
+const pageTitle = process.argv[3] || pageName;
+
+if(!pageName) {
+    console.error('사용법: node create-page-template.js [페이지명] [제목]');
+    process.exit(1);
+}
+
+const template = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - 밸런스 모임</title>
+    <title>${pageTitle} - 밸런스 모임</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -51,12 +67,15 @@
         import { renderHeader } from '/js/components/Header.js';
         import { initToast } from '/js/components/Toast.js';
         import { initTheme } from '/js/utils/theme.js';
-        import { render404 } from '/js/pages/404.js';
+        import { render${pageName.charAt(0).toUpperCase() + pageName.slice(1)} } from '/js/pages/${pageName}.js';
         initTheme();
         initToast();
         renderHeader();
-        render404();
+        render${pageName.charAt(0).toUpperCase() + pageName.slice(1)}();
     </script>
 </body>
-</html>
+</html>`;
 
+const outputPath = path.join(__dirname, `${pageName}.html`);
+fs.writeFileSync(outputPath, template);
+console.log(`✅ ${outputPath} 생성 완료`);

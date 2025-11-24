@@ -4,7 +4,6 @@
 
 import { groupApi } from '../../services/api.js';
 import { checkAuth } from '../../utils/auth.js';
-import { router } from '../../services/router.js';
 import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
 import { createLoading } from '../../components/Loading.js';
 import { createModal, showConfirmModal } from '../../components/Modal.js';
@@ -15,24 +14,24 @@ let groupData = null;
 /**
  * 모임 상세 페이지 렌더링
  */
-export async function renderGroupDetail(route) {
+export async function renderGroupDetail() {
     const mainEl = document.getElementById('main');
     if(!mainEl) return;
     
-    // groupId 추출 (#groups/123 -> 123)
-    const match = route.match(/^groups\/(.+)$/);
-    if(!match) {
-        router.navigate('#404');
+    // groupId 추출 (URL 쿼리 파라미터에서)
+    const url = new URL(window.location.href);
+    groupId = url.searchParams.get('id');
+    
+    if(!groupId) {
+        window.location.href = '/404.html';
         return;
     }
-    
-    groupId = match[1];
     
     // 로그인 확인
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '모임을 보려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -98,7 +97,7 @@ function renderGroupDetailContent() {
                             </button>
                         ` : ''}
                         ${groupData.isCreator ? `
-                            <a href="#groups/${groupId}/settings" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground smooth-transition">
+                            <a href="/groups/settings.html?id=${groupId}" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground smooth-transition">
                                 ⚙️ 설정
                             </a>
                         ` : ''}
@@ -228,24 +227,14 @@ function renderGroupDetailContent() {
             try {
                 await groupApi.leave(groupId);
                 showSuccessToast('모임 나가기 완료', `${groupData.name} 모임에서 나갔습니다.`);
-                router.navigate('#groups');
+                window.location.href = '/groups.html';
             } catch(error) {
                 showErrorToast('나가기 실패', error.message || '모임에서 나가는 중 오류가 발생했습니다.');
             }
         });
     }
     
-    // 링크 클릭 이벤트
-    const links = mainEl.querySelectorAll('a[href^="#"]');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = link.getAttribute('href');
-            if(href) {
-                router.navigate(href);
-            }
-        });
-    });
+    // 해시 링크 처리 제거 - 일반 링크로 동작
     
     // 취향 유사도 및 응답 통계 로드
     if(groupData.isMember) {
@@ -346,8 +335,15 @@ function renderNotMember() {
     
     const goGroupsBtn = document.getElementById('go-groups-btn');
     goGroupsBtn.addEventListener('click', () => {
-        router.navigate('#groups');
+        window.location.href = '/groups.html';
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderGroupDetail);
+} else {
+    renderGroupDetail();
 }
 
 /**

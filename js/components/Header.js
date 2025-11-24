@@ -5,7 +5,6 @@
 
 import { getCurrentUser, signInWithGoogle, signOut } from '../utils/auth.js';
 import { toggleTheme } from '../utils/theme.js';
-import { router } from '../services/router.js';
 
 let currentUser = null;
 
@@ -35,7 +34,7 @@ export async function renderHeader() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <a href="#home" class="flex items-center space-x-2">
+                    <a href="/home.html" class="flex items-center space-x-2">
                         <span class="text-2xl font-bold">🎯</span>
                         <span class="text-xl font-bold">밸런스 모임</span>
                     </a>
@@ -43,12 +42,12 @@ export async function renderHeader() {
 
                 <!-- 네비게이션 -->
                 <nav class="hidden lg:flex items-center space-x-6">
-                    <a href="#home" class="text-sm font-medium hover:text-blue-600 smooth-transition">홈</a>
+                    <a href="/home.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">홈</a>
                     ${isAuthenticated ? `
-                        <a href="#groups" class="text-sm font-medium hover:text-blue-600 smooth-transition">내 모임</a>
-                        <a href="#questions/create" class="text-sm font-medium hover:text-blue-600 smooth-transition">질문 만들기</a>
-                        <a href="#questions/my" class="text-sm font-medium hover:text-blue-600 smooth-transition">내 질문</a>
-                        <a href="#settings" class="text-sm font-medium hover:text-blue-600 smooth-transition">설정</a>
+                        <a href="/groups.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">내 모임</a>
+                        <a href="/questions/create.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">질문 만들기</a>
+                        <a href="/questions/my.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">내 질문</a>
+                        <a href="/settings.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">설정</a>
                     ` : ''}
                 </nav>
 
@@ -80,12 +79,12 @@ export async function renderHeader() {
             <!-- 모바일 메뉴 -->
             <div id="mobile-menu" class="hidden lg:hidden border-t border-border/40">
                 <nav class="flex flex-col p-4 space-y-2">
-                    <a href="#home" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">홈</a>
+                    <a href="/home.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">홈</a>
                     ${isAuthenticated ? `
-                        <a href="#groups" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">내 모임</a>
-                        <a href="#questions/create" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">질문 만들기</a>
-                        <a href="#questions/my" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">내 질문</a>
-                        <a href="#settings" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">설정</a>
+                        <a href="/groups.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">내 모임</a>
+                        <a href="/questions/create.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">질문 만들기</a>
+                        <a href="/questions/my.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">내 질문</a>
+                        <a href="/settings.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">설정</a>
                     ` : ''}
                 </nav>
             </div>
@@ -161,17 +160,7 @@ function attachEventListeners() {
         });
     }
     
-    // 링크 클릭 시 해시 라우팅
-    const links = document.querySelectorAll('header a[href^="#"]');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = link.getAttribute('href');
-            if(href) {
-                router.navigate(href);
-            }
-        });
-    });
+    // 해시 라우팅 제거 - 일반 링크로 동작
     
     // 초기 테마 아이콘 업데이트
     updateThemeIcon();

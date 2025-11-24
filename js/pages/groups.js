@@ -4,7 +4,6 @@
 
 import { groupApi } from '../services/api.js';
 import { checkAuth } from '../utils/auth.js';
-import { router } from '../services/router.js';
 import { showErrorToast } from '../components/Toast.js';
 import { createLoading } from '../components/Loading.js';
 import { createButton } from '../components/Button.js';
@@ -24,7 +23,7 @@ export async function renderGroups() {
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '모임을 보려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -97,7 +96,7 @@ function renderGroupsList() {
             ` : `
                 <div class="grid gap-6 md:grid-cols-2">
                     ${groups.map(group => `
-                        <a href="#groups/${group.id}" class="block">
+                        <a href="/groups/detail.html?id=${group.id}" class="block">
                             <div class="h-full rounded-2xl border-2 border-border glass p-6 shadow-apple smooth-transition hover:shadow-apple-lg hover:border-primary/50">
                                 <div class="mb-4 flex items-start justify-between">
                                     <div class="flex-1">
@@ -141,7 +140,7 @@ function renderGroupsList() {
                     <!-- 페이지네이션 -->
                     <div class="mt-8 flex items-center justify-center gap-2">
                         ${currentPage > 1 ? `
-                            <button class="pagination-prev px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent smooth-transition">
+                            <button class="pagination-prev px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent smooth-transition" data-page="${currentPage - 1}">
                                 이전
                             </button>
                         ` : ''}
@@ -167,13 +166,13 @@ function renderGroupsList() {
     
     if(createBtn) {
         createBtn.addEventListener('click', () => {
-            router.navigate('#groups/create');
+            window.location.href = '/groups/create.html';
         });
     }
     
     if(createEmptyBtn) {
         createEmptyBtn.addEventListener('click', () => {
-            router.navigate('#groups/create');
+            window.location.href = '/groups/create.html';
         });
     }
     
@@ -191,17 +190,7 @@ function renderGroupsList() {
         });
     }
     
-    // 링크 클릭 이벤트
-    const links = mainEl.querySelectorAll('a[href^="#"]');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = link.getAttribute('href');
-            if(href) {
-                router.navigate(href);
-            }
-        });
-    });
+    // 해시 링크 처리 제거 - 일반 링크로 동작
 }
 
 /**
@@ -226,4 +215,11 @@ function renderError(message) {
     retryBtn.addEventListener('click', () => {
         loadGroups(currentPage);
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderGroups);
+} else {
+    renderGroups();
 }

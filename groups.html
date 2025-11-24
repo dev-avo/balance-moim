@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - 밸런스 모임</title>
+    <title>내 모임 - 밸런스 모임</title>
+    <meta name="description" content="내 모임 목록을 확인하고 관리하세요">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -51,12 +52,11 @@
         import { renderHeader } from '/js/components/Header.js';
         import { initToast } from '/js/components/Toast.js';
         import { initTheme } from '/js/utils/theme.js';
-        import { render404 } from '/js/pages/404.js';
+        import { renderGroups } from '/js/pages/groups.js';
         initTheme();
         initToast();
         renderHeader();
-        render404();
+        renderGroups();
     </script>
 </body>
 </html>
-

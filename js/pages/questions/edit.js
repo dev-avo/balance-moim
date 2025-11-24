@@ -4,7 +4,6 @@
 
 import { questionApi, tagApi } from '../../services/api.js';
 import { checkAuth } from '../../utils/auth.js';
-import { router } from '../../services/router.js';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../../components/Toast.js';
 import { createLoading } from '../../components/Loading.js';
 
@@ -17,24 +16,24 @@ let isComposing = false;
 /**
  * 질문 수정 페이지 렌더링
  */
-export async function renderEditQuestion(route) {
+export async function renderEditQuestion() {
     const mainEl = document.getElementById('main');
     if(!mainEl) return;
     
-    // questionId 추출 (#questions/123/edit -> 123)
-    const match = route.match(/^questions\/(.+)\/edit$/);
-    if(!match) {
-        router.navigate('#404');
+    // questionId 추출 (URL 쿼리 파라미터에서)
+    const url = new URL(window.location.href);
+    questionId = url.searchParams.get('id');
+    
+    if(!questionId) {
+        window.location.href = '/404.html';
         return;
     }
-    
-    questionId = match[1];
     
     // 로그인 확인
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '질문을 수정하려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -61,7 +60,7 @@ async function loadQuestion() {
     } catch(error) {
         console.error('질문 불러오기 오류:', error);
         showErrorToast('오류', error.message || '질문을 불러올 수 없습니다.');
-        router.navigate('#questions/my');
+        window.location.href = '/questions/my.html';
     }
 }
 
@@ -377,7 +376,7 @@ function renderForm() {
             });
             
             showSuccessToast('수정 완료', '질문이 성공적으로 수정되었습니다!');
-            router.navigate('#questions/my');
+            window.location.href = '/questions/my.html';
         } catch(error) {
             console.error('질문 수정 오류:', error);
             showErrorToast('수정 실패', error.message || '질문을 수정하는 중 오류가 발생했습니다.');
@@ -390,6 +389,13 @@ function renderForm() {
     
     // 취소 버튼
     cancelBtn.addEventListener('click', () => {
-        router.navigate('#questions/my');
+        window.location.href = '/questions/my.html';
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderEditQuestion);
+} else {
+    renderEditQuestion();
 }

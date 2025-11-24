@@ -4,7 +4,6 @@
 
 import { groupApi } from '../../services/api.js';
 import { checkAuth } from '../../utils/auth.js';
-import { router } from '../../services/router.js';
 import { showErrorToast, showSuccessToast } from '../../components/Toast.js';
 import { createLoading } from '../../components/Loading.js';
 import { createInput, createTextarea } from '../../components/Input.js';
@@ -26,7 +25,7 @@ export async function renderCreateGroup() {
     const isAuthenticated = await checkAuth();
     if(!isAuthenticated) {
         showErrorToast('로그인 필요', '모임을 만들려면 로그인이 필요합니다.');
-        router.navigate('#home');
+        window.location.href = '/home.html';
         return;
     }
     
@@ -189,7 +188,7 @@ function renderForm() {
             });
             
             showSuccessToast('모임 생성 완료', '모임이 성공적으로 생성되었습니다!');
-            router.navigate('#groups');
+            window.location.href = '/groups.html';
         } catch(error) {
             console.error('모임 생성 오류:', error);
             showErrorToast('생성 실패', error.message || '모임을 생성하는 중 오류가 발생했습니다.');
@@ -202,6 +201,13 @@ function renderForm() {
     
     // 취소 버튼
     cancelBtn.addEventListener('click', () => {
-        router.navigate('#groups');
+        window.location.href = '/groups.html';
     });
+}
+
+// 페이지 로드 시 자동 렌더링
+if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderCreateGroup);
+} else {
+    renderCreateGroup();
 }
