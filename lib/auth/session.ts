@@ -19,7 +19,13 @@ export async function getCurrentUser(request: Request, secret: string): Promise<
             return null;
         }
         
-        const token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
+        let token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
+        try {
+            token = decodeURIComponent(token);
+        } catch(error) {
+            console.error('getCurrentUser: Failed to decode bm_session cookie', error);
+            return null;
+        }
         if(!token) {
             return null;
         }

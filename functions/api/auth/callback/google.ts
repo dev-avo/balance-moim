@@ -149,7 +149,8 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         }, secret);
         
         // 세션 쿠키 설정
-        const sessionCookie = `bm_session=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${30 * 24 * 60 * 60}`;
+        const encodedToken = encodeURIComponent(token);
+        const sessionCookie = `bm_session=${encodedToken}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${30 * 24 * 60 * 60}`;
         const clearLegacySessionCookie = 'session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
         
         // state 및 callback 쿠키 삭제

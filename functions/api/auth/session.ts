@@ -16,7 +16,23 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
         
-        const token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
+        let token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
+        try {
+            token = decodeURIComponent(token);
+        } catch(error) {
+            console.warn('[auth/session] Failed to decode bm_session cookie, clearing', error);
+            const clearCookie = 'bm_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
+            return new Response(
+                JSON.stringify({ user: null }),
+                { 
+                    status: 200,
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Set-Cookie': clearCookie,
+                    }
+                }
+            );
+        }
         if(!token) {
             return new Response(
                 JSON.stringify({ user: null }),
