@@ -11,12 +11,12 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         
         // D1 데이터베이스 설정
         if(context.env.DB) {
-            const { setDb } = await import('../../../../lib/db');
+            const { setDb } = await import('../../../lib/db');
             setDb(context.env.DB);
         }
         
         // 동적 import로 NextAuth handlers 로드
-        const { handlers } = await import('../../../../auth');
+        const { handlers } = await import('../../../auth');
         
         // NextAuth handlers 호출 (GET 요청)
         const request = context.request;

@@ -6,7 +6,8 @@ import { user as userTable } from './lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from './lib/utils';
 
-const nextAuthConfig = NextAuth({
+// NextAuth v5에서는 구조 분해 할당을 사용하여 handlers, auth 등을 직접 export
+export const { handlers, signIn, signOut } = NextAuth({
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -98,12 +99,6 @@ const nextAuthConfig = NextAuth({
     },
   },
 });
-
-// Cloudflare Pages Functions에서 동적 import 시 문제를 해결하기 위해 명시적으로 export
-// NextAuth v5에서는 구조 분해 할당이 동적 import에서 문제가 있을 수 있으므로 개별적으로 export
-export const handlers = nextAuthConfig.handlers;
-export const signIn = nextAuthConfig.signIn;
-export const signOut = nextAuthConfig.signOut;
 
 // auth 함수를 직접 구현하여 export
 // NextAuth v5 beta에서는 auth가 제대로 export되지 않을 수 있으므로 직접 구현
