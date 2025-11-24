@@ -30,10 +30,23 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         // JWT 토큰 검증
         const { verifyJWT } = await import('../../../lib/auth/jwt');
         const secret = context.env.NEXTAUTH_SECRET;
+        if(!secret) {
+            console.error('[auth/session] NEXTAUTH_SECRET is missing in environment');
+        }
+        
+        console.log('[auth/session] verifying token', {
+            tokenLength: token.length,
+            hasSecret: !!secret,
+            requestId: context.request.headers.get('cf-ray') || 'unknown',
+        });
+        
         const payload = await verifyJWT(token, secret);
         
         if(!payload) {
             // 유효하지 않은 토큰 - 쿠키 삭제
+            console.warn('[auth/session] verifyJWT returned null, clearing cookie', {
+                requestId: context.request.headers.get('cf-ray') || 'unknown',
+            });
             const clearCookie = 'bm_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
             return new Response(
                 JSON.stringify({ user: null }),
