@@ -73,25 +73,6 @@ function showWarningModal() {
                         </ul>
                     </div>
                     
-                    <div class="rounded-2xl glass border-2 border-border p-5">
-                        <h4 class="mb-2 text-sm font-bold text-foreground">
-                            밸런스 모임 = 밸런스 질문 + 모임
-                        </h4>
-                        <ul class="space-y-2 text-sm text-muted-foreground">
-                            <li class="flex items-start gap-2">
-                                <span class="mt-0.5 text-primary">•</span>
-                                <span>
-                                    둘 중 하나를 선택하는 <strong class="text-foreground">밸런스 질문</strong>으로 취향을 공유하고
-                                </span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="mt-0.5 text-primary">•</span>
-                                <span>
-                                    같은 <strong class="text-foreground">모임</strong>에 있는 사람들의 답변을 비교해보세요!
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
                     
                     <button id="start-game-btn" class="w-full px-8 py-6 text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:shadow-apple hover:bg-primary/90 smooth-transition">
                         시작하기

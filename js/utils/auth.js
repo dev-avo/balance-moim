@@ -9,11 +9,18 @@ export async function getCurrentUser() {
     try {
         const response = await fetch('/api/users/me');
         if(!response.ok) {
+            // 401 (Unauthorized)는 로그인하지 않은 상태이므로 정상적인 경우
+            if(response.status === 401) {
+                return null;
+            }
+            // 다른 오류는 로깅
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error('Get current user error:', response.status, errorData);
             return null;
         }
         return await response.json();
     } catch(error) {
-        console.error('Get current user error:', error);
+        console.error('Get current user fetch error:', error);
         return null;
     }
 }

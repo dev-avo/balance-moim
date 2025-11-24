@@ -3,7 +3,20 @@
 // GET /api/users/me
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수 설정
+        // 환경 변수 확인 및 설정
+        if(!context.env.GOOGLE_CLIENT_ID || !context.env.GOOGLE_CLIENT_SECRET || !context.env.NEXTAUTH_SECRET || !context.env.NEXTAUTH_URL) {
+            console.error('필수 환경 변수가 설정되지 않았습니다:', {
+                hasGoogleClientId: !!context.env.GOOGLE_CLIENT_ID,
+                hasGoogleClientSecret: !!context.env.GOOGLE_CLIENT_SECRET,
+                hasNextAuthSecret: !!context.env.NEXTAUTH_SECRET,
+                hasNextAuthUrl: !!context.env.NEXTAUTH_URL
+            });
+            return new Response(
+                JSON.stringify({ error: '서버 설정 오류: 환경 변수가 설정되지 않았습니다.' }),
+                { status: 500, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
         process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
         process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
@@ -48,7 +61,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         return new Response(
             JSON.stringify({ 
                 error: '사용자 정보를 가져오는 중 오류가 발생했습니다.',
-                details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+                details: errorMessage
             }),
             { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
