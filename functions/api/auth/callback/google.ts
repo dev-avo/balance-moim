@@ -35,10 +35,10 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         
         let dbModule;
         try {
-            dbModule = await import('../../../../../lib/db');
+            dbModule = await import('../../../../lib/db');
         } catch(error1) {
             try {
-                dbModule = await import('../../../../../lib/db/index.js');
+                dbModule = await import('../../../../lib/db/index.js');
             } catch(error2) {
                 console.error('DB 모듈 import 실패:', error1, error2);
                 throw new Error('DB 모듈을 로드할 수 없습니다.');
@@ -100,9 +100,9 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         const name = userInfo.name;
         
         // DB 스키마 import
-        const { user: userTable } = await import('../../../../../lib/db/schema');
+        const { user: userTable } = await import('../../../../lib/db/schema');
         const { eq } = await import('drizzle-orm');
-        const { generateId } = await import('../../../../../lib/utils');
+        const { generateId } = await import('../../../../lib/utils');
         
         // 기존 사용자 조회 또는 생성
         const existingUsers = await db
@@ -137,7 +137,7 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         }
         
         // JWT 토큰 생성
-        const { createJWT } = await import('../../../../../lib/auth/jwt');
+        const { createJWT } = await import('../../../../lib/auth/jwt');
         const secret = context.env.NEXTAUTH_SECRET;
         const token = await createJWT({
             id: userId,
