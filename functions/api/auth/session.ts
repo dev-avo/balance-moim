@@ -1,6 +1,14 @@
 // 세션 확인 엔드포인트
 // /api/auth/session 경로를 처리합니다.
 
+async function secretFingerprint(secret: string) {
+    if(!secret) return 'empty';
+    const data = new TextEncoder().encode(secret);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const bytes = Array.from(new Uint8Array(hashBuffer));
+    return bytes.slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
         const cookies = context.request.headers.get('Cookie') || '';
@@ -54,6 +62,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             tokenLength: token.length,
             hasSecret: !!secret,
             requestId: context.request.headers.get('cf-ray') || 'unknown',
+            fingerprint: await secretFingerprint(secret || ''),
         });
         
         const payload = await verifyJWT(token, secret);
