@@ -1,39 +1,25 @@
-// NextAuth를 Cloudflare Pages Functions에서 사용하기 위한 래퍼
-// Cloudflare Pages Functions는 catch-all 라우트를 지원하지 않으므로
-// onRequest.ts를 사용하여 /api/auth/* 모든 요청을 처리합니다.
+// NextAuth Google 콜백 엔드포인트
+// /api/auth/callback/google 경로를 처리합니다.
 
 export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수를 process.env에 설정 (NextAuth가 사용)
+        // 환경 변수를 process.env에 설정
         process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
         process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
         // 동적 import로 NextAuth handlers 로드
-        const { handlers } = await import('../../../auth');
-        const { setDb } = await import('../../../lib/db');
+        const { handlers } = await import('../../../../../auth');
+        const { setDb } = await import('../../../../../lib/db');
         
         // D1 데이터베이스 설정
         if(context.env.DB) {
             setDb(context.env.DB);
         }
         
-        // 원본 요청 URL 유지 (NextAuth가 경로를 파싱할 수 있도록)
-        const request = context.request;
-        const url = new URL(request.url);
-        
-        // NextAuth는 /api/auth/[...nextauth] 경로를 기대하므로
-        // 요청 URL이 /api/auth/* 형식인지 확인하고 처리
-        const pathname = url.pathname;
-        
-        // /api/auth로 시작하는 경로인지 확인
-        if(!pathname.startsWith('/api/auth')) {
-            return new Response('Not found', { status: 404 });
-        }
-        
         // NextAuth handlers 호출
-        // NextAuth handlers는 Request 객체를 받아서 처리합니다
+        const request = context.request;
         const method = request.method;
         
         if(method === 'GET') {
@@ -46,10 +32,10 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
             return new Response('Method not allowed', { status: 405 });
         }
     } catch(error) {
-        console.error('NextAuth handler 오류:', error);
+        console.error('Google 콜백 처리 오류:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
         return new Response(
-            JSON.stringify({ error: '인증 처리 중 오류가 발생했습니다.', details: errorMessage }),
+            JSON.stringify({ error: '콜백 처리 중 오류가 발생했습니다.', details: errorMessage }),
             { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
     }

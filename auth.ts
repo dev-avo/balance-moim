@@ -62,21 +62,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Google OAuth 정보 저장
       if(account && profile) {
         try {
-          const db = getDb();
-          
-          // DB에서 사용자 정보 조회
-          const dbUser = await db
-            .select()
-            .from(userTable)
-            .where(eq(userTable.googleId, account.providerAccountId))
-            .limit(1);
+        const db = getDb();
+        
+        // DB에서 사용자 정보 조회
+        const dbUser = await db
+          .select()
+          .from(userTable)
+          .where(eq(userTable.googleId, account.providerAccountId))
+          .limit(1);
 
-          if(dbUser.length > 0) {
-            token.id = dbUser[0].id;
-            token.googleId = dbUser[0].googleId;
-            token.email = dbUser[0].email;
-            token.name = dbUser[0].displayName;
-            token.status = dbUser[0].status;
+        if(dbUser.length > 0) {
+          token.id = dbUser[0].id;
+          token.googleId = dbUser[0].googleId;
+          token.email = dbUser[0].email;
+          token.name = dbUser[0].displayName;
+          token.status = dbUser[0].status;
           }
         } catch(error) {
           console.error('JWT 콜백에서 DB 접근 오류:', error);
