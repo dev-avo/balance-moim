@@ -1,6 +1,7 @@
 // NextAuth를 Cloudflare Pages Functions에서 사용하기 위한 래퍼
-// Cloudflare Pages Functions는 catch-all 라우트를 지원하지 않으므로
-// onRequest.ts를 사용하여 /api/auth/* 모든 요청을 처리합니다.
+// 이 파일은 /api/auth/* 경로 중 더 구체적인 경로가 없는 경우에만 실행됩니다.
+// Cloudflare Pages Functions는 더 구체적인 경로가 자동으로 우선순위가 높으므로,
+// 이 함수가 실행되었다는 것은 더 구체적인 경로가 없다는 의미입니다.
 
 export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
@@ -24,29 +25,13 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         const url = new URL(request.url);
         const pathname = url.pathname;
         
-        // 더 구체적인 경로는 해당 Functions에서 처리해야 하므로
-        // 이 함수는 /api/auth로 시작하지만 더 구체적인 경로가 아닌 경우에만 처리
-        // Cloudflare Pages Functions는 더 구체적인 경로가 자동으로 우선순위가 높으므로
-        // 여기서는 catch-all 역할만 수행
-        const specificPaths = [
-            '/api/auth/signin/google',
-            '/api/auth/signout',
-            '/api/auth/callback/google',
-            '/api/auth/session'
-        ];
-        
-        // 더 구체적인 경로는 해당 Functions에서 처리해야 하므로
-        // 이 함수가 실행되었다는 것은 더 구체적인 경로가 없다는 의미
-        // 하지만 안전을 위해 명시적으로 확인
-        const isSpecificPath = specificPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
-        
         // /api/auth로 시작하는 경로인지 확인
         if(!pathname.startsWith('/api/auth')) {
             return new Response('Not found', { status: 404 });
         }
         
-        // 더 구체적인 경로가 있다면 해당 Functions에서 처리해야 하므로
-        // 여기서는 처리하지 않음 (하지만 실제로는 더 구체적인 경로가 없을 때만 이 함수가 실행됨)
+        // 더 구체적인 경로는 해당 Functions에서 처리해야 하므로
+        // 이 함수가 실행되었다는 것은 더 구체적인 경로가 없다는 의미
         // 따라서 모든 /api/auth/* 경로를 처리
         
         // NextAuth handlers 호출
