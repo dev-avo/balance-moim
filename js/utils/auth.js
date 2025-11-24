@@ -7,20 +7,30 @@
  */
 export async function getCurrentUser() {
     try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch('/api/users/me', {
+            credentials: 'include', // 쿠키 포함
+        });
+        
+        // 401 (Unauthorized)는 로그인하지 않은 상태이므로 정상적인 경우
+        // 조용히 처리하여 콘솔에 에러가 표시되지 않도록 함
+        if(response.status === 401) {
+            return null;
+        }
+        
         if(!response.ok) {
-            // 401 (Unauthorized)는 로그인하지 않은 상태이므로 정상적인 경우
-            if(response.status === 401) {
-                return null;
-            }
-            // 다른 오류는 로깅
+            // 401이 아닌 다른 오류만 로깅 (404, 500 등)
             const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
             console.error('Get current user error:', response.status, errorData);
             return null;
         }
-        return await response.json();
+        
+        const data = await response.json();
+        return data.user || data; // 응답 형식에 따라 user 객체 또는 직접 반환
     } catch(error) {
-        console.error('Get current user fetch error:', error);
+        // 네트워크 오류 등만 로깅 (401은 조용히 처리)
+        if(error instanceof TypeError && error.message.includes('fetch')) {
+            console.error('Get current user fetch error:', error);
+        }
         return null;
     }
 }
