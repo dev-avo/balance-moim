@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 실패</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+        }
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 1.5rem;
+        }
+        p {
+            margin: 0 0 1.5rem;
+            opacity: 0.9;
+        }
+        button {
+            background: white;
+            color: #f5576c;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>로그인 실패</h1>
+        <p>로그인 중 오류가 발생했습니다.</p>
+        <button onclick="window.close()">닫기</button>
+    </div>
+    
+    <script>
+        // URL에서 에러 메시지 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error') || '알 수 없는 오류';
+        
+        // 부모 창에 에러 메시지 전송
+        if(window.opener) {
+            window.opener.postMessage({
+                type: 'GOOGLE_AUTH_ERROR',
+                error: error
+            }, window.location.origin);
+        }
+    </script>
+</body>
+</html>

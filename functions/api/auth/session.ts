@@ -9,14 +9,26 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
-        // 동적 import로 NextAuth handlers 로드
-        const { handlers } = await import('../../../auth');
+        // D1 데이터베이스 설정 (handlers import 전에 설정)
         const { setDb } = await import('../../../lib/db');
-        
-        // D1 데이터베이스 설정
         if(context.env.DB) {
             setDb(context.env.DB);
         }
+        
+        // 동적 import로 NextAuth handlers 로드
+        const authModule = await import('../../../auth');
+        
+        // handlers가 제대로 export되었는지 확인
+        if(!authModule.handlers || !authModule.handlers.GET) {
+            console.error('handlers가 제대로 export되지 않았습니다:', {
+                hasHandlers: !!authModule.handlers,
+                handlersKeys: authModule.handlers ? Object.keys(authModule.handlers) : [],
+                moduleKeys: Object.keys(authModule),
+            });
+            throw new Error('handlers.GET이 없습니다');
+        }
+        
+        const { handlers } = authModule;
         
         // NextAuth handlers 호출 (GET 요청)
         const request = context.request;

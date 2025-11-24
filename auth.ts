@@ -6,8 +6,8 @@ import { user as userTable } from './lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from './lib/utils';
 
-// NextAuth v5에서는 구조 분해 할당을 사용하여 handlers, auth 등을 직접 export
-export const { handlers, signIn, signOut } = NextAuth({
+// NextAuth 설정
+const nextAuthConfig = {
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -15,7 +15,11 @@ export const { handlers, signIn, signOut } = NextAuth({
     }),
   ],
   session: {
-    strategy: 'jwt', // JWT 전략 사용
+    strategy: 'jwt' as const, // JWT 전략 사용
+  },
+  pages: {
+    signIn: '/api/auth/signin',
+    error: '/auth/callback-error',
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -98,7 +102,15 @@ export const { handlers, signIn, signOut } = NextAuth({
       return session;
     },
   },
-});
+};
+
+// NextAuth 초기화 및 export
+// 구조 분해 할당 대신 명시적으로 export하여 Cloudflare Pages Functions에서 안정적으로 작동하도록 함
+const nextAuth = NextAuth(nextAuthConfig);
+
+export const handlers = nextAuth.handlers;
+export const signIn = nextAuth.signIn;
+export const signOut = nextAuth.signOut;
 
 // auth 함수를 직접 구현하여 export
 // NextAuth v5 beta에서는 auth가 제대로 export되지 않을 수 있으므로 직접 구현
