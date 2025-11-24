@@ -165,12 +165,16 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         redirectUrlObj.searchParams.set('auth', 'success');
         const redirectUrl = redirectUrlObj.toString();
         
-        const response = Response.redirect(redirectUrl, 302);
-        response.headers.append('Set-Cookie', sessionCookie);
-        response.headers.append('Set-Cookie', clearStateCookie);
-        response.headers.append('Set-Cookie', clearCallbackCookie);
+        const headers = new Headers();
+        headers.set('Location', redirectUrl);
+        headers.append('Set-Cookie', sessionCookie);
+        headers.append('Set-Cookie', clearStateCookie);
+        headers.append('Set-Cookie', clearCallbackCookie);
         
-        return response;
+        return new Response(null, {
+            status: 302,
+            headers,
+        });
     } catch(error) {
         console.error('Google 콜백 처리 오류:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
