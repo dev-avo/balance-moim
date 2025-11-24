@@ -160,9 +160,9 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         let callbackPage = callbackCookie ? callbackCookie.split('=')[1] : '/home.html';
         
         // 쿼리 파라미터에 auth=success 추가하여 세션 캐시 초기화 트리거
-        const callbackUrl = new URL(callbackPage, url.origin);
-        callbackUrl.searchParams.set('auth', 'success');
-        const redirectUrl = callbackUrl.toString();
+        const redirectUrlObj = new URL(callbackPage, url.origin);
+        redirectUrlObj.searchParams.set('auth', 'success');
+        const redirectUrl = redirectUrlObj.toString();
         
         return new Response(null, {
             status: 302,
