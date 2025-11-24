@@ -3,44 +3,66 @@
  */
 
 /**
- * 현재 사용자 정보 가져오기
+ * 세션 확인 (로그인 여부만 확인)
+ * 로그인하지 않은 상태에서도 호출 가능하며, 불필요한 네트워크 요청을 줄입니다.
  */
-export async function getCurrentUser() {
+async function checkSession() {
     try {
-        const response = await fetch('/api/users/me', {
-            credentials: 'include', // 쿠키 포함
+        const response = await fetch('/api/auth/session', {
+            credentials: 'include',
         });
         
-        // 401 (Unauthorized)는 로그인하지 않은 상태이므로 정상적인 경우
-        // 조용히 처리하여 콘솔에 에러가 표시되지 않도록 함
-        if(response.status === 401) {
+        if(!response.ok) {
             return null;
         }
         
+        const session = await response.json();
+        return session?.user || null;
+    } catch(error) {
+        return null;
+    }
+}
+
+/**
+ * 현재 사용자 정보 가져오기
+ * 실제 사용자 정보가 필요할 때만 호출합니다 (예: 프로필 페이지, 설정 페이지)
+ */
+export async function getCurrentUser() {
+    try {
+        // 먼저 세션 확인 (로그인 여부만 빠르게 확인)
+        const sessionUser = await checkSession();
+        if(!sessionUser) {
+            return null; // 로그인하지 않은 상태
+        }
+        
+        // 로그인한 상태에서만 사용자 정보 가져오기
+        const response = await fetch('/api/users/me', {
+            credentials: 'include',
+        });
+        
         if(!response.ok) {
-            // 401이 아닌 다른 오류만 로깅 (404, 500 등)
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-            console.error('Get current user error:', response.status, errorData);
+            // 401이 아닌 다른 오류만 로깅
+            if(response.status !== 401) {
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                console.warn('Get current user error:', response.status, errorData);
+            }
             return null;
         }
         
         const data = await response.json();
-        return data.user || data; // 응답 형식에 따라 user 객체 또는 직접 반환
+        return data.user || data;
     } catch(error) {
-        // 네트워크 오류 등만 로깅 (401은 조용히 처리)
-        if(error instanceof TypeError && error.message.includes('fetch')) {
-            console.error('Get current user fetch error:', error);
-        }
         return null;
     }
 }
 
 /**
  * 로그인 상태 확인
+ * 세션만 확인하여 불필요한 네트워크 요청을 줄입니다.
  */
 export async function checkAuth() {
-    const user = await getCurrentUser();
-    return user !== null;
+    const sessionUser = await checkSession();
+    return sessionUser !== null;
 }
 
 /**

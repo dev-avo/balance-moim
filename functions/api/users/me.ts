@@ -40,11 +40,10 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         // D1 데이터베이스 설정 (getCurrentUser가 auth()를 호출하고 auth()가 DB를 사용하므로 필수)
         setDb(context.env.DB);
         
-        console.log('D1 데이터베이스 설정 완료, getCurrentUser 호출 중...');
         // Request 객체를 전달하여 auth 함수 호출
         const sessionUser = await getCurrentUser(context.request);
-        console.log('getCurrentUser 결과:', sessionUser ? '사용자 있음' : '사용자 없음');
         
+        // 로그인하지 않은 상태는 정상적인 경우이므로 401 반환 (에러가 아님)
         if(!sessionUser || !sessionUser.id) {
             return new Response(
                 JSON.stringify({ error: '로그인이 필요합니다.' }),

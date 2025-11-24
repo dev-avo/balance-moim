@@ -1,7 +1,7 @@
-// NextAuth Google 로그인 엔드포인트
+// NextAuth Google 로그인 엔드포인트 (GET 요청)
 // /api/auth/signin/google 경로를 처리합니다.
 
-export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
+export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
         // 환경 변수를 process.env에 설정
         process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
@@ -9,28 +9,20 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
         process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
         
-        // 동적 import로 NextAuth handlers 로드
-        const { handlers } = await import('../../../../auth');
-        const { setDb } = await import('../../../../lib/db');
-        
         // D1 데이터베이스 설정
         if(context.env.DB) {
+            const { setDb } = await import('../../../../lib/db');
             setDb(context.env.DB);
         }
         
-        // NextAuth handlers 호출
-        const request = context.request;
-        const method = request.method;
+        // 동적 import로 NextAuth handlers 로드
+        const { handlers } = await import('../../../../auth');
         
-        if(method === 'GET') {
-            const response = await handlers.GET(request as any);
-            return response;
-        } else if(method === 'POST') {
-            const response = await handlers.POST(request as any);
-            return response;
-        } else {
-            return new Response('Method not allowed', { status: 405 });
-        }
+        // NextAuth handlers 호출 (GET 요청)
+        const request = context.request;
+        const response = await handlers.GET(request as any);
+        
+        return response;
     } catch(error) {
         console.error('Google 로그인 처리 오류:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);

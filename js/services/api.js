@@ -19,7 +19,10 @@ async function request(endpoint, options = {}) {
     };
     
     try {
-        const response = await fetch(url, config);
+        const response = await fetch(url, {
+            ...config,
+            credentials: 'include', // 쿠키 포함 (인증용)
+        });
         
         // 응답이 JSON이 아닌 경우 처리
         const contentType = response.headers.get('content-type');
@@ -38,7 +41,12 @@ async function request(endpoint, options = {}) {
         
         return data;
     } catch(error) {
-        console.error('API request error:', error);
+        // 404 에러는 자세한 정보와 함께 로깅
+        if(error.message && error.message.includes('404')) {
+            console.error('API request error (404):', error.message, 'Endpoint:', url);
+        } else {
+            console.error('API request error:', error);
+        }
         throw error;
     }
 }

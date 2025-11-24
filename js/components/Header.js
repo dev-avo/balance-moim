@@ -16,9 +16,14 @@ export async function renderHeader() {
     const headerEl = document.getElementById('header');
     if(!headerEl) return;
     
-    // 현재 사용자 정보 가져오기
-    currentUser = await getCurrentUser();
-    const isAuthenticated = currentUser !== null;
+    // 로그인 상태만 확인 (세션 확인으로 불필요한 네트워크 요청 방지)
+    // 헤더에서는 로그인 여부만 알면 되므로 세션만 확인
+    const { checkAuth } = await import('../utils/auth.js');
+    const isAuthenticated = await checkAuth();
+    
+    // 사용자 이름 표시를 위해 로그인한 경우에만 사용자 정보 가져오기
+    // 하지만 헤더 렌더링을 먼저 하고, 사용자 정보는 비동기로 로드
+    currentUser = null;
     
     headerEl.innerHTML = `
         <header class="sticky top-0 z-40 w-full glass border-b border-border/40 backdrop-blur-xl">
@@ -58,8 +63,8 @@ export async function renderHeader() {
                         </svg>
                     </button>
                     ${isAuthenticated ? `
-                        <span class="hidden lg:inline text-sm font-medium text-muted-foreground px-2">
-                            ${currentUser.name || currentUser.email}
+                        <span id="user-name-display" class="hidden lg:inline text-sm font-medium text-muted-foreground px-2">
+                            로딩 중...
                         </span>
                         <button id="sign-out-btn" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                             로그아웃
@@ -89,6 +94,33 @@ export async function renderHeader() {
     
     // 이벤트 리스너 등록
     attachEventListeners();
+    
+    // 로그인한 경우에만 사용자 정보를 비동기로 로드 (헤더 렌더링 후)
+    // 사용자 이름 표시는 선택적이므로, 헤더 렌더링을 블로킹하지 않음
+    if(isAuthenticated) {
+        loadUserInfoAsync();
+    }
+}
+
+/**
+ * 사용자 정보를 비동기로 로드 (헤더 렌더링을 블로킹하지 않음)
+ */
+async function loadUserInfoAsync() {
+    try {
+        const { getCurrentUser } = await import('../utils/auth.js');
+        const user = await getCurrentUser();
+        if(user) {
+            currentUser = user;
+            // 사용자 이름 표시 업데이트
+            const userNameDisplay = document.getElementById('user-name-display');
+            if(userNameDisplay) {
+                userNameDisplay.textContent = user.name || user.email || '사용자';
+            }
+        }
+    } catch(error) {
+        // 에러는 조용히 처리 (사용자 이름 표시는 선택적)
+        console.warn('사용자 정보 로드 실패:', error);
+    }
 }
 
 /**
