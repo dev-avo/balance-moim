@@ -2,25 +2,54 @@
  * 인증 관련 유틸리티
  */
 
+// 세션 확인 결과 캐싱 (같은 페이지 로드 중에는 한 번만 호출)
+let sessionCache = null;
+let sessionCacheTime = 0;
+const SESSION_CACHE_DURATION = 5000; // 5초 캐시
+
 /**
  * 세션 확인 (로그인 여부만 확인)
  * 로그인하지 않은 상태에서도 호출 가능하며, 불필요한 네트워크 요청을 줄입니다.
  */
 async function checkSession() {
+    // 캐시가 유효한 경우 캐시된 결과 반환
+    const now = Date.now();
+    if(sessionCache !== null && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
+        return sessionCache;
+    }
+    
     try {
         const response = await fetch('/api/auth/session', {
             credentials: 'include',
         });
         
         if(!response.ok) {
+            sessionCache = null;
+            sessionCacheTime = now;
             return null;
         }
         
         const session = await response.json();
-        return session?.user || null;
+        const user = session?.user || null;
+        
+        // 캐시 업데이트
+        sessionCache = user;
+        sessionCacheTime = now;
+        
+        return user;
     } catch(error) {
+        sessionCache = null;
+        sessionCacheTime = now;
         return null;
     }
+}
+
+/**
+ * 세션 캐시 초기화 (로그인/로그아웃 시 호출)
+ */
+export function clearSessionCache() {
+    sessionCache = null;
+    sessionCacheTime = 0;
 }
 
 /**
@@ -70,6 +99,9 @@ export async function checkAuth() {
  * 전통적인 웹 페이지 방식으로 로그인을 처리합니다.
  */
 export function signInWithGoogle() {
+    // 세션 캐시 초기화
+    clearSessionCache();
+    
     // 현재 URL을 callback으로 저장 (로그인 후 돌아올 페이지)
     const currentUrl = window.location.href;
     localStorage.setItem('auth_callback_url', currentUrl);
@@ -83,6 +115,9 @@ export function signInWithGoogle() {
  */
 export async function signOut() {
     try {
+        // 세션 캐시 초기화
+        clearSessionCache();
+        
         const response = await fetch('/api/auth/signout', {
             method: 'POST'
         });

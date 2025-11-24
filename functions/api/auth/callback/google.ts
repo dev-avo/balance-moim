@@ -157,8 +157,12 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         // 로그인 후 리다이렉트할 URL
         // 쿠키에서 저장된 callback 페이지 가져오기
         const callbackCookie = cookies.split(';').find(c => c.trim().startsWith('auth_callback_page='));
-        const callbackPage = callbackCookie ? callbackCookie.split('=')[1] : '/home.html';
-        const redirectUrl = new URL(callbackPage, url.origin).toString();
+        let callbackPage = callbackCookie ? callbackCookie.split('=')[1] : '/home.html';
+        
+        // 쿼리 파라미터에 auth=success 추가하여 세션 캐시 초기화 트리거
+        const callbackUrl = new URL(callbackPage, url.origin);
+        callbackUrl.searchParams.set('auth', 'success');
+        const redirectUrl = callbackUrl.toString();
         
         return new Response(null, {
             status: 302,

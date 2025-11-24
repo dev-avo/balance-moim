@@ -111,8 +111,15 @@ async function loadQuestion() {
         selectedTags = tags;
         
         const tagsParam = tags.length > 0 ? tags.join(',') : null;
-        currentQuestion = await questionApi.getRandom(tagsParam);
+        const response = await questionApi.getRandom(tagsParam);
+        
+        // API 응답 구조: { question: { id, optionA, optionB, ... } }
+        currentQuestion = response?.question || response;
         currentStats = null;
+        
+        if(!currentQuestion || !currentQuestion.optionA || !currentQuestion.optionB) {
+            throw new Error('질문 데이터가 올바르지 않습니다.');
+        }
         
         renderQuestion();
     } catch(error) {
@@ -146,10 +153,10 @@ function renderQuestion() {
                     </div>
                 ` : ''}
                 
-                <!-- 질문 제목 -->
+                <!-- 질문 제목 (선택지 A vs 선택지 B) -->
                 <div class="rounded-3xl glass border-2 border-border p-8 shadow-apple-lg">
                     <h2 class="text-3xl font-bold text-center text-foreground sm:text-4xl">
-                        ${currentQuestion.title}
+                        ${currentQuestion.optionA} vs ${currentQuestion.optionB}
                     </h2>
                 </div>
                 
