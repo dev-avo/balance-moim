@@ -48,7 +48,8 @@ export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: st
         const { questionId, selectedOption } = validation.data;
         
         // 현재 사용자 확인 (비로그인 허용)
-        const currentUser = await getCurrentUser(context.request);
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
         
         // 질문 존재 확인
         const existingQuestion = await db

@@ -106,42 +106,56 @@ const nextAuthConfig = {
 
 // NextAuth 초기화 및 export
 // NextAuth v5 beta.30에서는 구조 분해 할당으로 handlers, signIn, signOut을 가져옵니다
+// Cloudflare Pages Functions 환경에서는 구조 분해 할당이 제대로 작동하지 않을 수 있으므로
+// 직접 접근하여 확인하고 export
 const nextAuthResult = NextAuth(nextAuthConfig);
 
-// handlers가 실제로 존재하는지 확인하고 export
-// NextAuth v5 beta에서는 구조 분해 할당이 제대로 작동하지 않을 수 있으므로
-// 직접 접근하여 확인
+// NextAuth v5 beta.30의 실제 구조 확인
+// nextAuthResult는 객체이고, handlers는 { GET, POST } 객체 형태입니다
+// 하지만 동적 import 시 구조가 달라질 수 있으므로 안전하게 처리
 let handlers: { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> } | undefined;
 let signIn: any;
 let signOut: any;
 
-// 여러 방법으로 접근 시도
-if(nextAuthResult.handlers) {
-    handlers = nextAuthResult.handlers;
-    signIn = nextAuthResult.signIn;
-    signOut = nextAuthResult.signOut;
-} else {
-    // 구조 분해 할당으로 시도
-    const destructured = nextAuthResult as any;
-    if(destructured.handlers) {
-        handlers = destructured.handlers;
-        signIn = destructured.signIn;
-        signOut = destructured.signOut;
+// nextAuthResult에서 직접 추출 시도
+if(nextAuthResult && typeof nextAuthResult === 'object') {
+    // handlers가 객체인 경우
+    if(nextAuthResult.handlers && typeof nextAuthResult.handlers === 'object') {
+        handlers = nextAuthResult.handlers as { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> };
+        signIn = nextAuthResult.signIn;
+        signOut = nextAuthResult.signOut;
     } else {
-        // 직접 구조 분해 할당
-        ({ handlers, signIn, signOut } = nextAuthResult as any);
+        // 구조 분해 할당으로 시도
+        const { handlers: h, signIn: si, signOut: so } = nextAuthResult as any;
+        handlers = h;
+        signIn = si;
+        signOut = so;
     }
+} else {
+    // nextAuthResult가 객체가 아닌 경우 (함수일 수 있음)
+    throw new Error('NextAuth 초기화 결과가 예상과 다릅니다.');
 }
 
-// handlers가 없으면 에러
-if(!handlers || !handlers.GET || !handlers.POST) {
+// handlers가 없거나 GET/POST가 없으면 에러
+if(!handlers) {
     console.error('NextAuth handlers를 가져올 수 없습니다:', {
         hasHandlers: !!handlers,
         handlersType: typeof handlers,
-        resultKeys: Object.keys(nextAuthResult),
+        resultKeys: nextAuthResult ? Object.keys(nextAuthResult) : [],
         resultType: typeof nextAuthResult,
     });
     throw new Error('NextAuth handlers를 초기화할 수 없습니다.');
+}
+
+// handlers.GET과 handlers.POST가 있는지 확인
+if(!handlers.GET || !handlers.POST) {
+    console.error('handlers.GET 또는 handlers.POST가 없습니다:', {
+        hasGET: !!handlers.GET,
+        hasPOST: !!handlers.POST,
+        handlersKeys: Object.keys(handlers),
+        handlersType: typeof handlers,
+    });
+    throw new Error('handlers.GET 또는 handlers.POST가 없습니다.');
 }
 
 // 명시적으로 export하여 Cloudflare Pages Functions에서 안정적으로 작동하도록 함

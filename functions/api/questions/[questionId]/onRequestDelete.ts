@@ -31,7 +31,8 @@ export const onRequestDelete: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: 
         const questionId = pathParts[pathParts.length - 1];
         
         // 로그인 확인
-        const currentUser = await getCurrentUser(context.request);
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
         
         if(!currentUser) {
             return new Response(

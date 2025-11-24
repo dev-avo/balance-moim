@@ -65,7 +65,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             : 0;
         
         // 현재 사용자의 선택 확인
-        const currentUser = await getCurrentUser(context.request);
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
         let userSelection: 'A' | 'B' | null = null;
         
         if(currentUser) {

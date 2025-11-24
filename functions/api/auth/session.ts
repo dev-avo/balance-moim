@@ -1,63 +1,74 @@
-// NextAuth 세션 엔드포인트 (GET 요청)
+// 세션 확인 엔드포인트
 // /api/auth/session 경로를 처리합니다.
 
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수를 process.env에 설정
-        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
-        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
-        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
-        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
+        const cookies = context.request.headers.get('Cookie') || '';
+        const sessionCookie = cookies.split(';').find(c => c.trim().startsWith('session='));
         
-        // D1 데이터베이스 설정 (handlers import 전에 설정)
-        // Cloudflare Pages Functions에서는 상대 경로가 Functions 파일 위치를 기준으로 해석됨
-        if(context.env.DB) {
-            let dbModule;
-            try {
-                // 먼저 확장자 없이 시도 (가장 일반적)
-                dbModule = await import('../../../lib/db');
-            } catch(error1) {
-                try {
-                    // .js 확장자 시도
-                    dbModule = await import('../../../lib/db/index.js');
-                } catch(error2) {
-                    console.error('DB 모듈 import 실패:', error1, error2);
-                    throw new Error('DB 모듈을 로드할 수 없습니다.');
+        if(!sessionCookie) {
+            return new Response(
+                JSON.stringify({ user: null }),
+                { 
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
                 }
-            }
-            if(dbModule && dbModule.setDb) {
-                dbModule.setDb(context.env.DB);
-            } else {
-                throw new Error('setDb 함수를 찾을 수 없습니다.');
-            }
+            );
         }
         
-        // 동적 import로 NextAuth handlers 로드
-        const authModule = await import('../../../auth');
-        
-        // handlers가 제대로 export되었는지 확인
-        if(!authModule.handlers || !authModule.handlers.GET) {
-            console.error('handlers가 제대로 export되지 않았습니다:', {
-                hasHandlers: !!authModule.handlers,
-                handlersKeys: authModule.handlers ? Object.keys(authModule.handlers) : [],
-                moduleKeys: Object.keys(authModule),
-            });
-            throw new Error('handlers.GET이 없습니다');
+        const token = sessionCookie.split('=')[1];
+        if(!token) {
+            return new Response(
+                JSON.stringify({ user: null }),
+                { 
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
         }
         
-        const { handlers } = authModule;
+        // JWT 토큰 검증
+        const { verifyJWT } = await import('../../../lib/auth/jwt');
+        const secret = context.env.NEXTAUTH_SECRET;
+        const payload = await verifyJWT(token, secret);
         
-        // NextAuth handlers 호출 (GET 요청)
-        const request = context.request;
-        const response = await handlers.GET(request as any);
+        if(!payload) {
+            // 유효하지 않은 토큰 - 쿠키 삭제
+            const clearCookie = 'session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
+            return new Response(
+                JSON.stringify({ user: null }),
+                { 
+                    status: 200,
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Set-Cookie': clearCookie,
+                    }
+                }
+            );
+        }
         
-        return response;
+        // 세션 정보 반환
+        return new Response(
+            JSON.stringify({
+                user: {
+                    id: payload.id,
+                    email: payload.email,
+                    name: payload.name,
+                }
+            }),
+            { 
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }
+        );
     } catch(error) {
         console.error('세션 처리 오류:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
         return new Response(
-            JSON.stringify({ error: '세션 처리 중 오류가 발생했습니다.', details: errorMessage }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({ user: null }),
+            { 
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }
         );
     }
 };

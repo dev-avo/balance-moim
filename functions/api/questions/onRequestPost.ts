@@ -34,7 +34,8 @@ export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: st
         const db = getDb();
         
         // 로그인 확인
-        const currentUser = await getCurrentUser(context.request);
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
         
         if(!currentUser) {
             return new Response(

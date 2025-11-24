@@ -31,7 +31,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         const tagFilter = url.searchParams.get('tags');
         
         // 현재 로그인한 사용자 확인
-        const currentUser = await getCurrentUser(context.request);
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
         
         // 1. 삭제되지 않은 질문 필터 조건
         let conditions = [isNull(question.deletedAt)];

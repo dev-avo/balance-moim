@@ -41,7 +41,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         setDb(context.env.DB);
         
         // Request 객체를 전달하여 auth 함수 호출
-        const sessionUser = await getCurrentUser(context.request);
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const sessionUser = await getCurrentUser(context.request, secret);
         
         // 로그인하지 않은 상태는 정상적인 경우이므로 401 반환 (에러가 아님)
         if(!sessionUser || !sessionUser.id) {
@@ -134,7 +135,8 @@ export const onRequestDelete: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: 
         setDb(context.env.DB);
         const db = getDb();
 
-        const currentUser = await getCurrentUser();
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
         
         if(!currentUser) {
             return new Response(
