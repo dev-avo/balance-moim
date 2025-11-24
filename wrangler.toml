@@ -5,9 +5,23 @@ compatibility_flags = ["nodejs_compat"]
 # Cloudflare Pages 빌드 output directory 설정
 pages_build_output_dir = "."
 
-# 주의: Cloudflare Pages는 대시보드에서 D1 데이터베이스 바인딩을 설정합니다.
-# wrangler.toml의 D1 설정은 로컬 개발용이며, 프로덕션 배포 시 무시됩니다.
-# 프로덕션 배포 시에는 Pages 대시보드에서 D1 바인딩을 설정해야 합니다.
+# 환경 변수 설정
+# 주의: 실제 값은 Cloudflare Pages 대시보드에서 설정하거나,
+# wrangler secret put 명령으로 설정할 수 있습니다.
+# wrangler.toml에 직접 넣으면 Git에 커밋되므로 주의하세요.
+[vars]
+# GOOGLE_CLIENT_ID = "your_google_client_id_here"
+# GOOGLE_CLIENT_SECRET = "your_google_client_secret_here"
+# NEXTAUTH_SECRET = "your_nextauth_secret_here"
+# NEXTAUTH_URL = "https://balance-moim.pages.dev"
+
+# D1 데이터베이스 바인딩
+# 프로덕션 데이터베이스
+[[d1_databases]]
+binding = "DB"
+database_name = "balance-moim-db-prod"
+database_id = "891a9ed9-3cd7-4183-8368-0beeb57f2727"
+migrations_dir = "drizzle"
 
 # 로컬 개발용 데이터베이스 (로컬 개발 시에만 사용)
 # [[d1_databases]]
