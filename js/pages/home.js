@@ -51,7 +51,7 @@ export async function renderHome() {
 
                 <!-- CTA 버튼 -->
                 <div class="flex flex-col items-center gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                    <button id="start-btn" class="px-10 sm:px-12 md:px-16 py-5 sm:py-6 md:py-7 text-base sm:text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
+                    <button id="start-btn" class="px-10 sm:px-12 md:px-16 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple-lg hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
                         시작하기
                     </button>
 

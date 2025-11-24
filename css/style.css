@@ -968,3 +968,12 @@ body {
 .dark .text-yellow-400 {
     color: rgb(250, 204, 21);
 }
+
+/* 버튼 호버 효과 - Tailwind CDN 호환성 */
+button.bg-primary:hover {
+    background-color: rgba(0, 113, 227, 0.8) !important;
+}
+
+.dark button.bg-primary:hover {
+    background-color: rgba(10, 132, 255, 0.8) !important;
+}

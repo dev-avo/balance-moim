@@ -100,9 +100,42 @@ const nextAuthConfig = NextAuth({
 });
 
 // Cloudflare Pages Functions에서 동적 import 시 문제를 해결하기 위해 명시적으로 export
-export const { handlers, signIn, signOut, auth } = nextAuthConfig;
+// NextAuth v5에서는 구조 분해 할당이 동적 import에서 문제가 있을 수 있으므로 개별적으로 export
+export const handlers = nextAuthConfig.handlers;
+export const signIn = nextAuthConfig.signIn;
+export const signOut = nextAuthConfig.signOut;
 
-// auth 함수를 별도로 export (동적 import 호환성을 위해)
-// NextAuth의 auth는 함수이므로 직접 export
+// auth 함수를 직접 구현하여 export
+// NextAuth v5 beta에서는 auth가 제대로 export되지 않을 수 있으므로 직접 구현
+// handlers를 직접 사용하여 세션 정보 가져오기
+export const auth = async (request?: Request) => {
+  // Request가 없으면 null 반환
+  if(!request) {
+    return null;
+  }
+  
+  try {
+    // handlers.GET을 직접 호출하여 세션 정보 가져오기
+    // /api/auth/session 경로로 요청을 만들어서 전달
+    const url = new URL(request.url);
+    url.pathname = '/api/auth/session';
+    const sessionRequest = new Request(url.toString(), {
+      method: 'GET',
+      headers: request.headers,
+    });
+    
+    const response = await handlers.GET(sessionRequest as any);
+    if(response.ok) {
+      const session = await response.json();
+      return session;
+    }
+    return null;
+  } catch(error) {
+    console.error('auth 함수 오류:', error);
+    return null;
+  }
+};
+
+// default export도 추가
 export default auth;
 

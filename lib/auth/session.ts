@@ -1,11 +1,17 @@
 // Cloudflare Pages Functions에서는 경로 별칭(@/)이 작동하지 않으므로 상대 경로 사용
 // 동적 import를 사용하여 auth 함수를 가져옵니다
-let authFunction: (() => Promise<any>) | null = null;
 
-async function getAuthFunction() {
-  if(!authFunction) {
+/**
+ * 서버 컴포넌트에서 현재 로그인한 사용자 정보를 가져오는 함수
+ * @param request - Request 객체 (선택사항, Cloudflare Pages Functions에서 전달)
+ */
+export async function getCurrentUser(request?: Request) {
+  try {
     const authModule = await import('../../auth');
-    // auth가 함수인지 확인 (여러 방법 시도)
+    
+    // auth 함수를 가져오기 (여러 방법 시도)
+    let authFunction: ((request?: Request) => Promise<any>) | null = null;
+    
     if(typeof authModule.auth === 'function') {
       authFunction = authModule.auth;
     } else if(typeof authModule.default === 'function') {
@@ -20,18 +26,10 @@ async function getAuthFunction() {
       });
       throw new Error('auth is not a function. authModule keys: ' + JSON.stringify(Object.keys(authModule)) + ', auth type: ' + typeof authModule.auth);
     }
-  }
-  return authFunction;
-}
-
-/**
- * 서버 컴포넌트에서 현재 로그인한 사용자 정보를 가져오는 함수
- */
-export async function getCurrentUser() {
-  try {
-    const auth = await getAuthFunction();
-    const session = await auth();
-    return session?.user;
+    
+    // auth 함수 호출 (Request 객체 전달)
+    const session = await authFunction(request);
+    return session?.user || null;
   } catch(error) {
     console.error('getCurrentUser 오류:', error);
     throw error;
@@ -42,16 +40,25 @@ export async function getCurrentUser() {
  * 서버 컴포넌트에서 현재 세션을 가져오는 함수
  */
 export async function getSession() {
-  const auth = await getAuthFunction();
-  return await auth();
+  try {
+    const authModule = await import('../../auth');
+    const authFunction = authModule.auth || authModule.default;
+    if(typeof authFunction !== 'function') {
+      return null;
+    }
+    const dummyRequest = new Request('http://localhost/api/auth/session');
+    return await authFunction(dummyRequest);
+  } catch(error) {
+    console.error('getSession 오류:', error);
+    return null;
+  }
 }
 
 /**
  * 로그인 여부 확인
  */
 export async function isAuthenticated() {
-  const auth = await getAuthFunction();
-  const session = await auth();
+  const session = await getSession();
   return !!session?.user;
 }
 

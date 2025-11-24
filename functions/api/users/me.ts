@@ -39,7 +39,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         setDb(context.env.DB);
         
         console.log('D1 데이터베이스 설정 완료, getCurrentUser 호출 중...');
-        const currentUser = await getCurrentUser();
+        // Request 객체를 전달하여 auth 함수 호출
+        const currentUser = await getCurrentUser(context.request);
         console.log('getCurrentUser 결과:', currentUser ? '사용자 있음' : '사용자 없음');
         
         if(!currentUser) {
