@@ -105,12 +105,11 @@ const nextAuthConfig = {
 };
 
 // NextAuth 초기화 및 export
-// 구조 분해 할당 대신 명시적으로 export하여 Cloudflare Pages Functions에서 안정적으로 작동하도록 함
-const nextAuth = NextAuth(nextAuthConfig);
+// NextAuth v5 beta.30에서는 구조 분해 할당으로 handlers, signIn, signOut을 가져옵니다
+const { handlers, signIn, signOut } = NextAuth(nextAuthConfig);
 
-export const handlers = nextAuth.handlers;
-export const signIn = nextAuth.signIn;
-export const signOut = nextAuth.signOut;
+// 명시적으로 export하여 Cloudflare Pages Functions에서 안정적으로 작동하도록 함
+export { handlers, signIn, signOut };
 
 // auth 함수를 직접 구현하여 export
 // NextAuth v5 beta에서는 auth가 제대로 export되지 않을 수 있으므로 직접 구현
