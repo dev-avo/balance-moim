@@ -66,6 +66,7 @@ export async function verifyJWT(token: string, secret: string): Promise<Record<s
     try {
         const parts = token.split('.');
         if(parts.length !== 3) {
+            console.warn('[jwt] invalid token parts', { parts: parts.length });
             return null;
         }
         
@@ -97,6 +98,9 @@ export async function verifyJWT(token: string, secret: string): Promise<Record<s
         
         const signature = base64UrlDecode(encodedSignature);
         const isValid = await crypto.subtle.verify('HMAC', cryptoKey, signature, messageData);
+        if(!isValid) {
+            console.warn('[jwt] signature verification failed');
+        }
         
         if(!isValid) {
             return null;
