@@ -32,26 +32,74 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         }
         
         // 동적 import
-        const { setDb } = await import('../../../lib/db');
+        const { setDb, getDb } = await import('../../../lib/db');
         const { getCurrentUser } = await import('../../../lib/auth/session');
+        const { user: userTable, userGroup } = await import('../../../lib/db/schema');
+        const { eq } = await import('drizzle-orm');
         
         // D1 데이터베이스 설정 (getCurrentUser가 auth()를 호출하고 auth()가 DB를 사용하므로 필수)
         setDb(context.env.DB);
         
         console.log('D1 데이터베이스 설정 완료, getCurrentUser 호출 중...');
         // Request 객체를 전달하여 auth 함수 호출
-        const currentUser = await getCurrentUser(context.request);
-        console.log('getCurrentUser 결과:', currentUser ? '사용자 있음' : '사용자 없음');
+        const sessionUser = await getCurrentUser(context.request);
+        console.log('getCurrentUser 결과:', sessionUser ? '사용자 있음' : '사용자 없음');
         
-        if(!currentUser) {
+        if(!sessionUser || !sessionUser.id) {
             return new Response(
                 JSON.stringify({ error: '로그인이 필요합니다.' }),
                 { status: 401, headers: { 'Content-Type': 'application/json' } }
             );
         }
 
+        // DB에서 실제 사용자 정보 가져오기
+        const db = getDb();
+        const users = await db
+            .select({
+                id: userTable.id,
+                googleId: userTable.googleId,
+                email: userTable.email,
+                displayName: userTable.displayName,
+                customNickname: userTable.customNickname,
+                useNickname: userTable.useNickname,
+                status: userTable.status,
+                createdAt: userTable.createdAt,
+                updatedAt: userTable.updatedAt,
+            })
+            .from(userTable)
+            .where(eq(userTable.id, sessionUser.id))
+            .limit(1);
+
+        if(users.length === 0) {
+            return new Response(
+                JSON.stringify({ error: '사용자를 찾을 수 없습니다' }),
+                { status: 404, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        const user = users[0];
+
+        // 탈퇴한 사용자인 경우
+        if(user.status === -1) {
+            return new Response(
+                JSON.stringify({ error: '탈퇴한 사용자입니다' }),
+                { status: 403, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+
+        // 생성한 모임 수 조회
+        const createdGroups = await db
+            .select()
+            .from(userGroup)
+            .where(eq(userGroup.creatorId, user.id));
+
         return new Response(
-            JSON.stringify(currentUser),
+            JSON.stringify({
+                user: {
+                    ...user,
+                    createdGroupsCount: createdGroups.length,
+                },
+            }),
             { headers: { 'Content-Type': 'application/json' } }
         );
     } catch(error) {

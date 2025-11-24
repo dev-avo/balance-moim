@@ -108,7 +108,7 @@ export const signOut = nextAuthConfig.signOut;
 // auth 함수를 직접 구현하여 export
 // NextAuth v5 beta에서는 auth가 제대로 export되지 않을 수 있으므로 직접 구현
 // handlers를 직접 사용하여 세션 정보 가져오기
-export const auth = async (request?: Request) => {
+async function authFunction(request?: Request) {
   // Request가 없으면 null 반환
   if(!request) {
     return null;
@@ -134,8 +134,9 @@ export const auth = async (request?: Request) => {
     console.error('auth 함수 오류:', error);
     return null;
   }
-};
+}
 
-// default export도 추가
-export default auth;
+// named export와 default export 모두 제공하여 동적 import에서 안정적으로 작동하도록 함
+export const auth = authFunction;
+export default authFunction;
 
