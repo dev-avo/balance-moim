@@ -82,6 +82,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         const allQuestions = await db
             .select({
                 id: question.id,
+                title: question.title,
                 optionA: question.optionA,
                 optionB: question.optionB,
                 creatorId: question.creatorId,
@@ -149,6 +150,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             JSON.stringify({
                 question: {
                     id: selectedQuestion.id,
+                    title: selectedQuestion.title,
                     optionA: selectedQuestion.optionA,
                     optionB: selectedQuestion.optionB,
                     tags: questionTags.map(t => ({ id: t.tagId, name: t.tagName })),

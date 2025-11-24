@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 // Google OAuth 콜백 엔드포인트
 // /api/auth/callback/google 경로를 처리합니다.
 
@@ -79,7 +80,7 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
             return Response.redirect(new URL('/auth/callback-error', url.origin).toString());
         }
         
-        const tokenData = await tokenResponse.json();
+        const tokenData = await tokenResponse.json() as { access_token: string };
         const accessToken = tokenData.access_token;
         
         // 사용자 정보 가져오기
@@ -94,7 +95,7 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
             return Response.redirect(new URL('/auth/callback-error', url.origin).toString());
         }
         
-        const userInfo = await userInfoResponse.json();
+        const userInfo = await userInfoResponse.json() as { id: string; email: string; name?: string | null };
         const googleId = userInfo.id;
         const email = userInfo.email;
         const name = userInfo.name;
@@ -148,7 +149,7 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         }, secret);
         
         // 세션 쿠키 설정
-        const sessionCookie = `session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${30 * 24 * 60 * 60}`;
+        const sessionCookie = `session=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${30 * 24 * 60 * 60}`;
         
         // state 및 callback 쿠키 삭제
         const clearStateCookie = 'auth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
@@ -164,16 +165,12 @@ export const onRequest: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string
         redirectUrlObj.searchParams.set('auth', 'success');
         const redirectUrl = redirectUrlObj.toString();
         
-        const headers = new Headers();
-        headers.set('Location', redirectUrl);
-        headers.append('Set-Cookie', sessionCookie);
-        headers.append('Set-Cookie', clearStateCookie);
-        headers.append('Set-Cookie', clearCallbackCookie);
+        const response = Response.redirect(redirectUrl, 302);
+        response.headers.append('Set-Cookie', sessionCookie);
+        response.headers.append('Set-Cookie', clearStateCookie);
+        response.headers.append('Set-Cookie', clearCallbackCookie);
         
-        return new Response(null, {
-            status: 302,
-            headers,
-        });
+        return response;
     } catch(error) {
         console.error('Google 콜백 처리 오류:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);

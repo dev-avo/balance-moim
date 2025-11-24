@@ -249,6 +249,10 @@ async function handleSelect(option) {
 function renderResult() {
     if(!currentQuestion || !currentStats) return;
     
+    const questionTitle = currentQuestion.title && currentQuestion.title.trim()
+        ? currentQuestion.title
+        : `${currentQuestion.optionA} vs ${currentQuestion.optionB}`;
+    
     const mainEl = document.getElementById('main');
     mainEl.innerHTML = `
         <div class="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12">
@@ -256,7 +260,7 @@ function renderResult() {
                 <!-- 질문 제목 -->
                 <div class="text-center">
                     <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
-                        ${currentQuestion.title}
+                        ${questionTitle}
                     </h2>
                     <p class="text-sm sm:text-base text-muted-foreground">결과를 확인하세요</p>
                 </div>

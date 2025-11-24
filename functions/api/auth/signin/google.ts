@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 // Google OAuth 로그인 엔드포인트
 // /api/auth/signin/google 경로를 처리합니다.
 
@@ -37,15 +38,11 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         authUrl.searchParams.set('state', state);
         
         // Google OAuth 페이지로 리다이렉트
-        const headers = new Headers();
-        headers.set('Location', authUrl.toString());
-        headers.append('Set-Cookie', stateCookie);
-        headers.append('Set-Cookie', callbackCookie);
+        const response = Response.redirect(authUrl.toString(), 302);
+        response.headers.append('Set-Cookie', stateCookie);
+        response.headers.append('Set-Cookie', callbackCookie);
         
-        return new Response(null, {
-            status: 302,
-            headers,
-        });
+        return response;
     } catch(error) {
         console.error('Google 로그인 처리 오류:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
