@@ -1,9 +1,18 @@
 // GET /api/questions/[questionId]/stats
-// 특정 질문의 통계를 가져옵니다.
+// 특정 질문의 응답 통계를 반환합니다.
+
+const getQuestionId = (context: { params?: Record<string, string>; request: Request }): string | null => {
+    if(context.params && context.params.questionId) {
+        return context.params.questionId;
+    }
+    
+    const url = new URL(context.request.url);
+    const parts = url.pathname.split('/').filter(Boolean);
+    return parts.length >= 2 ? parts[parts.length - 2] : null;
+};
 
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수 설정
         process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
         process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
@@ -16,20 +25,22 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
         
-        const { setDb, getDb } = await import('../../../../../lib/db');
-        const { response, question, groupMember, userGroup } = await import('../../../../../lib/db/schema');
+        const questionId = getQuestionId(context);
+        if(!questionId) {
+            return new Response(
+                JSON.stringify({ error: '질문 ID가 필요합니다.' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
+        const { setDb, getDb } = await import('../../../../lib/db');
+        const { response, question, groupMember, userGroup } = await import('../../../../lib/db/schema');
         const { eq, and, sql } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../../../../lib/auth/session');
+        const { getCurrentUser } = await import('../../../../lib/auth/session');
         
         setDb(context.env.DB);
         const db = getDb();
         
-        // URL에서 questionId 추출
-        const url = new URL(context.request.url);
-        const pathParts = url.pathname.split('/');
-        const questionId = pathParts[pathParts.length - 2]; // /api/questions/[questionId]/stats
-        
-        // 질문 존재 확인
         const existingQuestion = await db
             .select()
             .from(question)
@@ -43,7 +54,6 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
         
-        // 전체 통계 계산
         const allResponses = await db
             .select({
                 selectedOption: response.selectedOption,
@@ -56,15 +66,9 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         const optionACount = allResponses.find((r) => r.selectedOption === 'A')?.count || 0;
         const optionBCount = allResponses.find((r) => r.selectedOption === 'B')?.count || 0;
         const totalResponses = optionACount + optionBCount;
+        const optionAPercentage = totalResponses > 0 ? Math.round((optionACount / totalResponses) * 100) : 0;
+        const optionBPercentage = totalResponses > 0 ? Math.round((optionBCount / totalResponses) * 100) : 0;
         
-        const optionAPercentage = totalResponses > 0 
-            ? Math.round((optionACount / totalResponses) * 100) 
-            : 0;
-        const optionBPercentage = totalResponses > 0 
-            ? Math.round((optionBCount / totalResponses) * 100) 
-            : 0;
-        
-        // 현재 사용자의 선택 확인
         const secret = context.env.NEXTAUTH_SECRET || '';
         const currentUser = await getCurrentUser(context.request, secret);
         let userSelection: 'A' | 'B' | null = null;
@@ -86,11 +90,9 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             }
         }
         
-        // 모임별 통계 (로그인 사용자만)
         const groupStats = [];
         
         if(currentUser) {
-            // 사용자가 속한 모임 목록 가져오기
             const userGroups = await db
                 .select({
                     groupId: groupMember.groupId,
@@ -100,9 +102,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
                 .innerJoin(userGroup, eq(groupMember.groupId, userGroup.id))
                 .where(eq(groupMember.userId, currentUser.id));
             
-            // 각 모임별 통계 계산
             for(const group of userGroups) {
-                // 모임 멤버들의 응답 가져오기
                 const groupResponses = await db
                     .select({
                         selectedOption: response.selectedOption,
@@ -141,7 +141,6 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             }
         }
         
-        // 응답 반환
         return new Response(
             JSON.stringify({
                 questionId,

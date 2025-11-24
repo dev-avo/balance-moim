@@ -1,9 +1,9 @@
-// POST /api/responses
-// 밸런스 질문에 대한 응답을 제출합니다.
+// /api/responses 엔드포인트
+// - GET: 현재 사용자의 응답 목록 조회
+// - POST: 밸런스 질문에 대한 응답 제출
 
-export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
+export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수 설정
         process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
         process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
@@ -16,17 +16,80 @@ export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: st
             );
         }
         
-        const { setDb, getDb } = await import('../../../lib/db');
-        const { response, question } = await import('../../../lib/db/schema');
+        const { setDb, getDb } = await import('../../lib/db');
+        const { response, question } = await import('../../lib/db/schema');
+        const { eq } = await import('drizzle-orm');
+        const { getCurrentUser } = await import('../../lib/auth/session');
+        
+        setDb(context.env.DB);
+        const db = getDb();
+        
+        const secret = context.env.NEXTAUTH_SECRET || '';
+        const currentUser = await getCurrentUser(context.request, secret);
+        
+        if(!currentUser) {
+            return new Response(
+                JSON.stringify({ error: '로그인이 필요합니다.' }),
+                { status: 401, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
+        const userResponses = await db
+            .select({
+                id: response.id,
+                questionId: response.questionId,
+                selectedOption: response.selectedOption,
+                createdAt: response.createdAt,
+                questionTitle: question.title,
+                optionA: question.optionA,
+                optionB: question.optionB,
+            })
+            .from(response)
+            .innerJoin(question, eq(response.questionId, question.id))
+            .where(eq(response.userId, currentUser.id))
+            .orderBy(response.createdAt);
+        
+        return new Response(
+            JSON.stringify({
+                responses: userResponses,
+                total: userResponses.length,
+            }),
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+    } catch(error) {
+        console.error('응답 목록 조회 오류:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return new Response(
+            JSON.stringify({ error: '응답 목록을 가져오는 중 오류가 발생했습니다.', details: errorMessage }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+};
+
+export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
+    try {
+        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
+        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
+        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
+        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
+        
+        if(!context.env.DB) {
+            return new Response(
+                JSON.stringify({ error: '데이터베이스 연결 오류' }),
+                { status: 500, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
+        const { setDb, getDb } = await import('../../lib/db');
+        const { response, question } = await import('../../lib/db/schema');
         const { eq, and } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../../lib/auth/session');
-        const { generateId } = await import('../../../lib/utils');
+        const { getCurrentUser } = await import('../../lib/auth/session');
+        const { generateId } = await import('../../lib/utils');
         const { z } = await import('zod');
         
         setDb(context.env.DB);
         const db = getDb();
         
-        // 요청 본문 파싱 및 검증
         const body = await context.request.json();
         
         const ResponseSchema = z.object({
@@ -47,11 +110,9 @@ export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: st
         
         const { questionId, selectedOption } = validation.data;
         
-        // 현재 사용자 확인 (비로그인 허용)
         const secret = context.env.NEXTAUTH_SECRET || '';
         const currentUser = await getCurrentUser(context.request, secret);
         
-        // 질문 존재 확인
         const existingQuestion = await db
             .select()
             .from(question)
@@ -65,7 +126,6 @@ export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: st
             );
         }
         
-        // 중복 응답 확인 (로그인 사용자만)
         if(currentUser) {
             const existingResponse = await db
                 .select()
@@ -86,17 +146,15 @@ export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: st
             }
         }
         
-        // 응답 저장
         const newResponse = {
             id: generateId(),
             questionId,
-            userId: currentUser?.id || null, // 비로그인 시 NULL
+            userId: currentUser?.id || null,
             selectedOption,
         };
         
         await db.insert(response).values(newResponse);
         
-        // 성공 응답
         return new Response(
             JSON.stringify({
                 message: '응답이 저장되었습니다.',

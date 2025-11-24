@@ -1,9 +1,8 @@
 // GET /api/questions/my
-// 현재 로그인한 사용자가 만든 질문 목록을 가져옵니다.
+// 현재 로그인한 사용자가 만든 질문 목록을 반환합니다.
 
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수 설정
         process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
         process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
         process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
@@ -16,15 +15,14 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
         
-        const { setDb, getDb } = await import('../../../../lib/db');
-        const { question, questionTag, tag, response } = await import('../../../../lib/db/schema');
+        const { setDb, getDb } = await import('../../../lib/db');
+        const { question, questionTag, tag, response } = await import('../../../lib/db/schema');
         const { eq, isNull, and, sql } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../../../lib/auth/session');
+        const { getCurrentUser } = await import('../../../lib/auth/session');
         
         setDb(context.env.DB);
         const db = getDb();
         
-        // 로그인 확인
         const secret = context.env.NEXTAUTH_SECRET || '';
         const currentUser = await getCurrentUser(context.request, secret);
         
@@ -35,13 +33,11 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
         
-        // 페이지네이션 파라미터 추출
         const url = new URL(context.request.url);
         const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
         const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') || '20')));
         const offset = (page - 1) * limit;
         
-        // 전체 질문 수 조회
         const totalCountResult = await db
             .select({ count: sql<number>`count(*)` })
             .from(question)
@@ -55,7 +51,6 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         const totalCount = Number(totalCountResult[0]?.count || 0);
         const totalPages = Math.ceil(totalCount / limit);
         
-        // 사용자가 만든 질문 가져오기
         const myQuestions = await db
             .select()
             .from(question)
@@ -69,10 +64,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             .limit(limit)
             .offset(offset);
         
-        // 각 질문에 대한 태그와 통계 정보 추가
         const questionsWithDetails = await Promise.all(
             myQuestions.map(async (q) => {
-                // 태그 정보 가져오기
                 const questionTags = await db
                     .select({
                         id: tag.id,
@@ -82,7 +75,6 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
                     .innerJoin(tag, eq(questionTag.tagId, tag.id))
                     .where(eq(questionTag.questionId, q.id));
                 
-                // 응답 통계 계산
                 const responseStats = await db
                     .select({
                         selectedOption: response.selectedOption,
@@ -113,7 +105,6 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             })
         );
         
-        // 응답 반환
         return new Response(
             JSON.stringify({
                 questions: questionsWithDetails,

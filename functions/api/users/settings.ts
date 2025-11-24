@@ -1,15 +1,30 @@
-// 동적 import 사용 (Cloudflare Pages Functions에서 경로 별칭 문제 해결)
+// /api/users/settings
+// - GET: 사용자 설정 조회
+// - PATCH: 사용자 설정 업데이트
 
-// GET /api/users/settings
+const ensureEnv = (env: {
+    GOOGLE_CLIENT_ID: string;
+    GOOGLE_CLIENT_SECRET: string;
+    NEXTAUTH_SECRET: string;
+    NEXTAUTH_URL: string;
+}) => {
+    process.env.GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID;
+    process.env.GOOGLE_CLIENT_SECRET = env.GOOGLE_CLIENT_SECRET;
+    process.env.NEXTAUTH_SECRET = env.NEXTAUTH_SECRET;
+    process.env.NEXTAUTH_URL = env.NEXTAUTH_URL;
+};
+
 export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수 설정
-        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
-        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
-        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
-        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
+        ensureEnv(context.env);
         
-        // 동적 import
+        if(!context.env.DB) {
+            return new Response(
+                JSON.stringify({ error: '데이터베이스 연결 오류' }),
+                { status: 500, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
         const { auth } = await import('../../../auth');
         const { getDb, setDb } = await import('../../../lib/db');
         const { user: userTable } = await import('../../../lib/db/schema');
@@ -18,8 +33,7 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         setDb(context.env.DB);
         const db = getDb();
 
-        // 인증 확인
-        const session = await auth();
+        const session = await auth(context.request);
         if(!session?.user?.id) {
             return new Response(
                 JSON.stringify({ error: '로그인이 필요합니다' }),
@@ -27,7 +41,6 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
             );
         }
 
-        // 사용자 정보 조회
         const users = await db
             .select({
                 id: userTable.id,
@@ -61,16 +74,17 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
     }
 };
 
-// PATCH /api/users/settings
 export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
     try {
-        // 환경 변수 설정
-        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
-        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
-        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
-        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
+        ensureEnv(context.env);
         
-        // 동적 import
+        if(!context.env.DB) {
+            return new Response(
+                JSON.stringify({ error: '데이터베이스 연결 오류' }),
+                { status: 500, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
         const { z } = await import('zod');
         const { auth } = await import('../../../auth');
         const { getDb, setDb } = await import('../../../lib/db');
@@ -80,8 +94,7 @@ export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: s
         setDb(context.env.DB);
         const db = getDb();
 
-        // 인증 확인
-        const session = await auth();
+        const session = await auth(context.request);
         if(!session?.user?.id) {
             return new Response(
                 JSON.stringify({ error: '로그인이 필요합니다' }),
@@ -89,10 +102,8 @@ export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: s
             );
         }
 
-        // 요청 본문 파싱
         const body = await context.request.json();
 
-        // 유효성 검사 스키마
         const updateSettingsSchema = z.object({
             useNickname: z.boolean(),
             customNickname: z.string()
@@ -108,7 +119,6 @@ export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: s
 
         const validatedData = updateSettingsSchema.parse(body);
 
-        // useNickname이 true인데 customNickname이 없으면 에러
         if(validatedData.useNickname && !validatedData.customNickname) {
             return new Response(
                 JSON.stringify({ error: '익명 별명을 입력해주세요' }),
@@ -116,7 +126,6 @@ export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: s
             );
         }
 
-        // 사용자 설정 업데이트
         await db
             .update(userTable)
             .set({
@@ -126,7 +135,6 @@ export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: s
             })
             .where(eq(userTable.id, session.user.id));
 
-        // 업데이트된 사용자 정보 조회
         const updatedUser = await db
             .select({
                 id: userTable.id,

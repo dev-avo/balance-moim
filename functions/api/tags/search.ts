@@ -1,5 +1,5 @@
 // GET /api/tags/search
-// 태그를 검색합니다.
+// 태그 검색 결과 반환
 
 export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) => {
     try {
@@ -10,14 +10,13 @@ export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) =
             );
         }
         
-        const { setDb, getDb } = await import('../../../../lib/db');
-        const { tag } = await import('../../../../lib/db/schema');
+        const { setDb, getDb } = await import('../../../lib/db');
+        const { tag } = await import('../../../lib/db/schema');
         const { like } = await import('drizzle-orm');
         
         setDb(context.env.DB);
         const db = getDb();
         
-        // URL에서 쿼리 파라미터 추출
         const url = new URL(context.request.url);
         const query = url.searchParams.get('q');
         const limit = parseInt(url.searchParams.get('limit') || '10');
@@ -25,14 +24,12 @@ export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) =
         let tags;
         
         if(query) {
-            // 검색 키워드가 있으면 LIKE 검색
             tags = await db
                 .select()
                 .from(tag)
                 .where(like(tag.name, `%${query}%`))
                 .limit(limit);
         } else {
-            // 검색 키워드가 없으면 모든 태그 반환 (최신순)
             tags = await db
                 .select()
                 .from(tag)

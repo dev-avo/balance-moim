@@ -37,12 +37,14 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         authUrl.searchParams.set('state', state);
         
         // Google OAuth 페이지로 리다이렉트
+        const headers = new Headers();
+        headers.set('Location', authUrl.toString());
+        headers.append('Set-Cookie', stateCookie);
+        headers.append('Set-Cookie', callbackCookie);
+        
         return new Response(null, {
             status: 302,
-            headers: {
-                'Location': authUrl.toString(),
-                'Set-Cookie': [stateCookie, callbackCookie],
-            },
+            headers,
         });
     } catch(error) {
         console.error('Google 로그인 처리 오류:', error);

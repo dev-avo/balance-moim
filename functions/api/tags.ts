@@ -1,5 +1,5 @@
 // GET /api/tags
-// 모든 태그를 가져옵니다.
+// 모든 태그 목록 반환
 
 export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) => {
     try {
@@ -10,8 +10,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) =
             );
         }
         
-        const { setDb, getDb } = await import('../../../lib/db');
-        const { tag } = await import('../../../lib/db/schema');
+        const { setDb, getDb } = await import('../../lib/db');
+        const { tag } = await import('../../lib/db/schema');
         
         setDb(context.env.DB);
         const db = getDb();
