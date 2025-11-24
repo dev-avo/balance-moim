@@ -12,9 +12,18 @@ export async function createJWT(payload: Record<string, any>, secret: string): P
         typ: 'JWT'
     };
     
-    // Base64 URL 인코딩
+    // Base64 URL 인코딩 (UTF-8 문자열을 Latin1로 변환)
     const base64UrlEncode = (str: string): string => {
-        return btoa(str)
+        // UTF-8 문자열을 바이트 배열로 변환
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(str);
+        // 바이트 배열을 Latin1 문자열로 변환
+        let binaryString = '';
+        for(let i = 0; i < bytes.length; i++) {
+            binaryString += String.fromCharCode(bytes[i]);
+        }
+        // Base64 인코딩 후 URL-safe로 변환
+        return btoa(binaryString)
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=/g, '');
@@ -93,8 +102,13 @@ export async function verifyJWT(token: string, secret: string): Promise<Record<s
             return null;
         }
         
-        // Payload 디코딩
-        const payload = JSON.parse(atob(encodedPayload.replace(/-/g, '+').replace(/_/g, '/')));
+        // Payload 디코딩 (Base64 URL 디코딩 후 UTF-8로 변환)
+        const base64 = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
+        const padding = '='.repeat((4 - base64.length % 4) % 4);
+        const binaryString = atob(base64 + padding);
+        const bytes = new Uint8Array(binaryString.split('').map(c => c.charCodeAt(0)));
+        const decoder = new TextDecoder();
+        const payload = JSON.parse(decoder.decode(bytes));
         
         // 만료 시간 확인
         if(payload.exp && payload.exp < Date.now() / 1000) {

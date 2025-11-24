@@ -18,10 +18,10 @@ export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: str
         }
         
         // 동적 import
-        const { setDb, getDb } = await import('../../../../lib/db');
-        const { question, questionTag, tag, response } = await import('../../../../lib/db/schema');
+        const { setDb, getDb } = await import('../../../lib/db');
+        const { question, questionTag, tag, response } = await import('../../../lib/db/schema');
         const { eq, isNull, and, inArray, notInArray, sql } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../../../lib/auth/session');
+        const { getCurrentUser } = await import('../../../lib/auth/session');
         
         setDb(context.env.DB);
         const db = getDb();
