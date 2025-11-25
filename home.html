@@ -1,88 +1,455 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>밸런스 모임 - Balance Moim</title>
-    <meta name="description" content="밸런스 질문으로 취향을 나누고, 모임 친구들과 비교하며 서로를 알아가세요">
-    <!-- Tailwind CSS Play CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: 'var(--background)',
-                        foreground: 'var(--foreground)',
-                        card: 'var(--card)',
-                        'card-foreground': 'var(--card-foreground)',
-                        primary: 'var(--primary)',
-                        'primary-foreground': 'var(--primary-foreground)',
-                        secondary: 'var(--secondary)',
-                        'secondary-foreground': 'var(--secondary-foreground)',
-                        muted: 'var(--muted)',
-                        'muted-foreground': 'var(--muted-foreground)',
-                        accent: 'var(--accent)',
-                        'accent-foreground': 'var(--accent-foreground)',
-                        destructive: 'var(--destructive)',
-                        'destructive-foreground': 'var(--destructive-foreground)',
-                        border: 'var(--border)',
-                        input: 'var(--input)',
-                        ring: 'var(--ring)',
-                    },
-                    borderRadius: {
-                        DEFAULT: 'var(--radius)',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                    },
-                },
-            },
-            darkMode: 'class',
-        };
-    </script>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>플레이 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Header는 JavaScript에서 동적으로 렌더링 -->
-        <header id="header"></header>
-        
-        <!-- 메인 콘텐츠 영역 -->
-        <main id="main" class="container">
-            <!-- 페이지 콘텐츠가 여기에 동적으로 렌더링됩니다 -->
-        </main>
-        
-        <!-- Toast 알림 영역 -->
-        <div id="toast-container"></div>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <!-- 주의사항 모달 (첫 방문 시) -->
+      <div class="modal-overlay" id="warningModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="modal-title">⚠️ 주의사항</h3>
+          </div>
+          <div class="modal-body">
+            <p>• 한 번 선택한 답변은 <strong>수정할 수 없습니다.</strong></p>
+            <p class="mt-sm">• 신중하게 선택해주세요!</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" id="startGameBtn">시작하기</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 로딩 상태 -->
+      <div class="game-loading" id="loadingState">
+        <div class="loading-spinner"></div>
+        <p class="text-secondary mt-md">질문을 불러오는 중...</p>
+      </div>
+
+      <!-- 게임 화면 -->
+      <section class="game-container hidden" id="gameContainer">
+        <!-- 태그 필터 -->
+        <div class="tag-filter-section mb-lg" id="tagFilterSection">
+          <div class="flex items-center gap-sm mb-sm">
+            <span class="text-sm text-secondary">🏷️ 태그 필터:</span>
+            <button class="btn btn-ghost btn-sm" id="clearTagsBtn" style="display: none;">
+              전체 보기
+            </button>
+          </div>
+          <div class="tag-filter-list" id="tagFilterList">
+            <div class="loading-spinner" style="width: 20px; height: 20px;"></div>
+          </div>
+        </div>
+
+        <!-- 질문 카드 -->
+        <div class="question-card card fade-in" id="questionCard">
+          <div class="question-tags tag-list mb-md" id="questionTags"></div>
+          <h2 class="question-title" id="questionTitle"></h2>
+          
+          <div class="choice-container mt-xl" id="choiceContainer">
+            <button class="choice-btn option-a" id="optionA" data-option="A"></button>
+            <button class="choice-btn option-b" id="optionB" data-option="B"></button>
+          </div>
+        </div>
+
+        <!-- 결과 카드 (선택 후) -->
+        <div class="result-card card hidden slide-up" id="resultCard">
+          <h3 class="result-title mb-lg">결과</h3>
+          
+          <!-- 전체 통계 -->
+          <div class="result-section">
+            <h4 class="text-sm text-secondary mb-sm">전체 통계</h4>
+            <div class="stats-bar" id="totalStats">
+              <div class="stats-bar-a" id="totalStatsA"></div>
+              <div class="stats-bar-b" id="totalStatsB"></div>
+            </div>
+            <div class="stats-labels flex justify-between mt-sm">
+              <span class="text-sm" id="totalLabelA"></span>
+              <span class="text-sm" id="totalLabelB"></span>
+            </div>
+          </div>
+
+          <!-- 모임별 통계 (로그인 사용자만) -->
+          <div class="result-section mt-xl hidden" id="groupStatsSection">
+            <h4 class="text-sm text-secondary mb-md">모임별 통계</h4>
+            <div id="groupStatsList"></div>
+          </div>
+
+          <!-- 다음 질문 버튼 -->
+          <div class="mt-xl text-center">
+            <button class="btn btn-primary btn-lg" id="nextQuestionBtn">
+              다음 질문으로 →
+            </button>
+          </div>
+        </div>
+
+        <!-- 질문 없음 상태 -->
+        <div class="empty-state hidden" id="emptyState">
+          <div class="empty-state-icon">🎉</div>
+          <h3 class="empty-state-title">모든 질문에 답변했어요!</h3>
+          <p class="empty-state-description">
+            새로운 질문이 올라오면 알려드릴게요.
+          </p>
+          <button class="btn btn-secondary mt-lg" id="createQuestionBtn">
+            직접 질문 만들기
+          </button>
+        </div>
+      </section>
     </div>
-    
-    <!-- ES6 모듈 로드 -->
-    <script type="module">
-        // 공통 헤더 렌더링
-        import { renderHeader } from '/js/components/Header.js';
-        import { initToast } from '/js/components/Toast.js';
-        import { initTheme } from '/js/utils/theme.js';
-        import { renderHome } from '/js/pages/home.js';
-        import { clearSessionCache } from '/js/utils/auth.js';
+  </main>
+
+  <!-- 추가 스타일 -->
+  <style>
+    .game-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+
+    .game-container {
+      padding: var(--spacing-xl) 0;
+    }
+
+    .question-card {
+      text-align: center;
+      padding: var(--spacing-2xl);
+    }
+
+    .question-title {
+      font-size: var(--font-size-2xl);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .result-card {
+      padding: var(--spacing-xl);
+    }
+
+    .result-title {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .group-stats-item {
+      margin-bottom: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--color-bg);
+      border-radius: var(--radius-md);
+    }
+
+    .group-stats-name {
+      font-weight: 500;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .group-stats-bar {
+      height: 24px;
+      font-size: var(--font-size-xs);
+    }
+
+    /* 태그 필터 스타일 */
+    .tag-filter-section {
+      padding: var(--spacing-md);
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-lg);
+    }
+
+    .tag-filter-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+    }
+
+    .tag-filter-chip {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .tag-filter-chip:hover {
+      border-color: var(--color-accent);
+    }
+
+    .tag-filter-chip.active {
+      background-color: var(--color-accent);
+      border-color: var(--color-accent);
+      color: white;
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { checkSession, isLoggedIn } from '/js/utils/auth.js';
+    import { questionAPI, responseAPI, tagAPI } from '/js/services/api.js';
+    import { toastError, toastSuccess } from '/js/components/Toast.js';
+
+    // 상태
+    let currentQuestion = null;
+    let hasAnswered = false;
+    let selectedTags = [];
+    let allTags = [];
+
+    // 페이지 초기화
+    async function init() {
+      await initHeader();
+      await checkSession();
+      
+      // 태그 목록 로드
+      loadTags();
+      
+      // 첫 방문 체크
+      const hasSeenWarning = localStorage.getItem('balance_warning_seen');
+      const warningModal = document.getElementById('warningModal');
+      
+      if (!hasSeenWarning) {
+        warningModal.classList.add('open');
+      } else {
+        warningModal.classList.remove('open');
+        await loadQuestion();
+      }
+      
+      // 시작하기 버튼
+      document.getElementById('startGameBtn').addEventListener('click', () => {
+        localStorage.setItem('balance_warning_seen', 'true');
+        warningModal.classList.remove('open');
+        loadQuestion();
+      });
+      
+      // 선택지 버튼
+      document.getElementById('optionA').addEventListener('click', () => selectOption('A'));
+      document.getElementById('optionB').addEventListener('click', () => selectOption('B'));
+      
+      // 다음 질문 버튼
+      document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+        loadQuestion();
+      });
+      
+      // 질문 만들기 버튼
+      document.getElementById('createQuestionBtn').addEventListener('click', () => {
+        window.location.href = '/questions/create.html';
+      });
+      
+      // 태그 필터 초기화 버튼
+      document.getElementById('clearTagsBtn').addEventListener('click', () => {
+        selectedTags = [];
+        renderTagFilters();
+        loadQuestion();
+      });
+    }
+
+    // 태그 목록 로드
+    async function loadTags() {
+      const container = document.getElementById('tagFilterList');
+      
+      try {
+        const response = await tagAPI.getAll();
+        allTags = response.data?.tags || [];
+        renderTagFilters();
+      } catch (error) {
+        console.error('태그 로드 실패:', error);
+        container.innerHTML = '<span class="text-secondary text-sm">태그를 불러오지 못했습니다.</span>';
+      }
+    }
+
+    // 태그 필터 렌더링
+    function renderTagFilters() {
+      const container = document.getElementById('tagFilterList');
+      const clearBtn = document.getElementById('clearTagsBtn');
+      
+      if (allTags.length === 0) {
+        container.innerHTML = '<span class="text-secondary text-sm">태그가 없습니다.</span>';
+        return;
+      }
+      
+      // 상위 10개 태그만 표시
+      const topTags = allTags.slice(0, 10);
+      
+      container.innerHTML = topTags.map(tag => `
+        <span class="tag-filter-chip ${selectedTags.includes(tag.name) ? 'active' : ''}" 
+              data-tag="${tag.name}"
+              onclick="toggleTag('${tag.name}')">
+          #${tag.name}
+        </span>
+      `).join('');
+      
+      // 전체 보기 버튼 표시/숨김
+      clearBtn.style.display = selectedTags.length > 0 ? 'inline-flex' : 'none';
+    }
+
+    // 태그 토글
+    window.toggleTag = function(tagName) {
+      const index = selectedTags.indexOf(tagName);
+      if (index > -1) {
+        selectedTags.splice(index, 1);
+      } else {
+        selectedTags.push(tagName);
+      }
+      renderTagFilters();
+      loadQuestion();
+    };
+
+    // 질문 로드
+    async function loadQuestion() {
+      const loadingState = document.getElementById('loadingState');
+      const gameContainer = document.getElementById('gameContainer');
+      const questionCard = document.getElementById('questionCard');
+      const resultCard = document.getElementById('resultCard');
+      const emptyState = document.getElementById('emptyState');
+      
+      // 초기화
+      loadingState.classList.remove('hidden');
+      gameContainer.classList.add('hidden');
+      resultCard.classList.add('hidden');
+      emptyState.classList.add('hidden');
+      hasAnswered = false;
+      
+      try {
+        const response = await questionAPI.getRandom(selectedTags);
         
-        // 로그인 후 리다이렉트된 경우 세션 캐시 초기화
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('auth') === 'success' || document.referrer.includes('/api/auth/callback')) {
-            clearSessionCache();
+        loadingState.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        
+        if (!response.data?.question) {
+          // 질문 없음
+          questionCard.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+          return;
         }
         
-        // 테마 초기화
-        initTheme();
+        currentQuestion = response.data.question;
+        renderQuestion(currentQuestion);
+        questionCard.classList.remove('hidden');
         
-        // Toast 초기화
-        initToast();
+      } catch (error) {
+        console.error('질문 로드 실패:', error);
+        loadingState.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        toastError('질문을 불러오는데 실패했습니다.');
+      }
+    }
+
+    // 질문 렌더링
+    function renderQuestion(question) {
+      const tagsEl = document.getElementById('questionTags');
+      const titleEl = document.getElementById('questionTitle');
+      const optionAEl = document.getElementById('optionA');
+      const optionBEl = document.getElementById('optionB');
+      
+      // 태그
+      tagsEl.innerHTML = (question.tags || [])
+        .map(tag => `<span class="tag">#${tag}</span>`)
+        .join('');
+      
+      // 질문 제목
+      titleEl.textContent = question.title;
+      
+      // 선택지
+      optionAEl.textContent = question.option_a;
+      optionBEl.textContent = question.option_b;
+      
+      // 스타일 초기화
+      optionAEl.classList.remove('selected');
+      optionBEl.classList.remove('selected');
+      optionAEl.disabled = false;
+      optionBEl.disabled = false;
+    }
+
+    // 선택지 선택
+    async function selectOption(option) {
+      if (hasAnswered || !currentQuestion) return;
+      hasAnswered = true;
+      
+      const optionAEl = document.getElementById('optionA');
+      const optionBEl = document.getElementById('optionB');
+      
+      // 선택 표시
+      if (option === 'A') {
+        optionAEl.classList.add('selected');
+      } else {
+        optionBEl.classList.add('selected');
+      }
+      
+      // 버튼 비활성화
+      optionAEl.disabled = true;
+      optionBEl.disabled = true;
+      
+      try {
+        // 응답 제출
+        await responseAPI.submit(currentQuestion.id, option);
         
-        // Header 렌더링
-        renderHeader();
+        // 통계 로드
+        const statsResponse = await questionAPI.getStats(currentQuestion.id);
+        showResults(statsResponse.data, option);
         
-        // 홈 페이지 렌더링
-        renderHome();
-    </script>
+      } catch (error) {
+        console.error('응답 제출 실패:', error);
+        // 이미 응답한 경우에도 통계는 보여줌
+        try {
+          const statsResponse = await questionAPI.getStats(currentQuestion.id);
+          showResults(statsResponse.data, option);
+        } catch {
+          toastError('결과를 불러오는데 실패했습니다.');
+        }
+      }
+    }
+
+    // 결과 표시
+    function showResults(stats, selectedOption) {
+      const resultCard = document.getElementById('resultCard');
+      const questionCard = document.getElementById('questionCard');
+      
+      // 전체 통계
+      const total = stats.total || { optionA: { percentage: 50 }, optionB: { percentage: 50 } };
+      
+      document.getElementById('totalStatsA').style.width = `${total.optionA.percentage}%`;
+      document.getElementById('totalStatsB').style.width = `${total.optionB.percentage}%`;
+      document.getElementById('totalStatsA').textContent = `${total.optionA.percentage}%`;
+      document.getElementById('totalStatsB').textContent = `${total.optionB.percentage}%`;
+      document.getElementById('totalLabelA').textContent = `${currentQuestion.option_a} (${total.optionA.count || 0}명)`;
+      document.getElementById('totalLabelB').textContent = `${currentQuestion.option_b} (${total.optionB.count || 0}명)`;
+      
+      // 모임별 통계 (로그인 사용자만)
+      const groupSection = document.getElementById('groupStatsSection');
+      const groupList = document.getElementById('groupStatsList');
+      
+      if (stats.groups && stats.groups.length > 0) {
+        groupSection.classList.remove('hidden');
+        groupList.innerHTML = stats.groups.map(group => `
+          <div class="group-stats-item">
+            <div class="group-stats-name">${group.groupName}</div>
+            <div class="stats-bar group-stats-bar">
+              <div class="stats-bar-a" style="width: ${group.optionA.percentage}%">${group.optionA.percentage}%</div>
+              <div class="stats-bar-b" style="width: ${group.optionB.percentage}%">${group.optionB.percentage}%</div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        groupSection.classList.add('hidden');
+      }
+      
+      // 결과 카드 표시
+      resultCard.classList.remove('hidden');
+      resultCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    init();
+  </script>
 </body>
 </html>

@@ -1,152 +1,229 @@
-/**
- * API 서비스 레이어
- * 모든 API 호출을 중앙에서 관리
- */
+// API 서비스 모듈
+// 모든 API 호출을 중앙에서 관리
 
-const API_BASE = '';
+const API_BASE = '/api';
 
 /**
- * 기본 fetch 래퍼
+ * 기본 API 호출 함수
+ * @param {string} endpoint - API 엔드포인트 (/api 제외)
+ * @param {Object} options - fetch 옵션
+ * @returns {Promise<Object>} API 응답
  */
-async function request(endpoint, options = {}) {
-    const url = `${API_BASE}${endpoint}`;
-    const config = {
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    };
-    
-    try {
-        const response = await fetch(url, {
-            ...config,
-            credentials: 'include', // 쿠키 포함 (인증용)
-        });
-        
-        // 응답이 JSON이 아닌 경우 처리
-        const contentType = response.headers.get('content-type');
-        if(!contentType || !contentType.includes('application/json')) {
-            if(!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return null;
-        }
-        
-        const data = await response.json();
-        
-        if(!response.ok) {
-            throw new Error(data.error || `HTTP error! status: ${response.status}`);
-        }
-        
-        return data;
-    } catch(error) {
-        // 404 에러는 자세한 정보와 함께 로깅
-        if(error.message && error.message.includes('404')) {
-            console.error('API request error (404):', error.message, 'Endpoint:', url);
-        } else {
-            console.error('API request error:', error);
-        }
-        throw error;
-    }
-}
-
-/**
- * GET 요청
- */
-export function get(endpoint) {
-    return request(endpoint, { method: 'GET' });
-}
-
-/**
- * POST 요청
- */
-export function post(endpoint, body) {
-    return request(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(body)
-    });
-}
-
-/**
- * PUT 요청
- */
-export function put(endpoint, body) {
-    return request(endpoint, {
-        method: 'PUT',
-        body: JSON.stringify(body)
-    });
-}
-
-/**
- * PATCH 요청
- */
-export function patch(endpoint, body) {
-    return request(endpoint, {
-        method: 'PATCH',
-        body: JSON.stringify(body)
-    });
-}
-
-/**
- * DELETE 요청
- */
-export function del(endpoint) {
-    return request(endpoint, { method: 'DELETE' });
-}
-
-/**
- * 사용자 API
- */
-export const userApi = {
-    getMe: () => get('/api/users/me'),
-    updateSettings: (settings) => patch('/api/users/settings', settings)
-};
-
-/**
- * 질문 API
- */
-export const questionApi = {
-    getRandom: (tags) => {
-        const query = tags ? `?tags=${encodeURIComponent(tags)}` : '';
-        return get(`/api/questions/random${query}`);
+async function fetchAPI(endpoint, options = {}) {
+  const url = `${API_BASE}${endpoint}`;
+  
+  const defaultOptions = {
+    credentials: 'include', // 쿠키 포함
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
     },
-    getById: (id) => get(`/api/questions/${id}`),
-    getStats: (id) => get(`/api/questions/${id}/stats`),
-    getMy: (page = 1, limit = 10) => get(`/api/questions/my?page=${page}&limit=${limit}`),
-    create: (data) => post('/api/questions', data),
-    update: (id, data) => patch(`/api/questions/${id}`, data),
-    delete: (id) => del(`/api/questions/${id}`)
-};
+  };
+  
+  const response = await fetch(url, { ...defaultOptions, ...options });
+  
+  // JSON 응답 파싱
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = { success: false, error: '응답을 파싱할 수 없습니다.' };
+  }
+  
+  // 에러 처리
+  if (!response.ok) {
+    throw new APIError(
+      data.error || `HTTP ${response.status} 오류`,
+      response.status,
+      data
+    );
+  }
+  
+  return data;
+}
 
 /**
- * 응답 API
+ * API 에러 클래스
  */
-export const responseApi = {
-    create: (data) => post('/api/responses', data)
+export class APIError extends Error {
+  constructor(message, status, data) {
+    super(message);
+    this.name = 'APIError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
+// =====================================================
+// 인증 API
+// =====================================================
+export const authAPI = {
+  /** 세션 확인 */
+  getSession: () => fetchAPI('/auth/session'),
+  
+  /** 로그아웃 */
+  signout: () => fetchAPI('/auth/signout', { method: 'POST' }),
 };
 
-/**
- * 그룹 API
- */
-export const groupApi = {
-    getMy: (page = 1, limit = 10) => get(`/api/groups/my?page=${page}&limit=${limit}`),
-    getById: (id) => get(`/api/groups/${id}`),
-    create: (data) => post('/api/groups', data),
-    update: (id, data) => patch(`/api/groups/${id}`, data),
-    delete: (id) => del(`/api/groups/${id}`),
-    leave: (id) => del(`/api/groups/${id}/leave`),
-    getResponses: (id) => get(`/api/groups/${id}/responses`),
-    getSimilarity: (id) => get(`/api/groups/${id}/similarity`),
-    createInvite: (id) => post(`/api/groups/${id}/invite`),
-    joinByInvite: (code) => post(`/api/groups/join/${code}`),
-    compare: (groupId, userId) => get(`/api/groups/${groupId}/compare/${userId}`)
+// =====================================================
+// 사용자 API
+// =====================================================
+export const userAPI = {
+  /** 내 정보 조회 */
+  getMe: () => fetchAPI('/users/me'),
+  
+  /** 내 정보 수정 */
+  updateMe: (data) => fetchAPI('/users/me', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  
+  /** 회원 탈퇴 */
+  deleteMe: () => fetchAPI('/users/me', { method: 'DELETE' }),
 };
 
-/**
- * 태그 API
- */
-export const tagApi = {
-    getAll: () => get('/api/tags'),
-    search: (query, limit = 10) => get(`/api/tags/search?q=${encodeURIComponent(query)}&limit=${limit}`)
+// =====================================================
+// 질문 API
+// =====================================================
+export const questionAPI = {
+  /** 랜덤 질문 가져오기 */
+  getRandom: (tags = []) => {
+    const params = tags.length > 0 ? `?tags=${tags.join(',')}` : '';
+    return fetchAPI(`/questions/random${params}`);
+  },
+  
+  /** 내가 만든 질문 목록 */
+  getMy: (page = 1, limit = 10) => 
+    fetchAPI(`/questions/my?page=${page}&limit=${limit}`),
+  
+  /** 질문 상세 */
+  getDetail: (id) => fetchAPI(`/questions/detail?id=${id}`),
+  
+  /** 질문 생성 */
+  create: (data) => fetchAPI('/questions', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  
+  /** 질문 수정 */
+  update: (id, data) => fetchAPI(`/questions/detail?id=${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  
+  /** 질문 삭제 */
+  delete: (id) => fetchAPI(`/questions/detail?id=${id}`, {
+    method: 'DELETE',
+  }),
+  
+  /** 질문 통계 */
+  getStats: (id) => fetchAPI(`/questions/stats?id=${id}`),
+};
+
+// =====================================================
+// 응답 API
+// =====================================================
+export const responseAPI = {
+  /** 응답 제출 */
+  submit: (questionId, selectedOption) => fetchAPI('/responses', {
+    method: 'POST',
+    body: JSON.stringify({ questionId, selectedOption }),
+  }),
+};
+
+// =====================================================
+// 모임 API
+// =====================================================
+export const groupAPI = {
+  /** 내 모임 목록 */
+  getMy: (page = 1, limit = 10) => 
+    fetchAPI(`/groups/my?page=${page}&limit=${limit}`),
+  
+  /** 모임 상세 */
+  getDetail: (id) => fetchAPI(`/groups/${id}`),
+  
+  /** 모임 생성 */
+  create: (data) => fetchAPI('/groups', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  
+  /** 모임 수정 */
+  update: (id, data) => fetchAPI(`/groups/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  
+  /** 모임 삭제 */
+  delete: (id) => fetchAPI(`/groups/${id}`, {
+    method: 'DELETE',
+  }),
+  
+  /** 초대 링크 생성 */
+  createInvite: (id) => fetchAPI(`/groups/invite?id=${id}`, {
+    method: 'POST',
+  }),
+  
+  /** 초대로 모임 참여 */
+  join: (code) => fetchAPI(`/groups/join?code=${code}`, {
+    method: 'POST',
+  }),
+  
+  /** 초대 정보 조회 */
+  getInviteInfo: (code) => fetchAPI(`/groups/join?code=${code}`),
+  
+  /** 모임 나가기 */
+  leave: (id) => fetchAPI(`/groups/leave?id=${id}`, {
+    method: 'POST',
+  }),
+  
+  /** 사용자 비교 */
+  getCompare: (groupId, userId) => 
+    fetchAPI(`/groups/compare?groupId=${groupId}&userId=${userId}`),
+  
+  /** 멤버 추방 */
+  removeMember: (groupId, userId) => 
+    fetchAPI(`/groups/members?groupId=${groupId}&userId=${userId}`, {
+      method: 'DELETE',
+    }),
+  
+  /** 모임 응답 목록 */
+  getResponses: (id, tag = '') => {
+    const params = tag ? `&tag=${tag}` : '';
+    return fetchAPI(`/groups/responses?id=${id}${params}`);
+  },
+  
+  /** 취향 유사도 */
+  getSimilarity: (id) => fetchAPI(`/groups/similarity?id=${id}`),
+  
+  /** 사용자 비교 */
+  getCompare: (groupId, userId) => 
+    fetchAPI(`/groups/compare?groupId=${groupId}&userId=${userId}`),
+};
+
+// =====================================================
+// 태그 API
+// =====================================================
+export const tagAPI = {
+  /** 전체 태그 목록 */
+  getAll: () => fetchAPI('/tags'),
+  
+  /** 태그 검색 */
+  search: (query) => fetchAPI(`/tags/search?q=${encodeURIComponent(query)}`),
+  
+  /** 태그 생성 */
+  create: (name) => fetchAPI('/tags', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  }),
+};
+
+// 기본 내보내기
+export default {
+  auth: authAPI,
+  user: userAPI,
+  question: questionAPI,
+  response: responseAPI,
+  group: groupAPI,
+  tag: tagAPI,
 };

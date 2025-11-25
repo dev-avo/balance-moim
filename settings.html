@@ -1,61 +1,379 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>설정 - 밸런스 모임</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: 'var(--background)',
-                        foreground: 'var(--foreground)',
-                        card: 'var(--card)',
-                        'card-foreground': 'var(--card-foreground)',
-                        primary: 'var(--primary)',
-                        'primary-foreground': 'var(--primary-foreground)',
-                        secondary: 'var(--secondary)',
-                        'secondary-foreground': 'var(--secondary-foreground)',
-                        muted: 'var(--muted)',
-                        'muted-foreground': 'var(--muted-foreground)',
-                        accent: 'var(--accent)',
-                        'accent-foreground': 'var(--accent-foreground)',
-                        destructive: 'var(--destructive)',
-                        'destructive-foreground': 'var(--destructive-foreground)',
-                        border: 'var(--border)',
-                        input: 'var(--input)',
-                        ring: 'var(--ring)',
-                    },
-                    borderRadius: {
-                        DEFAULT: 'var(--radius)',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                    },
-                },
-            },
-            darkMode: 'class',
-        };
-    </script>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>설정 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div id="app">
-        <header id="header"></header>
-        <main id="main" class="container"></main>
-        <div id="toast-container"></div>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content">
+        <h1 class="text-3xl font-bold mb-xl">설정</h1>
+
+        <!-- 로딩 상태 -->
+        <div id="loadingState" class="text-center p-xl">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <!-- 테마 설정 (로그인 없이도 표시) -->
+        <section class="card mb-lg" id="themeSection">
+          <h2 class="text-lg font-semibold mb-md">🎨 테마 설정</h2>
+          <p class="text-secondary text-sm mb-md">로컬 저장으로 로그인 없이도 유지됩니다</p>
+          
+          <div class="theme-options">
+            <label class="theme-option">
+              <input type="radio" name="theme" value="system" id="themeSystem">
+              <span class="theme-option-content">
+                <span class="theme-option-icon">💻</span>
+                <span class="theme-option-label">시스템</span>
+              </span>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="light" id="themeLight">
+              <span class="theme-option-content">
+                <span class="theme-option-icon">☀️</span>
+                <span class="theme-option-label">라이트</span>
+              </span>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="dark" id="themeDark">
+              <span class="theme-option-content">
+                <span class="theme-option-icon">🌙</span>
+                <span class="theme-option-label">다크</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- 설정 폼 -->
+        <div class="settings-content hidden" id="settingsContent">
+          <!-- 로그인 정보 -->
+          <section class="card mb-lg">
+            <h2 class="text-lg font-semibold mb-md">📧 로그인 정보</h2>
+            <p class="text-secondary" id="userEmail">-</p>
+          </section>
+
+          <!-- 표시 이름 설정 -->
+          <section class="card mb-lg">
+            <h2 class="text-lg font-semibold mb-md">👤 표시 이름 설정</h2>
+            
+            <div class="form-group">
+              <label class="flex items-center gap-sm mb-md">
+                <input type="radio" name="nameType" value="google" id="useGoogleName">
+                <span>구글 계정명 사용</span>
+              </label>
+              <p class="text-secondary text-sm ml-xl" id="googleNamePreview">-</p>
+            </div>
+
+            <div class="form-group">
+              <label class="flex items-center gap-sm mb-sm">
+                <input type="radio" name="nameType" value="custom" id="useCustomName">
+                <span>익명 별명 사용</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-input mt-sm" 
+                id="customNickname"
+                placeholder="별명을 입력하세요 (2~12자)"
+                maxlength="12"
+                disabled
+              >
+            </div>
+
+            <p class="text-warning text-sm mt-md">
+              ⚠️ 모든 모임에 일괄 적용됩니다
+            </p>
+
+            <button class="btn btn-primary mt-lg" id="saveSettingsBtn">
+              저장하기
+            </button>
+          </section>
+
+          <!-- 회원 탈퇴 -->
+          <section class="card">
+            <h2 class="text-lg font-semibold mb-md text-danger">🚪 회원 탈퇴</h2>
+            <p class="text-secondary text-sm mb-md">
+              탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.
+            </p>
+            <button class="btn btn-danger btn-sm" id="deleteAccountBtn">
+              탈퇴하기
+            </button>
+          </section>
+        </div>
+
+        <!-- 비로그인 상태 -->
+        <div class="card text-center hidden" id="notLoggedIn">
+          <div class="empty-state-icon">🔒</div>
+          <h3 class="empty-state-title">로그인이 필요합니다</h3>
+          <p class="empty-state-description">
+            설정을 변경하려면 로그인해주세요.
+          </p>
+          <button class="btn btn-primary mt-lg" id="loginBtn">
+            로그인하기
+          </button>
+        </div>
+      </div>
     </div>
-    <script type="module">
-        import { renderHeader } from '/js/components/Header.js';
-        import { initToast } from '/js/components/Toast.js';
-        import { initTheme } from '/js/utils/theme.js';
-        import { renderSettings } from '/js/pages/settings.js';
-        initTheme();
-        initToast();
-        renderHeader();
-        renderSettings();
-    </script>
+  </main>
+
+  <!-- 탈퇴 확인 모달 -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">⚠️ 정말 탈퇴하시겠습니까?</h3>
+        <button class="modal-close" id="closeDeleteModal">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="4" x2="16" y2="16"></line>
+            <line x1="16" y1="4" x2="4" y2="16"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-md">탈퇴 시 다음 정보가 처리됩니다:</p>
+        <ul class="text-sm text-secondary" style="list-style: disc; margin-left: 1.5rem;">
+          <li>응답 기록은 익명으로 유지됩니다</li>
+          <li>등록한 질문은 유지됩니다</li>
+          <li>생성한 모임이 있으면 탈퇴할 수 없습니다</li>
+        </ul>
+        <div class="form-group mt-lg">
+          <label class="form-label">확인을 위해 "탈퇴하기"를 입력하세요</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            id="deleteConfirmInput"
+            placeholder="탈퇴하기"
+          >
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelDeleteBtn">취소</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" disabled>탈퇴</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 테마 옵션 스타일 -->
+  <style>
+    .theme-options {
+      display: flex;
+      gap: var(--spacing-md);
+    }
+    
+    .theme-option {
+      flex: 1;
+      cursor: pointer;
+    }
+    
+    .theme-option input {
+      display: none;
+    }
+    
+    .theme-option-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-lg);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+    }
+    
+    .theme-option input:checked + .theme-option-content {
+      border-color: var(--color-accent);
+      background-color: rgba(0, 113, 227, 0.05);
+    }
+    
+    .theme-option:hover .theme-option-content {
+      border-color: var(--color-accent);
+    }
+    
+    .theme-option-icon {
+      font-size: 1.5rem;
+    }
+    
+    .theme-option-label {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+    }
+    
+    @media (max-width: 480px) {
+      .theme-options {
+        flex-direction: column;
+      }
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { checkSession, redirectToGoogleLogin } from '/js/utils/auth.js';
+    import { userAPI } from '/js/services/api.js';
+    import { toastSuccess, toastError } from '/js/components/Toast.js';
+    import { setButtonLoading } from '/js/components/Loading.js';
+    import { getTheme, setTheme } from '/js/utils/theme.js';
+
+    let currentUser = null;
+
+    async function init() {
+      await initHeader();
+      
+      // 테마 설정 초기화 (로그인 없이도 동작)
+      initThemeSettings();
+      
+      const user = await checkSession();
+      
+      const loadingState = document.getElementById('loadingState');
+      const settingsContent = document.getElementById('settingsContent');
+      const notLoggedIn = document.getElementById('notLoggedIn');
+      
+      loadingState.classList.add('hidden');
+      
+      if (!user) {
+        notLoggedIn.classList.remove('hidden');
+        document.getElementById('loginBtn').addEventListener('click', () => {
+          redirectToGoogleLogin(window.GOOGLE_CLIENT_ID || '');
+        });
+        return;
+      }
+      
+      currentUser = user;
+      settingsContent.classList.remove('hidden');
+      renderSettings(user);
+      bindEvents();
+    }
+    
+    function initThemeSettings() {
+      const currentTheme = getTheme();
+      
+      // 현재 테마에 해당하는 라디오 버튼 선택
+      const themeRadio = document.querySelector(`input[name="theme"][value="${currentTheme}"]`);
+      if (themeRadio) {
+        themeRadio.checked = true;
+      }
+      
+      // 테마 변경 이벤트
+      document.querySelectorAll('input[name="theme"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          setTheme(e.target.value);
+          // 헤더 새로고침
+          initHeader();
+        });
+      });
+    }
+
+    function renderSettings(user) {
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('googleNamePreview').textContent = `(${user.displayName})`;
+      
+      const useGoogleName = document.getElementById('useGoogleName');
+      const useCustomName = document.getElementById('useCustomName');
+      const customNickname = document.getElementById('customNickname');
+      
+      if (user.useNickname) {
+        useCustomName.checked = true;
+        customNickname.disabled = false;
+        customNickname.value = user.customNickname || '';
+      } else {
+        useGoogleName.checked = true;
+        customNickname.disabled = true;
+      }
+    }
+
+    function bindEvents() {
+      const useGoogleName = document.getElementById('useGoogleName');
+      const useCustomName = document.getElementById('useCustomName');
+      const customNickname = document.getElementById('customNickname');
+      
+      // 라디오 버튼 변경
+      useGoogleName.addEventListener('change', () => {
+        customNickname.disabled = true;
+      });
+      
+      useCustomName.addEventListener('change', () => {
+        customNickname.disabled = false;
+        customNickname.focus();
+      });
+      
+      // 저장 버튼
+      document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+      
+      // 탈퇴 관련
+      document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+        document.getElementById('deleteModal').classList.add('open');
+      });
+      
+      document.getElementById('closeDeleteModal').addEventListener('click', closeDeleteModal);
+      document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+      
+      document.getElementById('deleteConfirmInput').addEventListener('input', (e) => {
+        document.getElementById('confirmDeleteBtn').disabled = e.target.value !== '탈퇴하기';
+      });
+      
+      document.getElementById('confirmDeleteBtn').addEventListener('click', deleteAccount);
+    }
+
+    async function saveSettings() {
+      const useNickname = document.getElementById('useCustomName').checked;
+      const customNickname = document.getElementById('customNickname').value.trim();
+      
+      if (useNickname && (customNickname.length < 2 || customNickname.length > 12)) {
+        toastError('별명은 2~12자로 입력해주세요.');
+        return;
+      }
+      
+      const btn = document.getElementById('saveSettingsBtn');
+      setButtonLoading(btn, true);
+      
+      try {
+        await userAPI.updateMe({
+          useNickname,
+          customNickname: useNickname ? customNickname : null,
+        });
+        
+        toastSuccess('설정이 저장되었습니다.');
+        
+        // 헤더 새로고침
+        await initHeader();
+        
+      } catch (error) {
+        console.error('설정 저장 실패:', error);
+        toastError(error.message || '설정 저장에 실패했습니다.');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('open');
+      document.getElementById('deleteConfirmInput').value = '';
+      document.getElementById('confirmDeleteBtn').disabled = true;
+    }
+
+    async function deleteAccount() {
+      const btn = document.getElementById('confirmDeleteBtn');
+      setButtonLoading(btn, true);
+      
+      try {
+        await userAPI.deleteMe();
+        toastSuccess('탈퇴가 완료되었습니다.');
+        setTimeout(() => {
+          window.location.href = '/index.html';
+        }, 1500);
+      } catch (error) {
+        console.error('탈퇴 실패:', error);
+        toastError(error.message || '탈퇴 처리에 실패했습니다.');
+        setButtonLoading(btn, false);
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>

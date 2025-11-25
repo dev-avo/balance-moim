@@ -1,131 +1,148 @@
-/**
- * 인증 관련 유틸리티
- */
+// 프론트엔드 인증 유틸리티
+// Google OAuth 로그인, 세션 관리
 
-// 세션 확인 결과 캐싱 (같은 페이지 로드 중에는 한 번만 호출)
-let sessionCache = null;
-let sessionCacheTime = 0;
-const SESSION_CACHE_DURATION = 5000; // 5초 캐시
+// Google OAuth 설정
+const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+
+// 현재 사용자 상태 (캐시)
+let currentUser = null;
 
 /**
- * 세션 확인 (로그인 여부만 확인)
- * 로그인하지 않은 상태에서도 호출 가능하며, 불필요한 네트워크 요청을 줄입니다.
+ * Google 로그인 페이지로 리다이렉트
+ * @param {string} clientId - Google OAuth 클라이언트 ID
  */
-async function checkSession() {
-    // 캐시가 유효한 경우 캐시된 결과 반환
-    const now = Date.now();
-    if(sessionCache !== null && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
-        return sessionCache;
+export function redirectToGoogleLogin(clientId) {
+  const redirectUri = `${window.location.origin}/api/auth/callback`;
+  
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid email profile',
+    access_type: 'offline',
+    prompt: 'select_account', // 항상 계정 선택 화면 표시
+  });
+  
+  window.location.href = `${GOOGLE_AUTH_URL}?${params.toString()}`;
+}
+
+/**
+ * 현재 세션 확인
+ * @returns {Promise<Object|null>} 사용자 정보 또는 null
+ */
+export async function checkSession() {
+  try {
+    const response = await fetch('/api/auth/session', {
+      method: 'GET',
+      credentials: 'include', // 쿠키 포함
+    });
+    
+    if (!response.ok) {
+      currentUser = null;
+      return null;
     }
     
-    try {
-        const response = await fetch('/api/auth/session', {
-            credentials: 'include',
-        });
-        
-        if(!response.ok) {
-            sessionCache = null;
-            sessionCacheTime = now;
-            return null;
-        }
-        
-        const session = await response.json();
-        const user = session?.user || null;
-        
-        // 캐시 업데이트
-        sessionCache = user;
-        sessionCacheTime = now;
-        
-        return user;
-    } catch(error) {
-        sessionCache = null;
-        sessionCacheTime = now;
-        return null;
-    }
-}
-
-/**
- * 세션 캐시 초기화 (로그인/로그아웃 시 호출)
- */
-export function clearSessionCache() {
-    sessionCache = null;
-    sessionCacheTime = 0;
-}
-
-/**
- * 현재 사용자 정보 가져오기
- * 실제 사용자 정보가 필요할 때만 호출합니다 (예: 프로필 페이지, 설정 페이지)
- */
-export async function getCurrentUser() {
-    try {
-        // 먼저 세션 확인 (로그인 여부만 빠르게 확인)
-        const sessionUser = await checkSession();
-        if(!sessionUser) {
-            return null; // 로그인하지 않은 상태
-        }
-        
-        // 로그인한 상태에서만 사용자 정보 가져오기
-        const response = await fetch('/api/users/me', {
-            credentials: 'include',
-        });
-        
-        if(!response.ok) {
-            // 401이 아닌 다른 오류만 로깅
-            if(response.status !== 401) {
-                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                console.warn('Get current user error:', response.status, errorData);
-            }
-            return null;
-        }
-        
-        const data = await response.json();
-        return data.user || data;
-    } catch(error) {
-        return null;
-    }
-}
-
-/**
- * 로그인 상태 확인
- * 세션만 확인하여 불필요한 네트워크 요청을 줄입니다.
- */
-export async function checkAuth() {
-    const sessionUser = await checkSession();
-    return sessionUser !== null;
-}
-
-/**
- * Google 로그인 (일반 리다이렉트 방식)
- * 전통적인 웹 페이지 방식으로 로그인을 처리합니다.
- */
-export function signInWithGoogle() {
-    // 세션 캐시 초기화
-    clearSessionCache();
+    const data = await response.json();
     
-    // 현재 URL을 callback으로 저장 (로그인 후 돌아올 페이지)
-    const currentUrl = window.location.href;
-    localStorage.setItem('auth_callback_url', currentUrl);
+    if (data.success && data.data?.user) {
+      currentUser = data.data.user;
+      return currentUser;
+    }
     
-    // Google 로그인 페이지로 리다이렉트
-    window.location.href = '/api/auth/signin/google';
+    currentUser = null;
+    return null;
+  } catch (error) {
+    console.error('세션 확인 실패:', error);
+    currentUser = null;
+    return null;
+  }
 }
 
 /**
  * 로그아웃
+ * @returns {Promise<boolean>} 성공 여부
  */
-export async function signOut() {
-    try {
-        // 세션 캐시 초기화
-        clearSessionCache();
-        
-        const response = await fetch('/api/auth/signout', {
-            method: 'POST'
-        });
-        
-        if(response.ok) {
-            window.location.href = '/home.html';
-        }
-    } catch(error) {
-        console.error('Sign out error:', error);
+export async function logout() {
+  try {
+    const response = await fetch('/api/auth/signout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      currentUser = null;
+      return true;
     }
+    
+    return false;
+  } catch (error) {
+    console.error('로그아웃 실패:', error);
+    return false;
+  }
+}
+
+/**
+ * 현재 로그인한 사용자 가져오기 (캐시된 값)
+ * @returns {Object|null} 사용자 정보 또는 null
+ */
+export function getCurrentUser() {
+  return currentUser;
+}
+
+/**
+ * 로그인 상태 확인
+ * @returns {boolean} 로그인 여부
+ */
+export function isLoggedIn() {
+  return currentUser !== null;
+}
+
+/**
+ * 로그인 필요 페이지 가드
+ * 로그인하지 않은 경우 인덱스 페이지로 리다이렉트
+ * @returns {Promise<boolean>} 로그인 여부
+ */
+export async function requireAuth() {
+  const user = await checkSession();
+  
+  if (!user) {
+    window.location.href = '/index.html?login_required=true';
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * URL 파라미터에서 로그인 에러 메시지 확인
+ * @returns {string|null} 에러 메시지 또는 null
+ */
+export function getLoginError() {
+  const params = new URLSearchParams(window.location.search);
+  const success = params.get('success');
+  const message = params.get('message');
+  
+  if (success === 'false' && message) {
+    return decodeURIComponent(message);
+  }
+  
+  if (params.get('login_required') === 'true') {
+    return '로그인이 필요합니다.';
+  }
+  
+  return null;
+}
+
+/**
+ * URL 파라미터 정리 (로그인 관련 파라미터 제거)
+ */
+export function clearLoginParams() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('success');
+  url.searchParams.delete('message');
+  url.searchParams.delete('login_required');
+  
+  if (url.search !== window.location.search) {
+    window.history.replaceState({}, '', url.toString());
+  }
 }

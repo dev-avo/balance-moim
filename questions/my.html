@@ -1,61 +1,312 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 질문 - 밸런스 모임</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: 'var(--background)',
-                        foreground: 'var(--foreground)',
-                        card: 'var(--card)',
-                        'card-foreground': 'var(--card-foreground)',
-                        primary: 'var(--primary)',
-                        'primary-foreground': 'var(--primary-foreground)',
-                        secondary: 'var(--secondary)',
-                        'secondary-foreground': 'var(--secondary-foreground)',
-                        muted: 'var(--muted)',
-                        'muted-foreground': 'var(--muted-foreground)',
-                        accent: 'var(--accent)',
-                        'accent-foreground': 'var(--accent-foreground)',
-                        destructive: 'var(--destructive)',
-                        'destructive-foreground': 'var(--destructive-foreground)',
-                        border: 'var(--border)',
-                        input: 'var(--input)',
-                        ring: 'var(--ring)',
-                    },
-                    borderRadius: {
-                        DEFAULT: 'var(--radius)',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                    },
-                },
-            },
-            darkMode: 'class',
-        };
-    </script>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내가 만든 질문 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div id="app">
-        <header id="header"></header>
-        <main id="main" class="container"></main>
-        <div id="toast-container"></div>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content">
+        <!-- 페이지 헤더 -->
+        <div class="flex justify-between items-center mb-xl">
+          <h1 class="text-3xl font-bold">내가 만든 질문</h1>
+          <a href="/questions/create.html" class="btn btn-primary">
+            + 질문 만들기
+          </a>
+        </div>
+
+        <!-- 로딩 상태 -->
+        <div id="loadingState" class="text-center p-xl">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <!-- 질문 목록 -->
+        <div class="questions-list hidden" id="questionsList"></div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination hidden" id="pagination"></div>
+
+        <!-- 빈 상태 -->
+        <div class="card text-center hidden" id="emptyState">
+          <div class="empty-state-icon">📝</div>
+          <h3 class="empty-state-title">아직 만든 질문이 없어요</h3>
+          <p class="empty-state-description">
+            첫 번째 밸런스 질문을 만들어보세요!
+          </p>
+          <a href="/questions/create.html" class="btn btn-primary mt-lg">
+            질문 만들기
+          </a>
+        </div>
+      </div>
     </div>
-    <script type="module">
-        import { renderHeader } from '/js/components/Header.js';
-        import { initToast } from '/js/components/Toast.js';
-        import { initTheme } from '/js/utils/theme.js';
-        import { renderMyQuestions } from '/js/pages/questions/my.js';
-        initTheme();
-        initToast();
-        renderHeader();
-        renderMyQuestions();
-    </script>
+  </main>
+
+  <!-- 추가 스타일 -->
+  <style>
+    .questions-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .question-card {
+      padding: var(--spacing-lg);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .question-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+    }
+
+    .question-options {
+      display: flex;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .question-stats {
+      display: flex;
+      gap: var(--spacing-lg);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .question-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .visibility-badge {
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+    }
+
+    .visibility-public {
+      background-color: rgba(52, 199, 89, 0.1);
+      color: var(--color-success);
+    }
+
+    .visibility-group {
+      background-color: rgba(0, 113, 227, 0.1);
+      color: var(--color-accent);
+    }
+
+    .visibility-private {
+      background-color: rgba(142, 142, 147, 0.1);
+      color: var(--color-text-secondary);
+    }
+
+    /* 페이지네이션 스타일 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-xl);
+    }
+
+    .pagination-btn {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-btn.active {
+      background-color: var(--color-accent);
+      border-color: var(--color-accent);
+      color: white;
+    }
+
+    .pagination-info {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { requireAuth } from '/js/utils/auth.js';
+    import { questionAPI } from '/js/services/api.js';
+    import { toastSuccess, toastError } from '/js/components/Toast.js';
+    import { confirmModal } from '/js/components/Modal.js';
+
+    let currentPage = 1;
+    const limit = 10;
+
+    async function init() {
+      await initHeader();
+      
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+      
+      await loadQuestions(1);
+    }
+
+    async function loadQuestions(page) {
+      currentPage = page;
+      const loadingState = document.getElementById('loadingState');
+      const questionsList = document.getElementById('questionsList');
+      const emptyState = document.getElementById('emptyState');
+      const pagination = document.getElementById('pagination');
+      
+      loadingState.classList.remove('hidden');
+      questionsList.classList.add('hidden');
+      emptyState.classList.add('hidden');
+      pagination.classList.add('hidden');
+      
+      try {
+        const response = await questionAPI.getMy(page, limit);
+        const questions = response.data?.questions || [];
+        const paginationData = response.data?.pagination;
+        
+        loadingState.classList.add('hidden');
+        
+        if (questions.length === 0 && page === 1) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        
+        renderQuestions(questions);
+        questionsList.classList.remove('hidden');
+        
+        if (paginationData && paginationData.totalPages > 1) {
+          renderPagination(paginationData);
+          pagination.classList.remove('hidden');
+        }
+        
+      } catch (error) {
+        console.error('질문 목록 로드 실패:', error);
+        loadingState.classList.add('hidden');
+        toastError('질문 목록을 불러오는데 실패했습니다.');
+      }
+    }
+
+    function renderPagination(data) {
+      const container = document.getElementById('pagination');
+      const { page, totalPages, total } = data;
+      
+      let html = `
+        <button class="pagination-btn" onclick="goToPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>
+          ← 이전
+        </button>
+        <span class="pagination-info">${page} / ${totalPages} (총 ${total}개)</span>
+        <button class="pagination-btn" onclick="goToPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>
+          다음 →
+        </button>
+      `;
+      
+      container.innerHTML = html;
+    }
+
+    window.goToPage = function(page) {
+      loadQuestions(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function renderQuestions(questions) {
+      const container = document.getElementById('questionsList');
+      
+      container.innerHTML = questions.map(q => `
+        <div class="card question-card">
+          <div class="question-header">
+            <div>
+              <span class="visibility-badge visibility-${q.visibility}">
+                ${getVisibilityLabel(q.visibility)}
+              </span>
+              <h3 class="question-title mt-sm">${escapeHtml(q.title)}</h3>
+            </div>
+            <div class="question-actions">
+              <a href="/questions/edit.html?id=${q.id}" class="btn btn-ghost btn-sm">편집</a>
+              <button class="btn btn-ghost btn-sm text-danger" onclick="deleteQuestion('${q.id}')">삭제</button>
+            </div>
+          </div>
+          
+          <div class="question-options">
+            <span>${escapeHtml(q.option_a)}</span>
+            <span>vs</span>
+            <span>${escapeHtml(q.option_b)}</span>
+          </div>
+          
+          <div class="tag-list mb-md">
+            ${(q.tags || []).map(tag => `<span class="tag">#${tag}</span>`).join('')}
+          </div>
+          
+          <div class="question-stats">
+            <span>📊 ${q.responseCount || 0}명 응답</span>
+            ${q.responseCount > 0 ? `
+              <span>A ${q.optionAPercent || 50}% vs B ${q.optionBPercent || 50}%</span>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getVisibilityLabel(visibility) {
+      switch (visibility) {
+        case 'public': return '전체 공개';
+        case 'group': return '모임 전용';
+        case 'private': return '비공개';
+        default: return visibility;
+      }
+    }
+
+    window.deleteQuestion = async function(questionId) {
+      const confirmed = await confirmModal(
+        '질문 삭제',
+        '정말 이 질문을 삭제하시겠습니까?'
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        await questionAPI.delete(questionId);
+        toastSuccess('질문이 삭제되었습니다.');
+        loadQuestions();
+      } catch (error) {
+        console.error('질문 삭제 실패:', error);
+        toastError(error.message || '질문 삭제에 실패했습니다.');
+      }
+    };
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
 </body>
 </html>

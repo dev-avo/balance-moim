@@ -1,62 +1,46 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - 밸런스 모임</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: 'var(--background)',
-                        foreground: 'var(--foreground)',
-                        card: 'var(--card)',
-                        'card-foreground': 'var(--card-foreground)',
-                        primary: 'var(--primary)',
-                        'primary-foreground': 'var(--primary-foreground)',
-                        secondary: 'var(--secondary)',
-                        'secondary-foreground': 'var(--secondary-foreground)',
-                        muted: 'var(--muted)',
-                        'muted-foreground': 'var(--muted-foreground)',
-                        accent: 'var(--accent)',
-                        'accent-foreground': 'var(--accent-foreground)',
-                        destructive: 'var(--destructive)',
-                        'destructive-foreground': 'var(--destructive-foreground)',
-                        border: 'var(--border)',
-                        input: 'var(--input)',
-                        ring: 'var(--ring)',
-                    },
-                    borderRadius: {
-                        DEFAULT: 'var(--radius)',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                    },
-                },
-            },
-            darkMode: 'class',
-        };
-    </script>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - 페이지를 찾을 수 없습니다</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div id="app">
-        <header id="header"></header>
-        <main id="main" class="container"></main>
-        <div id="toast-container"></div>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content text-center" style="padding: 4rem 0;">
+        <div class="error-illustration">
+          <span style="font-size: 6rem;">🤔</span>
+        </div>
+        
+        <h1 class="text-4xl font-bold mt-xl">404</h1>
+        <p class="text-xl text-secondary mt-md">페이지를 찾을 수 없습니다</p>
+        
+        <p class="text-secondary mt-lg">
+          찾으시는 페이지가 삭제되었거나, 주소가 변경되었을 수 있습니다.
+        </p>
+        
+        <div class="flex gap-md justify-center mt-xl">
+          <a href="/" class="btn btn-primary">
+            홈으로 돌아가기
+          </a>
+          <button class="btn btn-secondary" onclick="history.back()">
+            이전 페이지
+          </button>
+        </div>
+      </div>
     </div>
-    <script type="module">
-        import { renderHeader } from '/js/components/Header.js';
-        import { initToast } from '/js/components/Toast.js';
-        import { initTheme } from '/js/utils/theme.js';
-        import { render404 } from '/js/pages/404.js';
-        initTheme();
-        initToast();
-        renderHeader();
-        render404();
-    </script>
+  </main>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    initHeader();
+  </script>
 </body>
 </html>
-

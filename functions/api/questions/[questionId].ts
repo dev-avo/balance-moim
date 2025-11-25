@@ -1,307 +1,249 @@
-// /api/questions/[questionId]
-// - GET: 질문 상세 조회
-// - PATCH: 질문 수정
-// - DELETE: 질문 삭제 (Soft Delete)
+// 질문 상세 API
+// GET /api/questions/[questionId] - 질문 상세 조회
+// PATCH /api/questions/[questionId] - 질문 수정
+// DELETE /api/questions/[questionId] - 질문 삭제
 
-const getQuestionId = (context: { params?: Record<string, string>; request: Request }): string | null => {
-    if(context.params && context.params.questionId) {
-        return context.params.questionId;
+import { getSession } from '../../../lib/auth/session';
+
+interface Env {
+  DB: D1Database;
+  JWT_SECRET: string;
+}
+
+// GET: 질문 상세 조회
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+  const { request, env, params } = context;
+  const questionId = params.questionId as string;
+  
+  try {
+    // 세션 확인 (선택적)
+    const session = await getSession(request, env.JWT_SECRET);
+    const userId = session?.userId || null;
+    
+    // 질문 조회
+    const question = await env.DB.prepare(`
+      SELECT q.*, u.display_name as creator_name
+      FROM question q
+      LEFT JOIN user u ON q.creator_id = u.id
+      WHERE q.id = ? AND q.deleted_at IS NULL
+    `).bind(questionId).first();
+    
+    if (!question) {
+      return Response.json(
+        { success: false, error: '질문을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
     }
     
-    const url = new URL(context.request.url);
-    const parts = url.pathname.split('/').filter(Boolean);
-    return parts.length > 0 ? parts[parts.length - 1] : null;
+    // 접근 권한 확인
+    const q = question as any;
+    if (q.visibility === 'private' && q.creator_id !== userId) {
+      return Response.json(
+        { success: false, error: '접근 권한이 없습니다.' },
+        { status: 403 }
+      );
+    }
+    
+    if (q.visibility === 'group' && userId) {
+      const membership = await env.DB.prepare(`
+        SELECT id FROM group_member
+        WHERE group_id = ? AND user_id = ? AND left_at IS NULL
+      `).bind(q.group_id, userId).first();
+      
+      if (!membership && q.creator_id !== userId) {
+        return Response.json(
+          { success: false, error: '해당 모임에 속해있지 않습니다.' },
+          { status: 403 }
+        );
+      }
+    }
+    
+    // 태그 조회
+    const tagsResult = await env.DB.prepare(`
+      SELECT t.name FROM tag t
+      INNER JOIN question_tag qt ON t.id = qt.tag_id
+      WHERE qt.question_id = ?
+    `).bind(questionId).all();
+    
+    return Response.json({
+      success: true,
+      data: {
+        question: {
+          ...question,
+          tags: (tagsResult.results || []).map((t: any) => t.name),
+        },
+      },
+    });
+    
+  } catch (error) {
+    console.error('질문 조회 오류:', error);
+    return Response.json(
+      { success: false, error: '질문을 불러오는데 실패했습니다.' },
+      { status: 500 }
+    );
+  }
 };
 
-export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) => {
-    try {
-        if(!context.env.DB) {
-            return new Response(
-                JSON.stringify({ error: '데이터베이스 연결 오류' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const questionId = getQuestionId(context);
-        if(!questionId) {
-            return new Response(
-                JSON.stringify({ error: '질문 ID가 필요합니다.' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { setDb, getDb } = await import('../../../lib/db');
-        const { question, questionTag, tag } = await import('../../../lib/db/schema');
-        const { eq } = await import('drizzle-orm');
-        
-        setDb(context.env.DB);
-        const db = getDb();
-        
-        const questionData = await db
-            .select()
-            .from(question)
-            .where(eq(question.id, questionId))
-            .limit(1);
-        
-        if(questionData.length === 0) {
-            return new Response(
-                JSON.stringify({ error: '질문을 찾을 수 없습니다.' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const questionTags = await db
-            .select({
-                id: tag.id,
-                name: tag.name,
-            })
-            .from(questionTag)
-            .innerJoin(tag, eq(questionTag.tagId, tag.id))
-            .where(eq(questionTag.questionId, questionId));
-        
-        return new Response(
-            JSON.stringify({
-                question: {
-                    ...questionData[0],
-                    tags: questionTags,
-                },
-            }),
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-    } catch(error) {
-        console.error('질문 조회 오류:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return new Response(
-            JSON.stringify({ error: '질문을 가져오는 중 오류가 발생했습니다.', details: errorMessage }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+// PATCH: 질문 수정
+export const onRequestPatch: PagesFunction<Env> = async (context) => {
+  const { request, env, params } = context;
+  const questionId = params.questionId as string;
+  
+  try {
+    // 로그인 확인
+    const session = await getSession(request, env.JWT_SECRET);
+    if (!session) {
+      return Response.json(
+        { success: false, error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
     }
+    
+    // 질문 소유자 확인
+    const question = await env.DB.prepare(`
+      SELECT creator_id FROM question WHERE id = ? AND deleted_at IS NULL
+    `).bind(questionId).first();
+    
+    if (!question) {
+      return Response.json(
+        { success: false, error: '질문을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
+    
+    if ((question as any).creator_id !== session.userId) {
+      return Response.json(
+        { success: false, error: '수정 권한이 없습니다.' },
+        { status: 403 }
+      );
+    }
+    
+    const body = await request.json() as any;
+    const updates: string[] = [];
+    const params: any[] = [];
+    
+    if (body.title !== undefined) {
+      if (!body.title?.trim() || body.title.length > 100) {
+        return Response.json(
+          { success: false, error: '제목은 1~100자여야 합니다.' },
+          { status: 400 }
+        );
+      }
+      updates.push('title = ?');
+      params.push(body.title.trim());
+    }
+    
+    if (body.optionA !== undefined) {
+      if (!body.optionA?.trim() || body.optionA.length > 50) {
+        return Response.json(
+          { success: false, error: '선택지 A는 1~50자여야 합니다.' },
+          { status: 400 }
+        );
+      }
+      updates.push('option_a = ?');
+      params.push(body.optionA.trim());
+    }
+    
+    if (body.optionB !== undefined) {
+      if (!body.optionB?.trim() || body.optionB.length > 50) {
+        return Response.json(
+          { success: false, error: '선택지 B는 1~50자여야 합니다.' },
+          { status: 400 }
+        );
+      }
+      updates.push('option_b = ?');
+      params.push(body.optionB.trim());
+    }
+    
+    if (body.visibility !== undefined) {
+      if (!['public', 'group', 'private'].includes(body.visibility)) {
+        return Response.json(
+          { success: false, error: '유효하지 않은 공개 설정입니다.' },
+          { status: 400 }
+        );
+      }
+      updates.push('visibility = ?');
+      params.push(body.visibility);
+    }
+    
+    if (updates.length === 0) {
+      return Response.json(
+        { success: false, error: '수정할 내용이 없습니다.' },
+        { status: 400 }
+      );
+    }
+    
+    updates.push('updated_at = ?');
+    params.push(new Date().toISOString());
+    params.push(questionId);
+    
+    await env.DB.prepare(`
+      UPDATE question SET ${updates.join(', ')} WHERE id = ?
+    `).bind(...params).run();
+    
+    return Response.json({
+      success: true,
+      message: '질문이 수정되었습니다.',
+    });
+    
+  } catch (error) {
+    console.error('질문 수정 오류:', error);
+    return Response.json(
+      { success: false, error: '질문 수정에 실패했습니다.' },
+      { status: 500 }
+    );
+  }
 };
 
-export const onRequestPatch: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
-    try {
-        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
-        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
-        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
-        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
-        
-        if(!context.env.DB) {
-            return new Response(
-                JSON.stringify({ error: '데이터베이스 연결 오류' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const questionId = getQuestionId(context);
-        if(!questionId) {
-            return new Response(
-                JSON.stringify({ error: '질문 ID가 필요합니다.' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { setDb, getDb } = await import('../../../lib/db');
-        const { question, questionTag, tag } = await import('../../../lib/db/schema');
-        const { eq, sql } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../../lib/auth/session');
-        const { generateId } = await import('../../../lib/utils');
-        const { z } = await import('zod');
-        
-        setDb(context.env.DB);
-        const db = getDb();
-        
-        const secret = context.env.NEXTAUTH_SECRET || '';
-        const currentUser = await getCurrentUser(context.request, secret);
-        
-        if(!currentUser) {
-            return new Response(
-                JSON.stringify({ error: '로그인이 필요합니다.' }),
-                { status: 401, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const body = await context.request.json();
-        
-        const UpdateQuestionSchema = z.object({
-            title: z.string().min(1).max(100).optional(),
-            optionA: z.string().min(1).max(50).optional(),
-            optionB: z.string().min(1).max(50).optional(),
-            tags: z
-                .array(z.string())
-                .min(1, '최소 1개 이상의 태그를 추가해주세요.')
-                .max(5, '최대 5개까지 태그를 추가할 수 있습니다.')
-                .optional(),
-            visibility: z.enum(['public', 'group', 'private']).optional(),
-        });
-        
-        const validation = UpdateQuestionSchema.safeParse(body);
-        
-        if(!validation.success) {
-            return new Response(
-                JSON.stringify({ error: validation.error.issues[0].message }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const updateData = validation.data;
-        
-        const existingQuestion = await db
-            .select()
-            .from(question)
-            .where(eq(question.id, questionId))
-            .limit(1);
-        
-        if(existingQuestion.length === 0) {
-            return new Response(
-                JSON.stringify({ error: '질문을 찾을 수 없습니다.' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        if(existingQuestion[0].creatorId !== currentUser.id) {
-            return new Response(
-                JSON.stringify({ error: '본인이 만든 질문만 수정할 수 있습니다.' }),
-                { status: 403, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const updateFields: Record<string, unknown> = {
-            updatedAt: sql`(unixepoch())`,
-        };
-        
-        if(updateData.title !== undefined) updateFields.title = updateData.title;
-        if(updateData.optionA !== undefined) updateFields.optionA = updateData.optionA;
-        if(updateData.optionB !== undefined) updateFields.optionB = updateData.optionB;
-        if(updateData.visibility !== undefined) updateFields.visibility = updateData.visibility;
-        
-        await db
-            .update(question)
-            .set(updateFields)
-            .where(eq(question.id, questionId));
-        
-        if(updateData.tags !== undefined) {
-            await db
-                .delete(questionTag)
-                .where(eq(questionTag.questionId, questionId));
-            
-            const tagIds: string[] = [];
-            
-            for(const tagName of updateData.tags) {
-                let existingTag = await db
-                    .select()
-                    .from(tag)
-                    .where(eq(tag.name, tagName))
-                    .limit(1);
-                
-                if(existingTag.length > 0) {
-                    tagIds.push(existingTag[0].id);
-                } else {
-                    const newTag = {
-                        id: generateId(),
-                        name: tagName,
-                    };
-                    await db.insert(tag).values(newTag);
-                    tagIds.push(newTag.id);
-                }
-            }
-            
-            const questionTagValues = tagIds.map((tagId) => ({
-                questionId,
-                tagId,
-            }));
-            
-            await db.insert(questionTag).values(questionTagValues);
-        }
-        
-        return new Response(
-            JSON.stringify({ message: '질문이 수정되었습니다.' }),
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-    } catch(error) {
-        console.error('질문 수정 오류:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return new Response(
-            JSON.stringify({ error: '질문을 수정하는 중 오류가 발생했습니다.', details: errorMessage }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+// DELETE: 질문 삭제 (소프트 삭제)
+export const onRequestDelete: PagesFunction<Env> = async (context) => {
+  const { request, env, params } = context;
+  const questionId = params.questionId as string;
+  
+  try {
+    // 로그인 확인
+    const session = await getSession(request, env.JWT_SECRET);
+    if (!session) {
+      return Response.json(
+        { success: false, error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
     }
-};
-
-export const onRequestDelete: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
-    try {
-        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
-        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
-        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
-        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
-        
-        if(!context.env.DB) {
-            return new Response(
-                JSON.stringify({ error: '데이터베이스 연결 오류' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const questionId = getQuestionId(context);
-        if(!questionId) {
-            return new Response(
-                JSON.stringify({ error: '질문 ID가 필요합니다.' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { setDb, getDb } = await import('../../../lib/db');
-        const { question } = await import('../../../lib/db/schema');
-        const { eq, sql } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../../lib/auth/session');
-        
-        setDb(context.env.DB);
-        const db = getDb();
-        
-        const secret = context.env.NEXTAUTH_SECRET || '';
-        const currentUser = await getCurrentUser(context.request, secret);
-        
-        if(!currentUser) {
-            return new Response(
-                JSON.stringify({ error: '로그인이 필요합니다.' }),
-                { status: 401, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const existingQuestion = await db
-            .select()
-            .from(question)
-            .where(eq(question.id, questionId))
-            .limit(1);
-        
-        if(existingQuestion.length === 0) {
-            return new Response(
-                JSON.stringify({ error: '질문을 찾을 수 없습니다.' }),
-                { status: 404, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        if(existingQuestion[0].creatorId !== currentUser.id) {
-            return new Response(
-                JSON.stringify({ error: '본인이 만든 질문만 삭제할 수 있습니다.' }),
-                { status: 403, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        await db
-            .update(question)
-            .set({ deletedAt: sql`(unixepoch())` })
-            .where(eq(question.id, questionId));
-        
-        return new Response(
-            JSON.stringify({ message: '질문이 삭제되었습니다.' }),
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-    } catch(error) {
-        console.error('질문 삭제 오류:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return new Response(
-            JSON.stringify({ error: '질문을 삭제하는 중 오류가 발생했습니다.', details: errorMessage }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+    
+    // 질문 소유자 확인
+    const question = await env.DB.prepare(`
+      SELECT creator_id FROM question WHERE id = ? AND deleted_at IS NULL
+    `).bind(questionId).first();
+    
+    if (!question) {
+      return Response.json(
+        { success: false, error: '질문을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
     }
+    
+    if ((question as any).creator_id !== session.userId) {
+      return Response.json(
+        { success: false, error: '삭제 권한이 없습니다.' },
+        { status: 403 }
+      );
+    }
+    
+    // 소프트 삭제
+    await env.DB.prepare(`
+      UPDATE question SET deleted_at = ? WHERE id = ?
+    `).bind(new Date().toISOString(), questionId).run();
+    
+    return Response.json({
+      success: true,
+      message: '질문이 삭제되었습니다.',
+    });
+    
+  } catch (error) {
+    console.error('질문 삭제 오류:', error);
+    return Response.json(
+      { success: false, error: '질문 삭제에 실패했습니다.' },
+      { status: 500 }
+    );
+  }
 };

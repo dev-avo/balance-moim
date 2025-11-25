@@ -1,179 +1,160 @@
-// /api/questions 엔드포인트
-// - GET: 공개 질문 목록 조회
-// - POST: 신규 질문 생성
+// 질문 API
+// POST /api/questions - 질문 생성
 
-export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) => {
-    try {
-        if(!context.env.DB) {
-            return new Response(
-                JSON.stringify({ error: '데이터베이스 연결 오류' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { setDb, getDb } = await import('../../lib/db');
-        const { question } = await import('../../lib/db/schema');
-        const { eq } = await import('drizzle-orm');
-        
-        setDb(context.env.DB);
-        const db = getDb();
-        
-        const allQuestions = await db
-            .select()
-            .from(question)
-            .where(eq(question.visibility, 'public'))
-            .orderBy(question.createdAt)
-            .limit(50);
-        
-        return new Response(
-            JSON.stringify({
-                questions: allQuestions,
-                total: allQuestions.length,
-            }),
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-    } catch(error) {
-        console.error('질문 목록 조회 오류:', error);
-        return new Response(
-            JSON.stringify({ error: '질문 목록을 가져오는 중 오류가 발생했습니다.' }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
-    }
-};
+import { getSession } from '../../lib/auth/session';
 
-export const onRequestPost: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
-    try {
-        process.env.GOOGLE_CLIENT_ID = context.env.GOOGLE_CLIENT_ID;
-        process.env.GOOGLE_CLIENT_SECRET = context.env.GOOGLE_CLIENT_SECRET;
-        process.env.NEXTAUTH_SECRET = context.env.NEXTAUTH_SECRET;
-        process.env.NEXTAUTH_URL = context.env.NEXTAUTH_URL;
-        
-        if(!context.env.DB) {
-            return new Response(
-                JSON.stringify({ error: '데이터베이스 연결 오류' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { setDb, getDb } = await import('../../lib/db');
-        const { question, questionTag, tag } = await import('../../lib/db/schema');
-        const { eq } = await import('drizzle-orm');
-        const { getCurrentUser } = await import('../../lib/auth/session');
-        const { generateId } = await import('../../lib/utils');
-        const { sanitizeObject } = await import('../../lib/security/sanitize');
-        const { z } = await import('zod');
-        const { 
-            questionTitleSchema, 
-            optionSchema, 
-            tagNameSchema, 
-            visibilitySchema 
-        } = await import('../../lib/security/validation');
-        
-        setDb(context.env.DB);
-        const db = getDb();
-        
-        const secret = context.env.NEXTAUTH_SECRET || '';
-        const currentUser = await getCurrentUser(context.request, secret);
-        
-        if(!currentUser) {
-            return new Response(
-                JSON.stringify({ error: '로그인이 필요합니다.' }),
-                { status: 401, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const body = await context.request.json();
-        const sanitizedBody = sanitizeObject(body);
-        
-        const QuestionSchema = z.object({
-            title: questionTitleSchema,
-            optionA: optionSchema,
-            optionB: optionSchema,
-            tags: z
-                .array(tagNameSchema)
-                .min(1, '최소 1개 이상의 태그를 추가해주세요.')
-                .max(5, '최대 5개까지 태그를 추가할 수 있습니다.'),
-            visibility: visibilitySchema,
-            groupId: z.string().optional(),
-        });
-        
-        const validation = QuestionSchema.safeParse(sanitizedBody);
-        
-        if(!validation.success) {
-            return new Response(
-                JSON.stringify({ error: validation.error.issues[0].message }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { title, optionA, optionB, tags, visibility, groupId } = validation.data;
-        
-        if(visibility === 'group' && !groupId) {
-            return new Response(
-                JSON.stringify({ error: '모임 전용 질문은 모임을 선택해야 합니다.' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const tagIds: string[] = [];
-        
-        for(const tagName of tags) {
-            let existingTag = await db
-                .select()
-                .from(tag)
-                .where(eq(tag.name, tagName))
-                .limit(1);
-            
-            if(existingTag.length > 0) {
-                tagIds.push(existingTag[0].id);
-            } else {
-                const newTag = {
-                    id: generateId(),
-                    name: tagName,
-                };
-                await db.insert(tag).values(newTag);
-                tagIds.push(newTag.id);
-            }
-        }
-        
-        const newQuestion = {
-            id: generateId(),
-            creatorId: currentUser.id,
-            title,
-            optionA,
-            optionB,
-            visibility,
-            groupId: visibility === 'group' ? groupId : null,
-        };
-        
-        await db.insert(question).values(newQuestion);
-        
-        const questionTagValues = tagIds.map((tagId) => ({
-            questionId: newQuestion.id,
-            tagId,
-        }));
-        
-        await db.insert(questionTag).values(questionTagValues);
-        
-        return new Response(
-            JSON.stringify({
-                message: '질문이 등록되었습니다.',
-                question: {
-                    id: newQuestion.id,
-                    title: newQuestion.title,
-                    optionA: newQuestion.optionA,
-                    optionB: newQuestion.optionB,
-                    visibility: newQuestion.visibility,
-                },
-            }),
-            { status: 201, headers: { 'Content-Type': 'application/json' } }
-        );
-    } catch(error) {
-        console.error('질문 등록 오류:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return new Response(
-            JSON.stringify({ error: '질문을 등록하는 중 오류가 발생했습니다.', details: errorMessage }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+interface Env {
+  DB: D1Database;
+  JWT_SECRET: string;
+}
+
+interface CreateQuestionBody {
+  title: string;
+  optionA: string;
+  optionB: string;
+  tags: string[];
+  visibility: 'public' | 'group' | 'private';
+  groupId?: string | null;
+}
+
+// POST: 질문 생성
+export const onRequestPost: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  
+  try {
+    // 로그인 확인
+    const session = await getSession(request, env.JWT_SECRET);
+    if (!session) {
+      return Response.json(
+        { success: false, error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
     }
+    
+    const body = await request.json() as CreateQuestionBody;
+    const { title, optionA, optionB, tags, visibility, groupId } = body;
+    
+    // 유효성 검사
+    if (!title?.trim() || title.length > 100) {
+      return Response.json(
+        { success: false, error: '제목은 1~100자여야 합니다.' },
+        { status: 400 }
+      );
+    }
+    
+    if (!optionA?.trim() || optionA.length > 50) {
+      return Response.json(
+        { success: false, error: '선택지 A는 1~50자여야 합니다.' },
+        { status: 400 }
+      );
+    }
+    
+    if (!optionB?.trim() || optionB.length > 50) {
+      return Response.json(
+        { success: false, error: '선택지 B는 1~50자여야 합니다.' },
+        { status: 400 }
+      );
+    }
+    
+    if (!tags || !Array.isArray(tags) || tags.length < 1) {
+      return Response.json(
+        { success: false, error: '태그를 최소 1개 이상 추가해주세요.' },
+        { status: 400 }
+      );
+    }
+    
+    if (!['public', 'group', 'private'].includes(visibility)) {
+      return Response.json(
+        { success: false, error: '유효하지 않은 공개 설정입니다.' },
+        { status: 400 }
+      );
+    }
+    
+    // 모임 전용인 경우 권한 확인
+    if (visibility === 'group') {
+      if (!groupId) {
+        return Response.json(
+          { success: false, error: '모임을 선택해주세요.' },
+          { status: 400 }
+        );
+      }
+      
+      const membership = await env.DB.prepare(`
+        SELECT id FROM group_member
+        WHERE group_id = ? AND user_id = ? AND left_at IS NULL
+      `).bind(groupId, session.userId).first();
+      
+      if (!membership) {
+        return Response.json(
+          { success: false, error: '해당 모임에 속해있지 않습니다.' },
+          { status: 403 }
+        );
+      }
+    }
+    
+    // 질문 생성
+    const questionId = crypto.randomUUID();
+    const now = new Date().toISOString();
+    
+    await env.DB.prepare(`
+      INSERT INTO question (id, creator_id, title, option_a, option_b, visibility, group_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      questionId,
+      session.userId,
+      title.trim(),
+      optionA.trim(),
+      optionB.trim(),
+      visibility,
+      visibility === 'group' ? groupId : null,
+      now,
+      now
+    ).run();
+    
+    // 태그 연결
+    for (const tagName of tags) {
+      const normalizedTag = tagName.trim().toLowerCase();
+      if (!normalizedTag) continue;
+      
+      // 태그 찾기 또는 생성
+      let tag = await env.DB.prepare(`
+        SELECT id FROM tag WHERE name = ?
+      `).bind(normalizedTag).first();
+      
+      if (!tag) {
+        const tagId = crypto.randomUUID();
+        await env.DB.prepare(`
+          INSERT INTO tag (id, name) VALUES (?, ?)
+        `).bind(tagId, normalizedTag).run();
+        tag = { id: tagId };
+      }
+      
+      // 질문-태그 연결
+      await env.DB.prepare(`
+        INSERT INTO question_tag (question_id, tag_id) VALUES (?, ?)
+      `).bind(questionId, tag.id).run();
+    }
+    
+    return Response.json({
+      success: true,
+      data: {
+        question: {
+          id: questionId,
+          title: title.trim(),
+          optionA: optionA.trim(),
+          optionB: optionB.trim(),
+          visibility,
+          tags,
+        },
+      },
+      message: '질문이 등록되었습니다.',
+    });
+    
+  } catch (error) {
+    console.error('질문 생성 오류:', error);
+    return Response.json(
+      { success: false, error: '질문 등록에 실패했습니다.' },
+      { status: 500 }
+    );
+  }
 };

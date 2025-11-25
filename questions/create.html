@@ -1,61 +1,366 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>질문 만들기 - 밸런스 모임</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: 'var(--background)',
-                        foreground: 'var(--foreground)',
-                        card: 'var(--card)',
-                        'card-foreground': 'var(--card-foreground)',
-                        primary: 'var(--primary)',
-                        'primary-foreground': 'var(--primary-foreground)',
-                        secondary: 'var(--secondary)',
-                        'secondary-foreground': 'var(--secondary-foreground)',
-                        muted: 'var(--muted)',
-                        'muted-foreground': 'var(--muted-foreground)',
-                        accent: 'var(--accent)',
-                        'accent-foreground': 'var(--accent-foreground)',
-                        destructive: 'var(--destructive)',
-                        'destructive-foreground': 'var(--destructive-foreground)',
-                        border: 'var(--border)',
-                        input: 'var(--input)',
-                        ring: 'var(--ring)',
-                    },
-                    borderRadius: {
-                        DEFAULT: 'var(--radius)',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                    },
-                },
-            },
-            darkMode: 'class',
-        };
-    </script>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>질문 만들기 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div id="app">
-        <header id="header"></header>
-        <main id="main" class="container"></main>
-        <div id="toast-container"></div>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content">
+        <h1 class="text-3xl font-bold mb-xl">새 밸런스 질문 만들기</h1>
+
+        <div class="card">
+          <form id="createQuestionForm">
+            <!-- 질문 제목 -->
+            <div class="form-group">
+              <label class="form-label">질문 제목 *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="questionTitle"
+                placeholder="예: 더 맛있는 진라면은?"
+                maxlength="100"
+                required
+              >
+              <p class="text-sm text-secondary mt-xs">최대 100자</p>
+            </div>
+
+            <!-- 선택지 A -->
+            <div class="form-group">
+              <label class="form-label">선택지 A *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="optionA"
+                placeholder="예: 매운맛"
+                maxlength="50"
+                required
+              >
+            </div>
+
+            <!-- 선택지 B -->
+            <div class="form-group">
+              <label class="form-label">선택지 B *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="optionB"
+                placeholder="예: 순한맛"
+                maxlength="50"
+                required
+              >
+            </div>
+
+            <!-- 태그 -->
+            <div class="form-group">
+              <label class="form-label">태그 (최소 1개) *</label>
+              <div class="tag-input-container">
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  id="tagInput"
+                  placeholder="태그를 입력하고 Enter를 누르세요"
+                >
+                <div class="tag-suggestions hidden" id="tagSuggestions"></div>
+              </div>
+              <div class="tag-list mt-sm" id="selectedTags"></div>
+            </div>
+
+            <!-- 공개 설정 -->
+            <div class="form-group">
+              <label class="form-label">공개 설정</label>
+              
+              <label class="flex items-center gap-sm mb-sm">
+                <input type="radio" name="visibility" value="public" checked>
+                <span>전체 공개</span>
+                <span class="text-secondary text-sm">- 모든 사용자가 볼 수 있음</span>
+              </label>
+              
+              <label class="flex items-center gap-sm mb-sm">
+                <input type="radio" name="visibility" value="group">
+                <span>모임 전용</span>
+              </label>
+              
+              <select class="form-select mt-sm hidden" id="groupSelect">
+                <option value="">모임을 선택하세요</option>
+              </select>
+              
+              <label class="flex items-center gap-sm">
+                <input type="radio" name="visibility" value="private">
+                <span>비공개</span>
+                <span class="text-secondary text-sm">- 나만 볼 수 있음</span>
+              </label>
+            </div>
+
+            <div class="flex gap-md mt-xl">
+              <button type="button" class="btn btn-secondary" onclick="history.back()">
+                취소
+              </button>
+              <button type="submit" class="btn btn-primary" id="submitBtn">
+                등록하기
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <script type="module">
-        import { renderHeader } from '/js/components/Header.js';
-        import { initToast } from '/js/components/Toast.js';
-        import { initTheme } from '/js/utils/theme.js';
-        import { renderCreateQuestion } from '/js/pages/questions/create.js';
-        initTheme();
-        initToast();
-        renderHeader();
-        renderCreateQuestion();
-    </script>
+  </main>
+
+  <!-- 추가 스타일 -->
+  <style>
+    .tag-input-container {
+      position: relative;
+    }
+
+    .tag-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .tag-suggestion-item {
+      padding: var(--spacing-sm) var(--spacing-md);
+      cursor: pointer;
+    }
+
+    .tag-suggestion-item:hover {
+      background-color: var(--color-bg);
+    }
+
+    .selected-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background-color: var(--color-accent);
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      margin-right: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .selected-tag button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { requireAuth } from '/js/utils/auth.js';
+    import { questionAPI, tagAPI, groupAPI } from '/js/services/api.js';
+    import { toastSuccess, toastError } from '/js/components/Toast.js';
+    import { setButtonLoading } from '/js/components/Loading.js';
+
+    let selectedTags = [];
+    let userGroups = [];
+
+    async function init() {
+      await initHeader();
+      
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+      
+      await loadUserGroups();
+      bindEvents();
+    }
+
+    async function loadUserGroups() {
+      try {
+        const response = await groupAPI.getMy();
+        userGroups = response.data?.groups || [];
+        
+        const select = document.getElementById('groupSelect');
+        userGroups.forEach(group => {
+          const option = document.createElement('option');
+          option.value = group.id;
+          option.textContent = group.name;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('모임 목록 로드 실패:', error);
+      }
+    }
+
+    function bindEvents() {
+      const tagInput = document.getElementById('tagInput');
+      const suggestions = document.getElementById('tagSuggestions');
+      const visibilityRadios = document.querySelectorAll('input[name="visibility"]');
+      const groupSelect = document.getElementById('groupSelect');
+      
+      // 태그 입력
+      let debounceTimer;
+      tagInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const query = e.target.value.trim();
+        
+        if (query.length < 1) {
+          suggestions.classList.add('hidden');
+          return;
+        }
+        
+        debounceTimer = setTimeout(() => searchTags(query), 300);
+      });
+      
+      tagInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const value = tagInput.value.trim();
+          if (value) {
+            addTag(value);
+            tagInput.value = '';
+            suggestions.classList.add('hidden');
+          }
+        }
+      });
+      
+      // 공개 설정 변경
+      visibilityRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          groupSelect.classList.toggle('hidden', radio.value !== 'group');
+        });
+      });
+      
+      // 폼 제출
+      document.getElementById('createQuestionForm').addEventListener('submit', handleSubmit);
+    }
+
+    async function searchTags(query) {
+      const suggestions = document.getElementById('tagSuggestions');
+      
+      try {
+        const response = await tagAPI.search(query);
+        const tags = response.data?.tags || [];
+        
+        if (tags.length === 0) {
+          suggestions.innerHTML = `
+            <div class="tag-suggestion-item" data-tag="${query}">
+              "${query}" 태그 만들기
+            </div>
+          `;
+        } else {
+          suggestions.innerHTML = tags.map(tag => `
+            <div class="tag-suggestion-item" data-tag="${tag.name}">
+              #${tag.name}
+            </div>
+          `).join('');
+        }
+        
+        suggestions.classList.remove('hidden');
+        
+        // 클릭 이벤트
+        suggestions.querySelectorAll('.tag-suggestion-item').forEach(item => {
+          item.addEventListener('click', () => {
+            addTag(item.dataset.tag);
+            document.getElementById('tagInput').value = '';
+            suggestions.classList.add('hidden');
+          });
+        });
+        
+      } catch (error) {
+        console.error('태그 검색 실패:', error);
+      }
+    }
+
+    function addTag(tagName) {
+      const normalized = tagName.toLowerCase().replace(/^#/, '').trim();
+      
+      if (!normalized || selectedTags.includes(normalized)) return;
+      
+      selectedTags.push(normalized);
+      renderSelectedTags();
+    }
+
+    function removeTag(tagName) {
+      selectedTags = selectedTags.filter(t => t !== tagName);
+      renderSelectedTags();
+    }
+
+    function renderSelectedTags() {
+      const container = document.getElementById('selectedTags');
+      container.innerHTML = selectedTags.map(tag => `
+        <span class="selected-tag">
+          #${tag}
+          <button type="button" onclick="window.removeTag('${tag}')">×</button>
+        </span>
+      `).join('');
+    }
+
+    // 전역 함수로 노출
+    window.removeTag = removeTag;
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('questionTitle').value.trim();
+      const optionA = document.getElementById('optionA').value.trim();
+      const optionB = document.getElementById('optionB').value.trim();
+      const visibility = document.querySelector('input[name="visibility"]:checked').value;
+      const groupId = document.getElementById('groupSelect').value;
+      
+      // 검증
+      if (!title || !optionA || !optionB) {
+        toastError('모든 필수 항목을 입력해주세요.');
+        return;
+      }
+      
+      if (selectedTags.length === 0) {
+        toastError('태그를 최소 1개 이상 추가해주세요.');
+        return;
+      }
+      
+      if (visibility === 'group' && !groupId) {
+        toastError('모임을 선택해주세요.');
+        return;
+      }
+      
+      const btn = document.getElementById('submitBtn');
+      setButtonLoading(btn, true);
+      
+      try {
+        await questionAPI.create({
+          title,
+          optionA,
+          optionB,
+          tags: selectedTags,
+          visibility,
+          groupId: visibility === 'group' ? groupId : null,
+        });
+        
+        toastSuccess('질문이 등록되었습니다!');
+        
+        setTimeout(() => {
+          window.location.href = '/questions/my.html';
+        }, 1000);
+        
+      } catch (error) {
+        console.error('질문 등록 실패:', error);
+        toastError(error.message || '질문 등록에 실패했습니다.');
+        setButtonLoading(btn, false);
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>

@@ -1,193 +1,135 @@
-/**
- * Header 컴포넌트
- * Apple 스타일의 상단 네비게이션 바
- */
+// 헤더 컴포넌트
+import { checkSession, logout, redirectToGoogleLogin, getCurrentUser } from '../utils/auth.js';
+import { getTheme, toggleTheme, getThemeIcon, getThemeLabel } from '../utils/theme.js';
 
-import { getCurrentUser, signInWithGoogle, signOut } from '../utils/auth.js';
-import { toggleTheme } from '../utils/theme.js';
-
-let currentUser = null;
+// Google Client ID (환경에 따라 설정 필요)
+const GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || '';
 
 /**
- * Header 렌더링
+ * 헤더 초기화
  */
-export async function renderHeader() {
-    const headerEl = document.getElementById('header');
-    if(!headerEl) return;
-    
-    // 로그인 상태만 확인 (세션 확인으로 불필요한 네트워크 요청 방지)
-    // 헤더에서는 로그인 여부만 알면 되므로 세션만 확인
-    const { checkAuth } = await import('../utils/auth.js');
-    const isAuthenticated = await checkAuth();
-    
-    // 사용자 이름 표시를 위해 로그인한 경우에만 사용자 정보 가져오기
-    // 하지만 헤더 렌더링을 먼저 하고, 사용자 정보는 비동기로 로드
-    currentUser = null;
-    
-    headerEl.innerHTML = `
-        <header class="sticky top-0 z-40 w-full glass border-b border-border/40 backdrop-blur-xl">
-            <div class="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8 max-w-[1400px] mx-auto">
-                <!-- 모바일 메뉴 + 로고 -->
-                <div class="flex items-center space-x-2">
-                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-accent smooth-transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                    <a href="/home.html" class="flex items-center space-x-2">
-                        <span class="text-2xl font-bold">🎯</span>
-                        <span class="text-xl font-bold">밸런스 모임</span>
-                    </a>
-                </div>
-
-                <!-- 네비게이션 -->
-                <nav class="hidden lg:flex items-center space-x-6">
-                    <a href="/home.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">홈</a>
-                    ${isAuthenticated ? `
-                        <a href="/groups.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">내 모임</a>
-                        <a href="/questions/create.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">질문 만들기</a>
-                        <a href="/questions/my.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">내 질문</a>
-                        <a href="/settings.html" class="text-sm font-medium hover:text-blue-600 smooth-transition">설정</a>
-                    ` : ''}
-                </nav>
-
-                <!-- 사용자 메뉴 -->
-                <div class="flex items-center space-x-2">
-                    <button id="theme-toggle" class="p-2 rounded-lg hover:bg-accent smooth-transition" aria-label="테마 토글">
-                        <svg id="theme-icon-light" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                        <svg id="theme-icon-dark" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                        </svg>
-                    </button>
-                    ${isAuthenticated ? `
-                        <span id="user-name-display" class="hidden lg:inline text-sm font-medium text-muted-foreground px-2">
-                            로딩 중...
-                        </span>
-                        <button id="sign-out-btn" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border bg-card text-card-foreground shadow-apple hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
-                            로그아웃
-                        </button>
-                    ` : `
-                        <button id="sign-in-btn" class="px-4 py-2 text-sm font-semibold rounded-xl bg-primary text-primary-foreground shadow-apple hover:bg-primary/80 hover:shadow-apple-lg hover:scale-[1.02] active:scale-[0.98] smooth-transition transition-all duration-200">
-                            로그인
-                        </button>
-                    `}
-                </div>
-            </div>
-            
-            <!-- 모바일 메뉴 -->
-            <div id="mobile-menu" class="hidden lg:hidden border-t border-border/40">
-                <nav class="flex flex-col p-4 space-y-2">
-                    <a href="/home.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">홈</a>
-                    ${isAuthenticated ? `
-                        <a href="/groups.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">내 모임</a>
-                        <a href="/questions/create.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">질문 만들기</a>
-                        <a href="/questions/my.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">내 질문</a>
-                        <a href="/settings.html" class="px-4 py-2 text-sm font-medium hover:bg-accent rounded-lg smooth-transition">설정</a>
-                    ` : ''}
-                </nav>
-            </div>
-        </header>
-    `;
-    
-    // 이벤트 리스너 등록
-    attachEventListeners();
-    
-    // 로그인한 경우에만 사용자 정보를 비동기로 로드 (헤더 렌더링 후)
-    // 사용자 이름 표시는 선택적이므로, 헤더 렌더링을 블로킹하지 않음
-    if(isAuthenticated) {
-        loadUserInfoAsync();
-    }
+export async function initHeader() {
+  const header = document.getElementById('header');
+  if (!header) return;
+  
+  // 세션 확인
+  const user = await checkSession();
+  
+  // 헤더 렌더링
+  renderHeader(header, user);
+  
+  // 이벤트 바인딩
+  bindHeaderEvents(header);
 }
 
 /**
- * 사용자 정보를 비동기로 로드 (헤더 렌더링을 블로킹하지 않음)
+ * 헤더 HTML 렌더링
  */
-async function loadUserInfoAsync() {
-    try {
-        const { getCurrentUser } = await import('../utils/auth.js');
-        const user = await getCurrentUser();
-        if(user) {
-            currentUser = user;
-            // 사용자 이름 표시 업데이트
-            const userNameDisplay = document.getElementById('user-name-display');
-            if(userNameDisplay) {
-                userNameDisplay.textContent = user.name || user.email || '사용자';
-            }
-        }
-    } catch(error) {
-        // 에러는 조용히 처리 (사용자 이름 표시는 선택적)
-        console.warn('사용자 정보 로드 실패:', error);
-    }
+function renderHeader(container, user) {
+  const currentPath = window.location.pathname;
+  const currentTheme = getTheme();
+  const themeIcon = getThemeIcon(currentTheme);
+  const themeLabel = getThemeLabel(currentTheme);
+  
+  container.innerHTML = `
+    <div class="header-content">
+      <a href="/index.html" class="header-logo">🎯 밸런스 모임</a>
+      
+      <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      
+      <nav class="header-nav" id="headerNav">
+        <a href="/home.html" class="header-nav-link ${currentPath === '/home.html' ? 'active' : ''}">
+          플레이
+        </a>
+        ${user ? `
+          <a href="/groups.html" class="header-nav-link ${currentPath === '/groups.html' ? 'active' : ''}">
+            내 모임
+          </a>
+          <a href="/questions/create.html" class="header-nav-link ${currentPath === '/questions/create.html' ? 'active' : ''}">
+            질문 만들기
+          </a>
+          <a href="/settings.html" class="header-nav-link ${currentPath === '/settings.html' ? 'active' : ''}">
+            설정
+          </a>
+        ` : ''}
+        <button class="theme-toggle" id="themeToggle" title="${themeLabel} 모드">
+          ${themeIcon}
+        </button>
+        ${user ? `
+          <button class="btn btn-ghost btn-sm" id="logoutBtn">
+            로그아웃
+          </button>
+        ` : `
+          <button class="btn btn-primary btn-sm" id="loginBtn">
+            로그인
+          </button>
+        `}
+      </nav>
+    </div>
+  `;
 }
 
 /**
- * 이벤트 리스너 등록
+ * 헤더 이벤트 바인딩
  */
-function attachEventListeners() {
-    // 테마 토글
-    const themeToggle = document.getElementById('theme-toggle');
-    if(themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            toggleTheme();
-            updateThemeIcon();
-        });
-    }
-    
-    // 로그인 버튼
-    const signInBtn = document.getElementById('sign-in-btn');
-    if(signInBtn) {
-        signInBtn.addEventListener('click', () => {
-            signInWithGoogle();
-        });
-    }
-    
-    // 로그아웃 버튼
-    const signOutBtn = document.getElementById('sign-out-btn');
-    if(signOutBtn) {
-        signOutBtn.addEventListener('click', async () => {
-            await signOut();
-        });
-    }
-    
-    // 모바일 메뉴 토글
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if(mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-    
-    // 해시 라우팅 제거 - 일반 링크로 동작
-    
-    // 초기 테마 아이콘 업데이트
-    updateThemeIcon();
+function bindHeaderEvents(container) {
+  // 모바일 메뉴 토글
+  const menuToggle = container.querySelector('#menuToggle');
+  const headerNav = container.querySelector('#headerNav');
+  
+  if (menuToggle && headerNav) {
+    menuToggle.addEventListener('click', () => {
+      headerNav.classList.toggle('open');
+      const isOpen = headerNav.classList.contains('open');
+      menuToggle.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+    });
+  }
+  
+  // 테마 토글 버튼
+  const themeToggleBtn = container.querySelector('#themeToggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const newTheme = toggleTheme();
+      themeToggleBtn.innerHTML = getThemeIcon(newTheme);
+      themeToggleBtn.title = `${getThemeLabel(newTheme)} 모드`;
+    });
+  }
+  
+  // 로그인 버튼
+  const loginBtn = container.querySelector('#loginBtn');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      if (GOOGLE_CLIENT_ID) {
+        redirectToGoogleLogin(GOOGLE_CLIENT_ID);
+      } else {
+        console.error('Google Client ID가 설정되지 않았습니다.');
+        alert('로그인 설정이 완료되지 않았습니다.');
+      }
+    });
+  }
+  
+  // 로그아웃 버튼
+  const logoutBtn = container.querySelector('#logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      const success = await logout();
+      if (success) {
+        window.location.href = '/index.html';
+      }
+    });
+  }
 }
 
 /**
- * 테마 아이콘 업데이트
+ * 현재 사용자 표시 이름 가져오기
  */
-function updateThemeIcon() {
-    const isDark = document.documentElement.classList.contains('dark');
-    const lightIcon = document.getElementById('theme-icon-light');
-    const darkIcon = document.getElementById('theme-icon-dark');
-    
-    if(lightIcon && darkIcon) {
-        if(isDark) {
-            lightIcon.classList.remove('hidden');
-            darkIcon.classList.add('hidden');
-        } else {
-            lightIcon.classList.add('hidden');
-            darkIcon.classList.remove('hidden');
-        }
-    }
-}
-
-/**
- * 현재 사용자 정보 가져오기
- */
-export function getCurrentUserFromHeader() {
-    return currentUser;
+export function getDisplayName() {
+  const user = getCurrentUser();
+  return user?.displayName || '사용자';
 }

@@ -1,92 +1,121 @@
-/**
- * Toast 알림 컴포넌트
- */
+// 토스트 알림 컴포넌트
 
-let toastContainer = null;
+// 토스트 컨테이너 ID
+const CONTAINER_ID = 'toastContainer';
+
+// 토스트 타입
+export const ToastType = {
+  SUCCESS: 'success',
+  ERROR: 'error',
+  WARNING: 'warning',
+  INFO: 'info',
+};
 
 /**
- * Toast 초기화
+ * 토스트 컨테이너 생성/가져오기
  */
-export function initToast() {
-    toastContainer = document.getElementById('toast-container');
-    if(!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'fixed top-20 right-4 z-50 space-y-2';
-        document.body.appendChild(toastContainer);
+function getContainer() {
+  let container = document.getElementById(CONTAINER_ID);
+  
+  if (!container) {
+    container = document.createElement('div');
+    container.id = CONTAINER_ID;
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  
+  return container;
+}
+
+/**
+ * 토스트 표시
+ * @param {string} message - 메시지
+ * @param {string} type - 타입 (success, error, warning, info)
+ * @param {number} duration - 표시 시간 (ms)
+ * @returns {HTMLElement} 토스트 요소
+ */
+export function showToast(message, type = ToastType.INFO, duration = 3000) {
+  const container = getContainer();
+  
+  // 토스트 생성
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  // 아이콘 설정
+  const icons = {
+    success: '✓',
+    error: '✕',
+    warning: '⚠',
+    info: 'ℹ',
+  };
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || icons.info}</span>
+    <span class="toast-message">${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  // 자동 제거
+  const timeoutId = setTimeout(() => {
+    removeToast(toast);
+  }, duration);
+  
+  // 클릭으로 제거
+  toast.addEventListener('click', () => {
+    clearTimeout(timeoutId);
+    removeToast(toast);
+  });
+  
+  return toast;
+}
+
+/**
+ * 토스트 제거
+ */
+function removeToast(toast) {
+  toast.style.animation = 'slideOut 0.3s ease forwards';
+  setTimeout(() => {
+    toast.remove();
+  }, 300);
+}
+
+/**
+ * 성공 토스트
+ */
+export function toastSuccess(message, duration) {
+  return showToast(message, ToastType.SUCCESS, duration);
+}
+
+/**
+ * 에러 토스트
+ */
+export function toastError(message, duration) {
+  return showToast(message, ToastType.ERROR, duration);
+}
+
+/**
+ * 경고 토스트
+ */
+export function toastWarning(message, duration) {
+  return showToast(message, ToastType.WARNING, duration);
+}
+
+/**
+ * 정보 토스트
+ */
+export function toastInfo(message, duration) {
+  return showToast(message, ToastType.INFO, duration);
+}
+
+// CSS에 slideOut 애니메이션 추가
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideOut {
+    to {
+      transform: translateX(100%);
+      opacity: 0;
     }
-}
-
-/**
- * Toast 표시
- */
-export function showToast({ title, description, variant = 'default', duration = 3000 }) {
-    if(!toastContainer) initToast();
-    
-    const toast = document.createElement('div');
-    toast.className = `glass border-2 border-border rounded-xl p-4 shadow-apple-lg min-w-[300px] max-w-[400px] animate-in`;
-    
-    const variantClasses = {
-        default: 'border-primary/30 bg-primary/10',
-        success: 'border-green-500/30 bg-green-500/10',
-        error: 'border-destructive/30 bg-destructive/10',
-        warning: 'border-yellow-500/30 bg-yellow-500/10'
-    };
-    
-    toast.className += ` ${variantClasses[variant] || variantClasses.default}`;
-    
-    toast.innerHTML = `
-        <div class="flex items-start gap-3">
-            <div class="flex-1">
-                ${title ? `<h4 class="font-semibold text-foreground mb-1">${title}</h4>` : ''}
-                ${description ? `<p class="text-sm text-muted-foreground">${description}</p>` : ''}
-            </div>
-            <button class="text-muted-foreground hover:text-foreground smooth-transition" aria-label="닫기">
-                ×
-            </button>
-        </div>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // 닫기 버튼
-    const closeBtn = toast.querySelector('button');
-    const close = () => {
-        toast.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => {
-            if(toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    };
-    
-    closeBtn.addEventListener('click', close);
-    
-    // 자동 닫기
-    if(duration > 0) {
-        setTimeout(close, duration);
-    }
-    
-    return { close };
-}
-
-/**
- * 성공 Toast
- */
-export function showSuccessToast(title, description) {
-    return showToast({ title, description, variant: 'success' });
-}
-
-/**
- * 에러 Toast
- */
-export function showErrorToast(title, description) {
-    return showToast({ title, description, variant: 'error', duration: 5000 });
-}
-
-/**
- * 경고 Toast
- */
-export function showWarningToast(title, description) {
-    return showToast({ title, description, variant: 'warning' });
-}
+  }
+`;
+document.head.appendChild(style);

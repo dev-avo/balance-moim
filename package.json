@@ -1,58 +1,23 @@
 {
   "name": "balance-moim",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "모임 기반 밸런스 게임 플랫폼 - What's your balance?",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "build:cloudflare": "next build && npx @opennextjs/cloudflare",
-    "start": "next start",
-    "lint": "eslint",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "wrangler d1 migrations apply balance-moim-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply balance-moim-db-prod --remote",
-    "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx scripts/seed.ts",
-    "db:seed:prod": "tsx scripts/generate-seed-sql.ts && npx wrangler d1 execute balance-moim-db-prod --remote --file=scripts/seed-prod.sql",
-    "db:seed:sql": "tsx scripts/generate-seed-sql.ts",
-    "cf:dev": "wrangler dev"
+    "dev": "wrangler pages dev . --d1=DB",
+    "deploy": "wrangler pages deploy .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@auth/core": "^0.41.0",
-    "@auth/drizzle-adapter": "^1.11.1",
-    "@cloudflare/workers-types": "^4.20251111.0",
-    "@hookform/resolvers": "^5.2.2",
-    "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-dropdown-menu": "^2.1.16",
-    "@radix-ui/react-slot": "^1.2.4",
-    "@radix-ui/react-toast": "^1.2.15",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "drizzle-orm": "^0.44.7",
-    "framer-motion": "^12.23.24",
-    "next": "16.0.1",
-    "next-auth": "^5.0.0-beta.30",
-    "next-themes": "^0.4.6",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "react-hook-form": "^7.66.1",
-    "tailwind-merge": "^3.4.0",
-    "uuid": "^13.0.0",
-    "zod": "^4.1.12"
+    "jose": "^5.9.6"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/uuid": "^10.0.0",
-    "@opennextjs/cloudflare": "^1.0.0",
-    "drizzle-kit": "^0.31.6",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.1",
-    "tailwindcss": "^4",
-    "tsx": "^4.20.6",
-    "typescript": "^5",
-    "wrangler": "^4.47.0"
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.93.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

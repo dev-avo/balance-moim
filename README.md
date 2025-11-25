@@ -1,299 +1,286 @@
 # 밸런스 모임 (Balance Moim)
 
-**What's Your Balance?**
+모임 기반 밸런스 게임 플랫폼 - 두 선택지 중 하나를 고르며 서로의 취향을 발견하세요!
 
-선택하기 어려운 두 가지 질문 중 하나를 고르는 밸런스 게임으로 모임 사람들과 취향을 공유하는 웹 서비스입니다.
+## 🎯 소개
 
-## 📋 목차
+**밸런스 모임** = **밸런스** + **모임**
 
-- [기능 소개](#-기능-소개)
-- [기술 스택](#-기술-스택)
-- [시작하기](#-시작하기)
-- [프로젝트 구조](#-프로젝트-구조)
-- [배포](#-배포)
-- [개발 가이드](#-개발-가이드)
+- 🎲 **밸런스**: 둘 중 하나를 선택하는 밸런스 게임
+- 👥 **모임**: 함께하는 사람들과 선택을 비교하는 커뮤니티
+- ❓ **밸런스 뭐임?**: "What's your balance?" - 당신의 선택은 무엇인가요?
 
-## ✨ 기능 소개
+회사, 동아리, 교회 등 다양한 모임에 속한 사람들이 재미있는 양자택일 질문을 통해 서로의 취향을 발견하고, 누가 나와 가장 비슷한 취향을 가졌는지 파악하여 친목을 도모할 수 있는 웹 서비스입니다.
 
-### 🎮 밸런스 게임
-- 100개의 다양한 밸런스 질문 제공
-- 20개 카테고리별 태그 필터링
-- 실시간 통계 확인 (전체 / 모임별)
-- 비로그인 플레이 가능
+## ✨ 주요 기능
 
-### 👥 모임 기능
-- Google OAuth 로그인
-- 모임 생성 및 초대 링크 공유
-- 모임 멤버 관리 (추방, 탈퇴)
-- 모임별 응답 통계 비교
-
-### 🔍 취향 분석
-- 모임 내 취향 유사도 랭킹
-- 사용자 간 1:1 비교
-- 태그별 선택 비교
-
-### ⚙️ 사용자 설정
-- 표시 이름 설정 (Google 계정명 / 익명 별명)
-- 내 질문 관리
-- 회원 탈퇴
-
-### 🎨 UI/UX
-- Apple MacBook 스타일 디자인
-- Glassmorphism 효과
-- 다크모드 지원
-- 반응형 디자인 (모바일/태블릿/PC)
-- Framer Motion 애니메이션
+| 기능 | 설명 | 로그인 필요 |
+|------|------|:----------:|
+| 🎲 밸런스 게임 | 둘 중 하나를 선택하는 질문에 응답 | ❌ |
+| 📊 전체 통계 | 모든 사용자의 응답 비율 확인 | ❌ |
+| 🎨 테마 설정 | 라이트/다크/시스템 테마 선택 | ❌ |
+| 💾 응답 저장 | 내 응답 기록 저장 | ✅ |
+| ✏️ 질문 만들기 | 새로운 밸런스 질문 등록 | ✅ |
+| 👥 모임 생성 | 친구들과 함께하는 비공개 모임 | ✅ |
+| 🔗 초대 링크 | 모임 초대 링크 생성 및 공유 | ✅ |
+| 📈 모임 통계 | 모임 멤버들의 응답 비율 비교 | ✅ |
+| 💕 취향 매칭 | 나와 취향이 가장 비슷한 사람 찾기 | ✅ |
+| 🔍 상세 비교 | 특정 멤버와 질문별 선택 비교 | ✅ |
 
 ## 🛠 기술 스택
 
-### Frontend
-- **Framework**: Next.js 16.0.1 (App Router, React 19.2.0)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
-- **Animation**: Framer Motion
-- **Theme**: next-themes (다크모드)
-- **Form**: React Hook Form + Zod
+### 프론트엔드
+- **HTML5 + CSS3 + JavaScript (ES6+ Modules)**
+- Apple MacBook 스타일 UI/UX
+- 반응형 디자인 (모바일/태블릿/PC)
+- CSS 변수 기반 테마 시스템
 
-### Backend
-- **Database**: Cloudflare D1 (SQLite)
-- **ORM**: Drizzle ORM
-- **Auth**: NextAuth.js v5 (Google OAuth)
+### 백엔드
+- **Cloudflare Pages Functions** (TypeScript)
+- **Cloudflare D1** (SQLite 호환 데이터베이스)
+- **Jose** (JWT 토큰 처리)
 
-### Security
-- **XSS Protection**: isomorphic-dompurify + CSP
-- **CSRF Protection**: NextAuth 내장
-- **Input Validation**: Zod schemas
+### 인증
+- **Google OAuth 2.0** (팝업 방식)
+- JWT 기반 세션 관리 (httpOnly 쿠키)
 
-### DevOps
-- **Deployment**: Cloudflare Pages
-- **Version Control**: Git
-
-## 🚀 시작하기
-
-### 필수 요구사항
-
-- Node.js 22.13.1+ (nvm 사용 권장)
-- npm 10+
-- Cloudflare 계정 (D1 데이터베이스)
-- Google Cloud Console 프로젝트 (OAuth)
-
-### 환경 변수 설정
-
-프로젝트 루트에 `.env.local` 파일을 생성하고 아래 내용을 입력하세요:
-
-\`\`\`env
-# Google OAuth (https://console.cloud.google.com/)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# NextAuth (무작위 문자열 생성: openssl rand -base64 32)
-NEXTAUTH_SECRET=your_nextauth_secret
-
-# Application URL
-NEXTAUTH_URL=http://localhost:3000
-\`\`\`
-
-### 설치 및 실행
-
-\`\`\`bash
-# 1. 의존성 설치
-npm install
-
-# 2. Cloudflare D1 데이터베이스 생성
-npx wrangler d1 create balance-moim-db
-
-# 3. wrangler.toml 파일의 database_id 업데이트
-# (위 명령어 실행 시 출력된 database_id 복사)
-
-# 4. 데이터베이스 마이그레이션
-npm run db:migrate
-
-# 5. 초기 데이터 시딩 (100개 질문 + 20개 태그)
-npm run db:seed
-
-# 6. 개발 서버 실행
-npm run dev
-\`\`\`
-
-브라우저에서 http://localhost:3000을 열어 확인하세요.
+### 배포
+- **Cloudflare Pages** + GitHub 연동
+- 자동 배포 (Git push)
 
 ## 📁 프로젝트 구조
 
-\`\`\`
-vibe/
-├── app/                      # Next.js App Router
-│   ├── api/                  # API Routes
-│   │   ├── auth/            # NextAuth 엔드포인트
-│   │   ├── groups/          # 모임 관련 API
-│   │   ├── questions/       # 질문 관련 API
-│   │   ├── responses/       # 응답 관련 API
-│   │   ├── tags/            # 태그 관련 API
-│   │   └── users/           # 사용자 관련 API
-│   ├── groups/              # 모임 페이지
-│   ├── invite/              # 초대 페이지
-│   ├── play/                # 게임 플레이 페이지
-│   ├── questions/           # 질문 관리 페이지
-│   ├── settings/            # 설정 페이지
-│   ├── layout.tsx           # 루트 레이아웃
-│   └── page.tsx             # 홈 페이지
+```
+/
+├── index.html                 # 랜딩 페이지
+├── home.html                  # 게임 플레이
+├── settings.html              # 사용자 설정 (테마, 표시이름)
+├── groups.html                # 모임 목록
+├── groups/
+│   ├── create.html            # 모임 생성
+│   └── detail.html            # 모임 상세 (통계, 멤버)
+├── questions/
+│   ├── create.html            # 질문 생성
+│   └── my.html                # 내 질문 관리
+├── invite.html                # 초대 링크 처리
+├── 404.html                   # 404 페이지
 │
-├── components/              # React 컴포넌트
-│   ├── game/               # 게임 관련 컴포넌트
-│   ├── groups/             # 모임 관련 컴포넌트
-│   ├── layout/             # 레이아웃 컴포넌트
-│   └── ui/                 # UI 컴포넌트 (Button, Input 등)
+├── css/
+│   └── style.css              # 전체 스타일시트
 │
-├── lib/                     # 유틸리티 및 설정
-│   ├── animations/         # Framer Motion variants
-│   ├── auth/               # 인증 관련 (session, permissions)
-│   ├── db/                 # 데이터베이스 설정 및 스키마
-│   ├── security/           # 보안 (sanitize, validation)
-│   └── utils.ts            # 공통 유틸리티
+├── js/
+│   ├── components/            # UI 컴포넌트 (Header, Toast, Modal, Loading)
+│   ├── services/
+│   │   └── api.js             # API 호출 모듈
+│   └── utils/
+│       ├── auth.js            # 인증 유틸리티
+│       └── theme.js           # 테마 관리
 │
-├── scripts/                 # 스크립트
-│   ├── seed.ts             # 데이터 시딩 스크립트
-│   └── seed-data.json      # 시딩 데이터 (100개 질문)
+├── functions/api/             # Cloudflare Pages Functions
+│   ├── auth/                  # 인증 API
+│   ├── questions/             # 질문 API
+│   ├── responses.ts           # 응답 API
+│   ├── groups/                # 모임 API
+│   └── tags/                  # 태그 API
 │
-├── public/                  # 정적 파일
-├── .rules/                  # 프로젝트 문서
-│   ├── 02_balance_game_prd.md        # PRD
-│   └── 03_balance_game_tasks.md      # 작업 목록
+├── lib/                       # 서버 공통 라이브러리
+│   └── auth/
+│       ├── jwt.ts             # JWT 유틸리티
+│       └── session.ts         # 세션 관리
 │
-├── auth.ts                  # NextAuth 설정
-├── drizzle.config.ts       # Drizzle 설정
-├── middleware.ts           # Next.js 미들웨어
-├── next.config.ts          # Next.js 설정
-├── tailwind.config.ts      # Tailwind 설정
-└── wrangler.toml           # Cloudflare 설정
-\`\`\`
+├── drizzle/
+│   └── schema.sql             # DB 스키마
+│
+├── _headers                   # Cloudflare 헤더 설정
+├── _routes.json               # API 라우팅 설정
+└── wrangler.toml              # Cloudflare 설정
+```
 
-## 🌐 배포
+## 🚀 시작하기
 
-### Cloudflare Pages 배포
+### 사전 요구사항
 
-#### 1. GitHub 저장소 연결
+- Node.js 18+
+- npm 또는 yarn
+- Cloudflare 계정
+- Google Cloud 프로젝트 (OAuth 설정)
 
-\`\`\`bash
-# GitHub에 코드 푸시
-git add .
-git commit -m "Ready for deployment"
-git push origin main
-\`\`\`
+### 1. 저장소 클론
 
-#### 2. Cloudflare Pages 프로젝트 생성
+```bash
+git clone https://github.com/your-username/balance-moim.git
+cd balance-moim
+```
 
-1. [Cloudflare Dashboard](https://dash.cloudflare.com/) 접속
-2. **Workers & Pages** → **Create application** → **Pages**
-3. GitHub 저장소 연결
-4. 빌드 설정:
-   - **Build command**: \`npm run build\`
-   - **Build output directory**: \`.next\`
-   - **Framework preset**: Next.js
+### 2. 의존성 설치
 
-#### 3. 환경 변수 설정
+```bash
+npm install
+```
 
-Cloudflare Pages 대시보드에서 **Settings** → **Environment variables** → 다음 변수 추가:
+### 3. 환경 변수 설정
 
-\`\`\`
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=https://your-domain.pages.dev
-\`\`\`
+```bash
+# 템플릿 복사
+cp .dev.vars.example .dev.vars
 
-#### 4. 프로덕션 데이터베이스 마이그레이션
+# .dev.vars 파일 편집
+```
 
-\`\`\`bash
-# 프로덕션 DB 마이그레이션
-npm run db:migrate:prod
+필요한 환경 변수:
 
-# 프로덕션 DB 시딩 (wrangler CLI 필요)
-# 로컬에서 시딩 후 프로덕션 DB를 복사하거나
-# 프로덕션에서 직접 시딩 스크립트 실행
-\`\`\`
+| 변수명 | 설명 | 예시 |
+|--------|------|------|
+| `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID | `xxx.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth 시크릿 | `GOCSPX-xxx` |
+| `JWT_SECRET` | JWT 서명용 시크릿 (32자 이상) | `openssl rand -base64 32` |
 
-#### 5. 배포 확인
+### 4. 데이터베이스 설정
 
-- Git에 푸시하면 자동으로 배포됩니다
-- Cloudflare Pages 대시보드에서 배포 상태 확인
-- 배포된 URL로 접속하여 전체 기능 테스트
+```bash
+# D1 데이터베이스 생성 (최초 1회)
+wrangler d1 create balance-moim-db
 
-### 커스텀 도메인 연결 (선택사항)
+# 로컬 D1에 스키마 적용
+wrangler d1 execute DB --local --file=./drizzle/schema.sql
+```
 
-1. Cloudflare Pages 대시보드 → **Custom domains**
-2. 도메인 추가 및 DNS 설정
-3. SSL/TLS 자동 적용
+### 5. 로컬 개발 서버 실행
 
-## 💻 개발 가이드
-
-### 주요 명령어
-
-\`\`\`bash
-# 개발 서버 실행
+```bash
 npm run dev
+```
 
-# 프로덕션 빌드
-npm run build
+http://localhost:8788 에서 확인
 
-# 프로덕션 서버 실행
-npm run start
+## ☁️ Cloudflare Pages 배포
 
-# 린트 검사
-npm run lint
+### 1. Cloudflare 계정 설정
 
-# 데이터베이스 스키마 변경 생성
-npm run db:generate
+1. [Cloudflare Dashboard](https://dash.cloudflare.com) 로그인
+2. **Workers & Pages** → **Pages** 선택
 
-# 로컬 DB 마이그레이션
-npm run db:migrate
+### 2. GitHub 연결
 
-# 프로덕션 DB 마이그레이션
-npm run db:migrate:prod
+1. **Create a project** 클릭
+2. **Connect to Git** 선택
+3. GitHub 계정 연결 및 저장소 선택
+4. 빌드 설정:
+   - **Build command**: (비워두기)
+   - **Build output directory**: `/`
 
-# DB Studio (GUI)
-npm run db:studio
+### 3. 환경 변수 설정
 
-# 데이터 시딩
-npm run db:seed
+**Settings** → **Environment variables** 에서 추가:
 
-# Cloudflare Workers 개발 서버
-npm run cf:dev
-\`\`\`
+| 변수명 | 설명 |
+|--------|------|
+| `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth 클라이언트 시크릿 |
+| `JWT_SECRET` | JWT 서명용 시크릿 (32자 이상) |
 
-### 데이터베이스 스키마 수정
+### 4. D1 데이터베이스 바인딩
 
-1. \`lib/db/schema.ts\` 파일 수정
-2. \`npm run db:generate\` 실행 (마이그레이션 파일 생성)
-3. \`npm run db:migrate\` 실행 (로컬 DB 적용)
-4. \`npm run db:migrate:prod\` 실행 (프로덕션 DB 적용)
+1. **Settings** → **Functions** → **D1 database bindings**
+2. **Add binding** 클릭
+3. Variable name: `DB`
+4. D1 database 선택 (없으면 먼저 생성)
 
-### 코드 컨벤션
+### 5. 프로덕션 DB 설정
 
-- **TypeScript**: 엄격한 타입 체크
-- **Naming**: camelCase (변수/함수), PascalCase (컴포넌트/타입)
-- **Comments**: JSDoc 스타일 주석
-- **Imports**: 절대 경로 사용 (\`@/...\`)
+```bash
+# D1 데이터베이스 생성
+wrangler d1 create balance-moim-db
 
-### 보안 가이드
+# wrangler.toml에 database_id 업데이트 후
+# 스키마 적용
+wrangler d1 execute DB --file=./drizzle/schema.sql
+```
 
-- **XSS 방지**: 모든 사용자 입력은 \`sanitizeObject()\` 사용
-- **Input Validation**: Zod 스키마로 서버/클라이언트 양쪽 검증
-- **CSRF 방지**: NextAuth 자동 처리
-- **환경 변수**: \`.env.local\`은 절대 커밋하지 않음 (\`.gitignore\`에 포함됨)
+### 6. Google OAuth 리디렉션 URI 설정
+
+[Google Cloud Console](https://console.cloud.google.com) → **API 및 서비스** → **사용자 인증 정보**:
+
+- **승인된 JavaScript 원본**: `https://your-project.pages.dev`
+- **승인된 리디렉션 URI**: `https://your-project.pages.dev/api/auth/callback`
+
+### 7. 배포
+
+```bash
+# Git push → 자동 배포
+git push origin main
+```
+
+## 📡 API 엔드포인트
+
+### 인증
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| GET | `/api/auth/callback` | OAuth 콜백 |
+| GET | `/api/auth/session` | 세션 확인 |
+| POST | `/api/auth/signout` | 로그아웃 |
+
+### 사용자
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| GET | `/api/users/me` | 내 정보 |
+| PATCH | `/api/users/me` | 정보 수정 |
+| DELETE | `/api/users/me` | 회원 탈퇴 |
+
+### 질문
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| GET | `/api/questions/random` | 랜덤 질문 |
+| GET | `/api/questions/my` | 내 질문 목록 |
+| POST | `/api/questions` | 질문 생성 |
+| GET | `/api/questions/[id]` | 질문 상세 |
+| PATCH | `/api/questions/[id]` | 질문 수정 |
+| DELETE | `/api/questions/[id]` | 질문 삭제 |
+| GET | `/api/questions/stats?id=` | 질문 통계 |
+
+### 응답
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/api/responses` | 응답 제출 |
+
+### 모임
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| GET | `/api/groups/my` | 내 모임 목록 |
+| POST | `/api/groups` | 모임 생성 |
+| GET | `/api/groups/[id]` | 모임 상세 |
+| PATCH | `/api/groups/[id]` | 모임 수정 |
+| DELETE | `/api/groups/[id]` | 모임 삭제 |
+| POST | `/api/groups/invite?id=` | 초대 링크 생성 |
+| GET/POST | `/api/groups/join?code=` | 모임 참여 |
+| POST | `/api/groups/leave?id=` | 모임 탈퇴 |
+| GET | `/api/groups/similarity?id=` | 유사도 랭킹 |
+| GET | `/api/groups/compare?groupId=&userId=` | 사용자 비교 |
+
+### 태그
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| GET | `/api/tags` | 태그 목록 |
+| POST | `/api/tags` | 태그 생성 |
+| GET | `/api/tags/search?q=` | 태그 검색 |
+
+## 📚 문서
+
+- [PRD (제품 요구사항)](./docs/01_balance_game_prd.md)
+- [개발 작업 목록](./docs/02_balance_game_tasks.md)
+
+## 🤝 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## 📄 라이선스
 
-이 프로젝트는 개인 프로젝트입니다.
+MIT License - [LICENSE](./LICENSE) 파일 참조
 
-## 🙏 감사의 말
+## 📞 문의
 
-- [Next.js](https://nextjs.org/)
-- [Cloudflare](https://www.cloudflare.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [Drizzle ORM](https://orm.drizzle.team/)
-- [NextAuth.js](https://next-auth.js.org/)
-
----
-
-**Developed with ❤️ by Balance Moim Team**
+- 이슈 등록: [GitHub Issues](https://github.com/your-username/balance-moim/issues)

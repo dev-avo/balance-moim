@@ -1,52 +1,45 @@
-// GET /api/tags/search
-// 태그 검색 결과 반환
+// 태그 검색 API
+// GET /api/tags/search?q=keyword
 
-export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) => {
-    try {
-        if(!context.env.DB) {
-            return new Response(
-                JSON.stringify({ error: '데이터베이스 연결 오류' }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-        
-        const { setDb, getDb } = await import('../../../lib/db');
-        const { tag } = await import('../../../lib/db/schema');
-        const { like } = await import('drizzle-orm');
-        
-        setDb(context.env.DB);
-        const db = getDb();
-        
-        const url = new URL(context.request.url);
-        const query = url.searchParams.get('q');
-        const limit = parseInt(url.searchParams.get('limit') || '10');
-        
-        let tags;
-        
-        if(query) {
-            tags = await db
-                .select()
-                .from(tag)
-                .where(like(tag.name, `%${query}%`))
-                .limit(limit);
-        } else {
-            tags = await db
-                .select()
-                .from(tag)
-                .orderBy(tag.createdAt)
-                .limit(limit);
-        }
-        
-        return new Response(
-            JSON.stringify({ tags }),
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-    } catch(error) {
-        console.error('태그 검색 오류:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        return new Response(
-            JSON.stringify({ error: '태그를 검색하는 중 오류가 발생했습니다.', details: errorMessage }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+interface Env {
+  DB: D1Database;
+}
+
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  
+  try {
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q')?.trim().toLowerCase();
+    
+    if (!query) {
+      return Response.json({
+        success: true,
+        data: { tags: [] },
+      });
     }
+    
+    // LIKE 검색
+    const result = await env.DB.prepare(`
+      SELECT id, name
+      FROM tag
+      WHERE name LIKE ?
+      ORDER BY name ASC
+      LIMIT 10
+    `).bind(`%${query}%`).all();
+    
+    return Response.json({
+      success: true,
+      data: {
+        tags: result.results || [],
+      },
+    });
+    
+  } catch (error) {
+    console.error('태그 검색 오류:', error);
+    return Response.json(
+      { success: false, error: '태그 검색에 실패했습니다.' },
+      { status: 500 }
+    );
+  }
 };

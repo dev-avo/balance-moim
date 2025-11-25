@@ -1,16 +1,178 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>밸런스 모임 - Balance Moim</title>
-    <meta http-equiv="refresh" content="0; url=/home.html">
-    <script>
-        // JavaScript 리다이렉트 (메타 태그가 작동하지 않는 경우 대비)
-        window.location.href = '/home.html';
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>밸런스 모임 - What's your balance?</title>
+  <meta name="description" content="모임 기반 밸런스 게임 플랫폼. 두 선택지 중 하나를 고르며 서로의 취향을 발견하세요!">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <p>리다이렉트 중... <a href="/home.html">여기를 클릭하세요</a></p>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <!-- 히어로 섹션 -->
+      <section class="hero fade-in" id="heroSection">
+        <div class="hero-content text-center">
+          <h1 class="hero-title">
+            🎯 밸런스 모임?
+          </h1>
+          <p class="hero-subtitle text-secondary mt-md">
+            What's your balance?
+          </p>
+          
+          <div class="hero-description mt-xl">
+            <p class="text-lg">당신의 선택은 무엇인가요?</p>
+            <p class="text-secondary mt-sm">
+              밸런스 질문으로 취향을 나누고,<br>
+              모임 친구들과 비교하며 서로를 알아가세요.
+            </p>
+          </div>
+
+          <div class="hero-actions mt-2xl">
+            <button class="btn btn-primary btn-lg" id="startBtn">
+              시작하기
+            </button>
+          </div>
+
+          <!-- 에러 메시지 (로그인 실패 등) -->
+          <div class="error-message mt-lg hidden" id="errorMessage"></div>
+        </div>
+      </section>
+
+      <!-- 기능 소개 -->
+      <section class="features mt-3xl mb-3xl slide-up">
+        <h2 class="text-2xl font-semibold text-center mb-xl">어떻게 하는 건가요?</h2>
+        
+        <div class="feature-grid">
+          <div class="card feature-card">
+            <div class="feature-icon">🎲</div>
+            <h3 class="feature-title">밸런스 게임</h3>
+            <p class="feature-desc text-secondary">
+              둘 중 하나를 선택하는 재미있는 질문들
+            </p>
+          </div>
+          
+          <div class="card feature-card">
+            <div class="feature-icon">💡</div>
+            <h3 class="feature-title">로그인 없이 시작</h3>
+            <p class="feature-desc text-secondary">
+              바로 게임을 즐길 수 있어요.<br>
+              응답 저장 · 모임 기능은 로그인 필요
+            </p>
+          </div>
+          
+          <div class="card feature-card">
+            <div class="feature-icon">👥</div>
+            <h3 class="feature-title">모임 비교</h3>
+            <p class="feature-desc text-secondary">
+              내 모임 친구들은 어떤 선택을 했을까?
+            </p>
+          </div>
+          
+          <div class="card feature-card">
+            <div class="feature-icon">💕</div>
+            <h3 class="feature-title">취향 매칭</h3>
+            <p class="feature-desc text-secondary">
+              나와 가장 취향이 비슷한 사람 찾기
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 히어로 스타일 -->
+  <style>
+    .hero {
+      padding: var(--spacing-3xl) 0;
+    }
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    
+    .hero-subtitle {
+      font-size: var(--font-size-xl);
+      font-style: italic;
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-lg);
+    }
+    
+    @media (max-width: 600px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .feature-card {
+      text-align: center;
+      padding: var(--spacing-xl);
+      transition: all var(--transition-base);
+    }
+    
+    .feature-card:hover {
+      background: linear-gradient(135deg, rgba(0, 113, 227, 0.05), rgba(52, 199, 89, 0.05));
+      border-color: var(--color-accent);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .feature-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .error-message {
+      padding: var(--spacing-md);
+      background-color: rgba(255, 59, 48, 0.1);
+      color: var(--color-danger);
+      border-radius: var(--radius-md);
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { checkSession, getLoginError, clearLoginParams } from '/js/utils/auth.js';
+
+    // 페이지 초기화
+    async function init() {
+      // 헤더 초기화
+      await initHeader();
+      
+      // 로그인 에러 확인
+      const error = getLoginError();
+      if (error) {
+        const errorEl = document.getElementById('errorMessage');
+        errorEl.textContent = error;
+        errorEl.classList.remove('hidden');
+        clearLoginParams();
+      }
+      
+      // 시작하기 버튼
+      const startBtn = document.getElementById('startBtn');
+      startBtn.addEventListener('click', () => {
+        window.location.href = '/home.html';
+      });
+    }
+    
+    init();
+  </script>
 </body>
 </html>

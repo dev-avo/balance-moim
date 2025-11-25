@@ -1,62 +1,269 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 모임 - 밸런스 모임</title>
-    <meta name="description" content="내 모임 목록을 확인하고 관리하세요">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: 'var(--background)',
-                        foreground: 'var(--foreground)',
-                        card: 'var(--card)',
-                        'card-foreground': 'var(--card-foreground)',
-                        primary: 'var(--primary)',
-                        'primary-foreground': 'var(--primary-foreground)',
-                        secondary: 'var(--secondary)',
-                        'secondary-foreground': 'var(--secondary-foreground)',
-                        muted: 'var(--muted)',
-                        'muted-foreground': 'var(--muted-foreground)',
-                        accent: 'var(--accent)',
-                        'accent-foreground': 'var(--accent-foreground)',
-                        destructive: 'var(--destructive)',
-                        'destructive-foreground': 'var(--destructive-foreground)',
-                        border: 'var(--border)',
-                        input: 'var(--input)',
-                        ring: 'var(--ring)',
-                    },
-                    borderRadius: {
-                        DEFAULT: 'var(--radius)',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                    },
-                },
-            },
-            darkMode: 'class',
-        };
-    </script>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 모임 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div id="app">
-        <header id="header"></header>
-        <main id="main" class="container"></main>
-        <div id="toast-container"></div>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content">
+        <!-- 페이지 헤더 -->
+        <div class="flex justify-between items-center mb-xl">
+          <h1 class="text-3xl font-bold">내 모임</h1>
+          <a href="/groups/create.html" class="btn btn-primary">
+            + 모임 만들기
+          </a>
+        </div>
+
+        <!-- 로딩 상태 -->
+        <div id="loadingState" class="text-center p-xl">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <!-- 모임 목록 -->
+        <div class="groups-list hidden" id="groupsList"></div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination hidden" id="pagination"></div>
+
+        <!-- 빈 상태 -->
+        <div class="card text-center hidden" id="emptyState">
+          <div class="empty-state-icon">👥</div>
+          <h3 class="empty-state-title">아직 참여한 모임이 없어요</h3>
+          <p class="empty-state-description">
+            모임을 만들거나 초대 링크로 참여해보세요!
+          </p>
+          <a href="/groups/create.html" class="btn btn-primary mt-lg">
+            첫 모임 만들기
+          </a>
+        </div>
+
+        <!-- 비로그인 상태 -->
+        <div class="card text-center hidden" id="notLoggedIn">
+          <div class="empty-state-icon">🔒</div>
+          <h3 class="empty-state-title">로그인이 필요합니다</h3>
+          <p class="empty-state-description">
+            모임 기능을 사용하려면 로그인해주세요.
+          </p>
+          <button class="btn btn-primary mt-lg" id="loginBtn">
+            로그인하기
+          </button>
+        </div>
+      </div>
     </div>
-    <script type="module">
-        import { renderHeader } from '/js/components/Header.js';
-        import { initToast } from '/js/components/Toast.js';
-        import { initTheme } from '/js/utils/theme.js';
-        import { renderGroups } from '/js/pages/groups.js';
-        initTheme();
-        initToast();
-        renderHeader();
-        renderGroups();
-    </script>
+  </main>
+
+  <!-- 추가 스타일 -->
+  <style>
+    .groups-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .group-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-lg);
+      cursor: pointer;
+    }
+
+    .group-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .group-info {
+      flex: 1;
+    }
+
+    .group-name {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .group-meta {
+      display: flex;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .group-arrow {
+      color: var(--color-text-tertiary);
+    }
+
+    .creator-badge {
+      background-color: rgba(0, 113, 227, 0.1);
+      color: var(--color-accent);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+    }
+
+    /* 페이지네이션 스타일 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-xl);
+    }
+
+    .pagination-btn {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { checkSession, redirectToGoogleLogin, getCurrentUser } from '/js/utils/auth.js';
+    import { groupAPI } from '/js/services/api.js';
+    import { toastError } from '/js/components/Toast.js';
+
+    let currentUser = null;
+    let currentPage = 1;
+    const limit = 10;
+
+    async function init() {
+      await initHeader();
+      
+      const user = await checkSession();
+      
+      const loadingState = document.getElementById('loadingState');
+      const notLoggedIn = document.getElementById('notLoggedIn');
+      
+      loadingState.classList.add('hidden');
+      
+      if (!user) {
+        notLoggedIn.classList.remove('hidden');
+        document.getElementById('loginBtn').addEventListener('click', () => {
+          redirectToGoogleLogin(window.GOOGLE_CLIENT_ID || '');
+        });
+        return;
+      }
+      
+      currentUser = user;
+      await loadGroups(1);
+    }
+
+    async function loadGroups(page) {
+      currentPage = page;
+      const loadingState = document.getElementById('loadingState');
+      const groupsList = document.getElementById('groupsList');
+      const emptyState = document.getElementById('emptyState');
+      const pagination = document.getElementById('pagination');
+      
+      loadingState.classList.remove('hidden');
+      groupsList.classList.add('hidden');
+      emptyState.classList.add('hidden');
+      pagination.classList.add('hidden');
+      
+      try {
+        const response = await groupAPI.getMy(page, limit);
+        const groups = response.data?.groups || [];
+        const paginationData = response.data?.pagination;
+        
+        loadingState.classList.add('hidden');
+        
+        if (groups.length === 0 && page === 1) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        
+        renderGroups(groups, currentUser.id);
+        groupsList.classList.remove('hidden');
+        
+        if (paginationData && paginationData.totalPages > 1) {
+          renderPagination(paginationData);
+          pagination.classList.remove('hidden');
+        }
+        
+      } catch (error) {
+        console.error('모임 목록 로드 실패:', error);
+        loadingState.classList.add('hidden');
+        toastError('모임 목록을 불러오는데 실패했습니다.');
+        emptyState.classList.remove('hidden');
+      }
+    }
+
+    function renderPagination(data) {
+      const container = document.getElementById('pagination');
+      const { page, totalPages, total } = data;
+      
+      container.innerHTML = `
+        <button class="pagination-btn" onclick="goToPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>
+          ← 이전
+        </button>
+        <span class="pagination-info">${page} / ${totalPages} (총 ${total}개)</span>
+        <button class="pagination-btn" onclick="goToPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>
+          다음 →
+        </button>
+      `;
+    }
+
+    window.goToPage = function(page) {
+      loadGroups(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function renderGroups(groups, userId) {
+      const container = document.getElementById('groupsList');
+      
+      container.innerHTML = groups.map(group => `
+        <div class="card card-hover group-card" onclick="location.href='/groups/detail.html?id=${group.id}'">
+          <div class="group-info">
+            <div class="flex items-center gap-sm">
+              <span class="group-name">${escapeHtml(group.name)}</span>
+              ${group.creator_id === userId ? '<span class="creator-badge">관리자</span>' : ''}
+            </div>
+            <div class="group-meta">
+              <span>👥 ${group.memberCount || 0}명</span>
+              <span>📝 ${group.questionCount || 0}개 질문</span>
+            </div>
+          </div>
+          <span class="group-arrow">→</span>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
 </body>
 </html>

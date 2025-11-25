@@ -1,112 +1,87 @@
-// 세션 확인 엔드포인트
-// /api/auth/session 경로를 처리합니다.
+// 세션 확인 API
+// GET /api/auth/session
 
-async function secretFingerprint(secret: string) {
-    if(!secret) return 'empty';
-    const data = new TextEncoder().encode(secret);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const bytes = Array.from(new Uint8Array(hashBuffer));
-    return bytes.slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join('');
+import { getSession } from '../../../lib/auth/session';
+import type { Env, User, ApiResponse } from '../../../lib/types';
+
+interface SessionResponse {
+  user: {
+    id: string;
+    email: string;
+    displayName: string;
+    useNickname: boolean;
+  } | null;
 }
 
-export const onRequestGet: PagesFunction<{ DB: D1Database; GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; NEXTAUTH_SECRET: string; NEXTAUTH_URL: string }> = async (context) => {
-    try {
-        const cookies = context.request.headers.get('Cookie') || '';
-        const sessionCookie = cookies.split(';').find(c => c.trim().startsWith('bm_session='));
-        
-        if(!sessionCookie) {
-            return new Response(
-                JSON.stringify({ user: null }),
-                { 
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' }
-                }
-            );
-        }
-        
-        let token = sessionCookie.substring(sessionCookie.indexOf('=') + 1);
-        try {
-            token = decodeURIComponent(token);
-        } catch(error) {
-            console.warn('[auth/session] Failed to decode bm_session cookie, clearing', error);
-            const clearCookie = 'bm_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
-            return new Response(
-                JSON.stringify({ user: null }),
-                { 
-                    status: 200,
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Set-Cookie': clearCookie,
-                    }
-                }
-            );
-        }
-        if(!token) {
-            return new Response(
-                JSON.stringify({ user: null }),
-                { 
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' }
-                }
-            );
-        }
-        
-        // JWT 토큰 검증
-        const { verifyJWT } = await import('../../../lib/auth/jwt');
-        const secret = context.env.NEXTAUTH_SECRET;
-        if(!secret) {
-            console.error('[auth/session] NEXTAUTH_SECRET is missing in environment');
-        }
-        
-        console.log('[auth/session] verifying token', {
-            tokenLength: token.length,
-            hasSecret: !!secret,
-            requestId: context.request.headers.get('cf-ray') || 'unknown',
-            fingerprint: await secretFingerprint(secret || ''),
-        });
-        
-        const payload = await verifyJWT(token, secret);
-        
-        if(!payload) {
-            // 유효하지 않은 토큰 - 쿠키 삭제
-            console.warn('[auth/session] verifyJWT returned null, clearing cookie', {
-                requestId: context.request.headers.get('cf-ray') || 'unknown',
-            });
-            const clearCookie = 'bm_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
-            return new Response(
-                JSON.stringify({ user: null }),
-                { 
-                    status: 200,
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Set-Cookie': clearCookie,
-                    }
-                }
-            );
-        }
-        
-        // 세션 정보 반환
-        return new Response(
-            JSON.stringify({
-                user: {
-                    id: payload.id,
-                    email: payload.email,
-                    name: payload.name,
-                }
-            }),
-            { 
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
-    } catch(error) {
-        console.error('세션 처리 오류:', error);
-        return new Response(
-            JSON.stringify({ user: null }),
-            { 
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  
+  try {
+    // JWT 토큰 검증
+    const session = await getSession(request, env.JWT_SECRET);
+    
+    if (!session) {
+      return jsonResponse<SessionResponse>({
+        success: true,
+        data: { user: null },
+      });
     }
+    
+    // DB에서 사용자 정보 조회
+    const user = await env.DB
+      .prepare(`
+        SELECT id, email, display_name, custom_nickname, use_nickname, status
+        FROM user
+        WHERE id = ? AND status = 1
+      `)
+      .bind(session.userId)
+      .first<User>();
+    
+    if (!user) {
+      return jsonResponse<SessionResponse>({
+        success: true,
+        data: { user: null },
+      });
+    }
+    
+    // 표시 이름 결정
+    const displayName = user.use_nickname && user.custom_nickname
+      ? user.custom_nickname
+      : user.display_name || user.email.split('@')[0];
+    
+    return jsonResponse<SessionResponse>({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName,
+          useNickname: user.use_nickname === 1,
+        },
+      },
+    });
+    
+  } catch (error) {
+    console.error('세션 확인 실패:', error);
+    return jsonResponse<SessionResponse>(
+      {
+        success: false,
+        error: '세션 확인 중 오류가 발생했습니다.',
+      },
+      500
+    );
+  }
 };
+
+// JSON 응답 헬퍼
+function jsonResponse<T>(
+  body: ApiResponse<T>,
+  status: number = 200
+): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}

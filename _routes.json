@@ -1,26 +1,13 @@
 {
   "version": 1,
-  "include": [
-    "/api/*"
-  ],
+  "include": ["/api/*"],
   "exclude": [
     "/js/*",
     "/css/*",
-    "/*.js",
-    "/*.css",
-    "/*.svg",
+    "/*.html",
     "/*.ico",
+    "/*.svg",
     "/*.png",
-    "/*.jpg",
-    "/*.jpeg",
-    "/*.gif",
-    "/*.webp",
-    "/*.woff",
-    "/*.woff2",
-    "/*.ttf",
-    "/*.eot",
-    "/favicon.ico",
-    "/robots.txt",
-    "/index.html"
+    "/*.jpg"
   ]
 }
