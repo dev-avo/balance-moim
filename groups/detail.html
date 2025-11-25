@@ -160,19 +160,11 @@
 
     .response-question {
       font-weight: 500;
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .response-options {
-      display: flex;
-      gap: var(--spacing-sm);
-      font-size: var(--font-size-sm);
-      color: var(--color-text-secondary);
       margin-bottom: var(--spacing-sm);
     }
 
-    .response-vs {
-      color: var(--color-text-tertiary);
+    .response-item .stats-labels {
+      color: var(--color-text-secondary);
     }
 
     /* 비교 모달 스타일 */
@@ -368,14 +360,13 @@
         container.innerHTML = responses.slice(0, 5).map(item => `
           <div class="response-item">
             <div class="response-question">${escapeHtml(item.title)}</div>
-            <div class="response-options">
-              <span class="response-option-a">${escapeHtml(item.optionA.text)}</span>
-              <span class="response-vs">vs</span>
-              <span class="response-option-b">${escapeHtml(item.optionB.text)}</span>
+            <div class="stats-bar" style="height: 32px; font-size: 13px;">
+              <div class="stats-bar-a" style="width: ${item.optionA.percentage}%">${item.optionA.percentage > 0 ? item.optionA.percentage + '%' : ''}</div>
+              <div class="stats-bar-b" style="width: ${item.optionB.percentage}%">${item.optionB.percentage > 0 ? item.optionB.percentage + '%' : ''}</div>
             </div>
-            <div class="stats-bar" style="height: 24px; font-size: 12px;">
-              <div class="stats-bar-a" style="width: ${item.optionA.percentage}%">${item.optionA.percentage}% (${item.optionA.count}명)</div>
-              <div class="stats-bar-b" style="width: ${item.optionB.percentage}%">${item.optionB.percentage}% (${item.optionB.count}명)</div>
+            <div class="stats-labels flex justify-between mt-sm">
+              <span class="text-sm">${escapeHtml(item.optionA.text)} (${item.optionA.count}명)</span>
+              <span class="text-sm">${escapeHtml(item.optionB.text)} (${item.optionB.count}명)</span>
             </div>
           </div>
         `).join('');

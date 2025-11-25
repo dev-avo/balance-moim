@@ -85,8 +85,27 @@
         return;
       }
       
+      // 로그인 버튼 이벤트 미리 설정
+      document.getElementById('loginBtn').addEventListener('click', handleLogin);
+      
       // 초대 정보 로드
       await loadInviteInfo();
+    }
+
+    async function handleLogin() {
+      try {
+        // 로그인 후 돌아올 URL 저장
+        sessionStorage.setItem('invite_redirect', window.location.href);
+        const clientId = await getGoogleClientId();
+        if (clientId) {
+          redirectToGoogleLogin(clientId);
+        } else {
+          toastError('로그인 설정이 완료되지 않았습니다.');
+        }
+      } catch (error) {
+        console.error('로그인 처리 실패:', error);
+        toastError('로그인 처리 중 오류가 발생했습니다.');
+      }
     }
 
     async function loadInviteInfo() {
@@ -104,16 +123,6 @@
         if (!user) {
           // 로그인 필요
           document.getElementById('loginRequired').classList.remove('hidden');
-          document.getElementById('loginBtn').addEventListener('click', async () => {
-            // 로그인 후 돌아올 URL 저장
-            sessionStorage.setItem('invite_redirect', window.location.href);
-            const clientId = await getGoogleClientId();
-            if (clientId) {
-              redirectToGoogleLogin(clientId);
-            } else {
-              alert('로그인 설정이 완료되지 않았습니다.');
-            }
-          });
           return;
         }
         

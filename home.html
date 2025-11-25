@@ -233,6 +233,14 @@
       await initHeader();
       await checkSession();
       
+      // 초대 링크에서 로그인 후 리다이렉트 처리
+      const inviteRedirect = sessionStorage.getItem('invite_redirect');
+      if (inviteRedirect) {
+        sessionStorage.removeItem('invite_redirect');
+        window.location.href = inviteRedirect;
+        return;
+      }
+      
       // 태그 목록 로드
       loadTags();
       
