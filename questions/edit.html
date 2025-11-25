@@ -250,7 +250,7 @@
       
       try {
         const response = await questionAPI.getStats(questionId);
-        const stats = response.data;
+        const stats = response.data?.total;
         
         if (!stats || stats.totalCount === 0) {
           container.innerHTML = '<p class="text-secondary text-sm">아직 응답이 없습니다.</p>';
@@ -264,11 +264,11 @@
           </div>
           <div class="stats-row">
             <span>${escapeHtml(questionData.option_a)}</span>
-            <span class="font-semibold">${stats.optionAPercent}% (${stats.optionACount}명)</span>
+            <span class="font-semibold">${stats.optionA.percentage}% (${stats.optionA.count}명)</span>
           </div>
           <div class="stats-row">
             <span>${escapeHtml(questionData.option_b)}</span>
-            <span class="font-semibold">${stats.optionBPercent}% (${stats.optionBCount}명)</span>
+            <span class="font-semibold">${stats.optionB.percentage}% (${stats.optionB.count}명)</span>
           </div>
         `;
         
