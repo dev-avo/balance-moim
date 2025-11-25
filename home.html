@@ -134,6 +134,7 @@
 
     .result-card {
       padding: var(--spacing-xl);
+      margin-top: var(--spacing-xl);
     }
 
     .result-title {
@@ -439,8 +440,8 @@
       
       document.getElementById('totalStatsA').style.width = `${total.optionA.percentage}%`;
       document.getElementById('totalStatsB').style.width = `${total.optionB.percentage}%`;
-      document.getElementById('totalStatsA').textContent = `${total.optionA.percentage}%`;
-      document.getElementById('totalStatsB').textContent = `${total.optionB.percentage}%`;
+      document.getElementById('totalStatsA').textContent = total.optionA.percentage > 0 ? `${total.optionA.percentage}%` : '';
+      document.getElementById('totalStatsB').textContent = total.optionB.percentage > 0 ? `${total.optionB.percentage}%` : '';
       document.getElementById('totalLabelA').textContent = `${currentQuestion.option_a} (${total.optionA.count || 0}명)`;
       document.getElementById('totalLabelB').textContent = `${currentQuestion.option_b} (${total.optionB.count || 0}명)`;
       
@@ -454,8 +455,8 @@
           <div class="group-stats-item">
             <div class="group-stats-name">${group.groupName}</div>
             <div class="stats-bar group-stats-bar">
-              <div class="stats-bar-a" style="width: ${group.optionA.percentage}%">${group.optionA.percentage}%</div>
-              <div class="stats-bar-b" style="width: ${group.optionB.percentage}%">${group.optionB.percentage}%</div>
+              <div class="stats-bar-a" style="width: ${group.optionA.percentage}%">${group.optionA.percentage > 0 ? group.optionA.percentage + '%' : ''}</div>
+              <div class="stats-bar-b" style="width: ${group.optionB.percentage}%">${group.optionB.percentage > 0 ? group.optionB.percentage + '%' : ''}</div>
             </div>
           </div>
         `).join('');

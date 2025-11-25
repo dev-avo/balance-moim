@@ -45,7 +45,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 모임 생성
     const groupId = crypto.randomUUID();
-    const now = new Date().toISOString();
+    const now = Math.floor(Date.now() / 1000);
     
     await env.DB.prepare(`
       INSERT INTO user_group (id, name, description, creator_id, created_at, updated_at)
@@ -53,11 +53,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     `).bind(groupId, name.trim(), description?.trim() || null, session.userId, now, now).run();
     
     // 생성자를 멤버로 추가
-    const memberId = crypto.randomUUID();
     await env.DB.prepare(`
-      INSERT INTO group_member (id, group_id, user_id, joined_at)
-      VALUES (?, ?, ?, ?)
-    `).bind(memberId, groupId, session.userId, now).run();
+      INSERT INTO group_member (group_id, user_id, joined_at)
+      VALUES (?, ?, ?)
+    `).bind(groupId, session.userId, now).run();
     
     return Response.json({
       success: true,
