@@ -42,7 +42,7 @@
           <p class="text-secondary mb-xl">
             모임에 참여하려면 먼저 로그인해주세요.
           </p>
-          <button class="btn btn-primary btn-lg" id="loginBtn">
+          <button class="btn btn-primary btn-lg" id="inviteLoginBtn">
             로그인하기
           </button>
         </div>
@@ -86,7 +86,7 @@
       }
       
       // 로그인 버튼 이벤트 미리 설정
-      document.getElementById('loginBtn').addEventListener('click', handleLogin);
+      document.getElementById('inviteLoginBtn').addEventListener('click', handleLogin);
       
       // 초대 정보 로드
       await loadInviteInfo();
