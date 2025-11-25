@@ -170,6 +170,27 @@
       display: flex;
       flex-wrap: wrap;
       gap: var(--spacing-xs);
+      max-height: 120px;
+      overflow-y: auto;
+      padding-right: var(--spacing-xs);
+    }
+
+    .tag-filter-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .tag-filter-list::-webkit-scrollbar-track {
+      background: var(--color-bg);
+      border-radius: var(--radius-full);
+    }
+
+    .tag-filter-list::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: var(--radius-full);
+    }
+
+    .tag-filter-list::-webkit-scrollbar-thumb:hover {
+      background: var(--color-text-secondary);
     }
 
     .tag-filter-chip {
@@ -278,10 +299,8 @@
         return;
       }
       
-      // 상위 10개 태그만 표시
-      const topTags = allTags.slice(0, 10);
-      
-      container.innerHTML = topTags.map(tag => `
+      // 전체 태그 표시
+      container.innerHTML = allTags.map(tag => `
         <span class="tag-filter-chip ${selectedTags.includes(tag.name) ? 'active' : ''}" 
               data-tag="${tag.name}"
               onclick="toggleTag('${tag.name}')">

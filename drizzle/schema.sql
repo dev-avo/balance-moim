@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS group_member (
     group_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
     joined_at INTEGER DEFAULT (unixepoch()),
+    left_at INTEGER,
     PRIMARY KEY (group_id, user_id),
     FOREIGN KEY (group_id) REFERENCES user_group(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
