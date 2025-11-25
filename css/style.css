@@ -497,9 +497,38 @@ h6 { font-size: var(--font-size-base); }
   color: var(--color-text);
 }
 
+/* Mobile header actions (theme toggle + hamburger) */
+.header-mobile-actions {
+  display: none;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Desktop: hide mobile theme toggle, show desktop theme toggle */
+.theme-toggle-mobile {
+  display: none;
+}
+
+.theme-toggle-desktop {
+  display: flex;
+}
+
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
+  }
+  
+  .header-mobile-actions {
+    display: flex;
+  }
+  
+  /* Hide desktop theme toggle, show mobile theme toggle */
+  .header-nav .theme-toggle-desktop {
+    display: none !important;
+  }
+  
+  .theme-toggle-mobile {
+    display: flex;
   }
   
   .header-nav {

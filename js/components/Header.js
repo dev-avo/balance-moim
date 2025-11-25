@@ -35,14 +35,6 @@ function renderHeader(container, user) {
     <div class="header-content">
       <a href="/index.html" class="header-logo">🎯 밸런스 모임</a>
       
-      <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-      
       <nav class="header-nav" id="headerNav">
         <a href="/home.html" class="header-nav-link ${currentPath === '/home.html' ? 'active' : ''}">
           플레이
@@ -58,7 +50,7 @@ function renderHeader(container, user) {
             설정
           </a>
         ` : ''}
-        <button class="theme-toggle" id="themeToggle" title="${themeLabel} 모드">
+        <button class="theme-toggle theme-toggle-desktop" id="themeToggleDesktop" title="${themeLabel} 모드">
           ${themeIcon}
         </button>
         ${user ? `
@@ -71,6 +63,19 @@ function renderHeader(container, user) {
           </button>
         `}
       </nav>
+      
+      <div class="header-mobile-actions">
+        <button class="theme-toggle theme-toggle-mobile" id="themeToggleMobile" title="${themeLabel} 모드">
+          ${themeIcon}
+        </button>
+        <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     </div>
   `;
 }
@@ -91,14 +96,30 @@ function bindHeaderEvents(container) {
     });
   }
   
-  // 테마 토글 버튼
-  const themeToggleBtn = container.querySelector('#themeToggle');
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      const newTheme = toggleTheme();
-      themeToggleBtn.innerHTML = getThemeIcon(newTheme);
-      themeToggleBtn.title = `${getThemeLabel(newTheme)} 모드`;
-    });
+  // 테마 토글 버튼 (데스크톱 & 모바일)
+  const themeToggleDesktop = container.querySelector('#themeToggleDesktop');
+  const themeToggleMobile = container.querySelector('#themeToggleMobile');
+  
+  const handleThemeToggle = () => {
+    const newTheme = toggleTheme();
+    const newIcon = getThemeIcon(newTheme);
+    const newTitle = `${getThemeLabel(newTheme)} 모드`;
+    
+    if (themeToggleDesktop) {
+      themeToggleDesktop.innerHTML = newIcon;
+      themeToggleDesktop.title = newTitle;
+    }
+    if (themeToggleMobile) {
+      themeToggleMobile.innerHTML = newIcon;
+      themeToggleMobile.title = newTitle;
+    }
+  };
+  
+  if (themeToggleDesktop) {
+    themeToggleDesktop.addEventListener('click', handleThemeToggle);
+  }
+  if (themeToggleMobile) {
+    themeToggleMobile.addEventListener('click', handleThemeToggle);
   }
   
   // 로그인 버튼
