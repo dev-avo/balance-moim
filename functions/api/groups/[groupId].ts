@@ -27,7 +27,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     
     // 멤버 확인
     const membership = await env.DB.prepare(`
-      SELECT id FROM group_member
+      SELECT group_id FROM group_member
       WHERE group_id = ? AND user_id = ? AND left_at IS NULL
     `).bind(groupId, session.userId).first();
     
@@ -60,8 +60,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       SELECT 
         gm.user_id,
         gm.joined_at,
-        u.display_name,
-        u.profile_url
+        CASE WHEN u.use_nickname = 1 AND u.custom_nickname IS NOT NULL 
+             THEN u.custom_nickname 
+             ELSE u.display_name 
+        END as display_name
       FROM group_member gm
       INNER JOIN user u ON gm.user_id = u.id
       WHERE gm.group_id = ? AND gm.left_at IS NULL
@@ -162,7 +164,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     }
     
     updates.push('updated_at = ?');
-    params.push(new Date().toISOString());
+    params.push(Math.floor(Date.now() / 1000));
     params.push(groupId);
     
     await env.DB.prepare(`

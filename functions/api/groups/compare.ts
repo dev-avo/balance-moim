@@ -33,7 +33,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     
     // 두 사용자 모두 해당 모임 멤버인지 확인
     const myMembership = await env.DB.prepare(`
-      SELECT id FROM group_member
+      SELECT group_id FROM group_member
       WHERE group_id = ? AND user_id = ? AND left_at IS NULL
     `).bind(groupId, session.userId).first();
     
@@ -45,7 +45,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     }
     
     const targetMembership = await env.DB.prepare(`
-      SELECT id FROM group_member
+      SELECT group_id FROM group_member
       WHERE group_id = ? AND user_id = ? AND left_at IS NULL
     `).bind(groupId, targetUserId).first();
     
@@ -58,7 +58,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     
     // 대상 사용자 정보
     const targetUser = await env.DB.prepare(`
-      SELECT id, display_name, custom_nickname, use_nickname, profile_url
+      SELECT id, display_name, custom_nickname, use_nickname
       FROM user WHERE id = ?
     `).bind(targetUserId).first();
     
@@ -140,7 +140,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         targetUser: {
           id: target.id,
           displayName: targetDisplayName,
-          profileUrl: target.profile_url,
         },
         summary: {
           matchCount,

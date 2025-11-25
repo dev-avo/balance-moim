@@ -30,7 +30,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         (SELECT COUNT(*) FROM group_member WHERE group_id = ug.id AND left_at IS NULL) as member_count
       FROM invite_link il
       INNER JOIN user_group ug ON il.group_id = ug.id
-      WHERE il.code = ? AND il.is_active = 1
+      WHERE il.id = ?
     `).bind(code).first();
     
     if (!invite) {
@@ -43,7 +43,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const inv = invite as any;
     
     // 만료 확인
-    if (new Date(inv.expires_at) < new Date()) {
+    const nowTs = Math.floor(Date.now() / 1000);
+    if (inv.expires_at < nowTs) {
       return Response.json(
         { success: false, error: '만료된 초대 링크입니다.' },
         { status: 410 }
@@ -95,7 +96,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // 초대 링크 확인
     const invite = await env.DB.prepare(`
       SELECT * FROM invite_link
-      WHERE code = ? AND is_active = 1
+      WHERE id = ?
     `).bind(code).first();
     
     if (!invite) {
@@ -108,7 +109,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const inv = invite as any;
     
     // 만료 확인
-    if (new Date(inv.expires_at) < new Date()) {
+    const postNowTs = Math.floor(Date.now() / 1000);
+    if (inv.expires_at < postNowTs) {
       return Response.json(
         { success: false, error: '만료된 초대 링크입니다.' },
         { status: 410 }
@@ -117,7 +119,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 이미 멤버인지 확인
     const existingMember = await env.DB.prepare(`
-      SELECT id, left_at FROM group_member
+      SELECT group_id, user_id, left_at FROM group_member
       WHERE group_id = ? AND user_id = ?
     `).bind(inv.group_id, session.userId).first();
     
@@ -134,15 +136,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       // 재참여
       await env.DB.prepare(`
         UPDATE group_member SET left_at = NULL, joined_at = ?
-        WHERE id = ?
-      `).bind(new Date().toISOString(), member.id).run();
+        WHERE group_id = ? AND user_id = ?
+      `).bind(postNowTs, inv.group_id, session.userId).run();
     } else {
       // 새로 참여
-      const memberId = crypto.randomUUID();
       await env.DB.prepare(`
-        INSERT INTO group_member (id, group_id, user_id, joined_at)
-        VALUES (?, ?, ?, ?)
-      `).bind(memberId, inv.group_id, session.userId, new Date().toISOString()).run();
+        INSERT INTO group_member (group_id, user_id, joined_at)
+        VALUES (?, ?, ?)
+      `).bind(inv.group_id, session.userId, postNowTs).run();
     }
     
     return Response.json({

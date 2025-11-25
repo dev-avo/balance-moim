@@ -80,7 +80,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       }
       
       const membership = await env.DB.prepare(`
-        SELECT id FROM group_member
+        SELECT group_id FROM group_member
         WHERE group_id = ? AND user_id = ? AND left_at IS NULL
       `).bind(groupId, session.userId).first();
       
@@ -94,7 +94,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 질문 생성
     const questionId = crypto.randomUUID();
-    const now = new Date().toISOString();
+    const now = Math.floor(Date.now() / 1000);
     
     await env.DB.prepare(`
       INSERT INTO question (id, creator_id, title, option_a, option_b, visibility, group_id, created_at, updated_at)

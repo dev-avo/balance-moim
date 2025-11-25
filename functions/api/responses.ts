@@ -70,7 +70,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 응답 저장
     const responseId = crypto.randomUUID();
-    const now = new Date().toISOString();
+    const now = Math.floor(Date.now() / 1000);
     
     await env.DB.prepare(`
       INSERT INTO response (id, question_id, user_id, selected_option, created_at)

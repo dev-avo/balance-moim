@@ -24,7 +24,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     }
     
     const user = await env.DB.prepare(`
-      SELECT id, email, display_name, profile_url, custom_nickname, use_nickname, created_at
+      SELECT id, email, display_name, custom_nickname, use_nickname, created_at
       FROM user WHERE id = ?
     `).bind(session.userId).first();
     
@@ -90,7 +90,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     }
     
     updates.push('updated_at = ?');
-    params.push(new Date().toISOString());
+    params.push(Math.floor(Date.now() / 1000));
     params.push(session.userId);
     
     await env.DB.prepare(`
@@ -144,7 +144,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
     // 모임 멤버십 정리
     await env.DB.prepare(`
       UPDATE group_member SET left_at = ? WHERE user_id = ? AND left_at IS NULL
-    `).bind(new Date().toISOString(), session.userId).run();
+    `).bind(Math.floor(Date.now() / 1000), session.userId).run();
     
     // 사용자 삭제
     await env.DB.prepare(`

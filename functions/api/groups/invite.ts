@@ -33,7 +33,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 멤버 확인
     const membership = await env.DB.prepare(`
-      SELECT id FROM group_member
+      SELECT group_id FROM group_member
       WHERE group_id = ? AND user_id = ? AND left_at IS NULL
     `).bind(groupId, session.userId).first();
     
@@ -45,42 +45,40 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
     
     // 기존 유효한 초대 링크 확인
+    const nowTs = Math.floor(Date.now() / 1000);
     const existing = await env.DB.prepare(`
-      SELECT code FROM invite_link
-      WHERE group_id = ? AND expires_at > datetime('now') AND is_active = 1
+      SELECT id FROM invite_link
+      WHERE group_id = ? AND expires_at > ?
       ORDER BY created_at DESC
       LIMIT 1
-    `).bind(groupId).first();
+    `).bind(groupId, nowTs).first();
     
     if (existing) {
       return Response.json({
         success: true,
-        data: { inviteCode: (existing as any).code },
+        data: { inviteCode: (existing as any).id },
         message: '기존 초대 링크를 반환합니다.',
       });
     }
     
-    // 새 초대 코드 생성 (8자리)
-    const inviteCode = crypto.randomUUID().substring(0, 8);
-    const inviteId = crypto.randomUUID();
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7일 후
+    // 새 초대 코드 생성 (UUID의 앞 8자리 사용)
+    const inviteId = crypto.randomUUID().substring(0, 8);
+    const expiresAt = nowTs + 7 * 24 * 60 * 60; // 7일 후
     
     await env.DB.prepare(`
-      INSERT INTO invite_link (id, group_id, code, created_by, expires_at, is_active, created_at)
-      VALUES (?, ?, ?, ?, ?, 1, ?)
+      INSERT INTO invite_link (id, group_id, created_by, expires_at, created_at)
+      VALUES (?, ?, ?, ?, ?)
     `).bind(
       inviteId,
       groupId,
-      inviteCode,
       session.userId,
-      expiresAt.toISOString(),
-      now.toISOString()
+      expiresAt,
+      nowTs
     ).run();
     
     return Response.json({
       success: true,
-      data: { inviteCode },
+      data: { inviteCode: inviteId },
       message: '초대 링크가 생성되었습니다.',
     });
     

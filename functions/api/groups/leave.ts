@@ -51,7 +51,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 멤버 확인 및 나가기 처리
     const membership = await env.DB.prepare(`
-      SELECT id FROM group_member
+      SELECT group_id, user_id FROM group_member
       WHERE group_id = ? AND user_id = ? AND left_at IS NULL
     `).bind(groupId, session.userId).first();
     
@@ -63,8 +63,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
     
     await env.DB.prepare(`
-      UPDATE group_member SET left_at = ? WHERE id = ?
-    `).bind(new Date().toISOString(), (membership as any).id).run();
+      UPDATE group_member SET left_at = ? WHERE group_id = ? AND user_id = ?
+    `).bind(Math.floor(Date.now() / 1000), groupId, session.userId).run();
     
     return Response.json({
       success: true,

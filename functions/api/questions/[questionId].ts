@@ -46,7 +46,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     
     if (q.visibility === 'group' && userId) {
       const membership = await env.DB.prepare(`
-        SELECT id FROM group_member
+        SELECT group_id FROM group_member
         WHERE group_id = ? AND user_id = ? AND left_at IS NULL
       `).bind(q.group_id, userId).first();
       
@@ -174,7 +174,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     }
     
     updates.push('updated_at = ?');
-    params.push(new Date().toISOString());
+    params.push(Math.floor(Date.now() / 1000));
     params.push(questionId);
     
     await env.DB.prepare(`
@@ -232,7 +232,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
     // 소프트 삭제
     await env.DB.prepare(`
       UPDATE question SET deleted_at = ? WHERE id = ?
-    `).bind(new Date().toISOString(), questionId).run();
+    `).bind(Math.floor(Date.now() / 1000), questionId).run();
     
     return Response.json({
       success: true,

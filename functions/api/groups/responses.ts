@@ -33,7 +33,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     
     // 멤버 확인
     const membership = await env.DB.prepare(`
-      SELECT id FROM group_member
+      SELECT group_id FROM group_member
       WHERE group_id = ? AND user_id = ? AND left_at IS NULL
     `).bind(groupId, session.userId).first();
     
