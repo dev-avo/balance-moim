@@ -1,5 +1,6 @@
 // 랜덤 질문 API
 // GET /api/questions/random?tags=음식,라면
+// GET /api/questions/random?groupId=xxx (모임 전용 질문만)
 
 import { getSession } from '../../../lib/auth/session';
 
@@ -12,9 +13,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   
   try {
-    // 태그 필터 파싱
+    // 파라미터 파싱
     const url = new URL(request.url);
     const tagsParam = url.searchParams.get('tags');
+    const groupId = url.searchParams.get('groupId');
     const tags = tagsParam ? tagsParam.split(',').map(t => t.trim()).filter(Boolean) : [];
     
     // 세션 확인 (선택적)
@@ -24,7 +26,42 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     let query: string;
     const params: (string | number | null)[] = [];
     
-    if (tags.length > 0) {
+    // 모임 전용 질문 필터링
+    if (groupId) {
+      // 모임 전용 모드: 해당 모임의 질문만
+      if (!userId) {
+        return Response.json(
+          { success: false, error: '로그인이 필요합니다.' },
+          { status: 401 }
+        );
+      }
+      
+      // 멤버 확인
+      const membership = await env.DB.prepare(`
+        SELECT group_id FROM group_member
+        WHERE group_id = ? AND user_id = ? AND left_at IS NULL
+      `).bind(groupId, userId).first();
+      
+      if (!membership) {
+        return Response.json(
+          { success: false, error: '해당 모임에 속해있지 않습니다.' },
+          { status: 403 }
+        );
+      }
+      
+      query = `
+        SELECT q.id, q.title, q.option_a, q.option_b, q.visibility, q.group_id, q.created_at
+        FROM question q
+        WHERE q.deleted_at IS NULL
+          AND q.group_id = ?
+          AND q.id NOT IN (
+            SELECT question_id FROM response WHERE user_id = ?
+          )
+        ORDER BY RANDOM()
+        LIMIT 1
+      `;
+      params.push(groupId, userId);
+    } else if (tags.length > 0) {
       // 태그 필터가 있는 경우
       const tagPlaceholders = tags.map(() => '?').join(',');
       

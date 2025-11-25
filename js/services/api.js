@@ -92,6 +92,11 @@ export const questionAPI = {
     return fetchAPI(`/questions/random${params}`);
   },
   
+  /** 모임 전용 랜덤 질문 가져오기 */
+  getRandomForGroup: (groupId) => {
+    return fetchAPI(`/questions/random?groupId=${groupId}`);
+  },
+  
   /** 내가 만든 질문 목록 */
   getMy: (page = 1, limit = 10) => 
     fetchAPI(`/questions/my?page=${page}&limit=${limit}`),

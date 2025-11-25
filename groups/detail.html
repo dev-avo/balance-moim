@@ -46,9 +46,14 @@
               </div>
             </div>
             
-            <button class="btn btn-secondary btn-sm mt-lg" id="copyInviteBtn">
-              📋 초대 링크 복사
-            </button>
+            <div class="flex gap-sm mt-lg flex-wrap">
+              <a href="#" class="btn btn-primary btn-sm hidden" id="playGroupBtn">
+                🎯 모임 전용 질문 플레이
+              </a>
+              <button class="btn btn-secondary btn-sm" id="copyInviteBtn">
+                📋 초대 링크 복사
+              </button>
+            </div>
           </section>
 
           <!-- 취향 유사도 -->
@@ -313,6 +318,13 @@
         const settingsBtn = document.getElementById('settingsBtn');
         settingsBtn.classList.remove('hidden');
         settingsBtn.href = `/groups/settings.html?id=${groupId}`;
+      }
+      
+      // 모임 전용 질문이 있으면 플레이 버튼 표시
+      if (group.questionCount > 0) {
+        const playBtn = document.getElementById('playGroupBtn');
+        playBtn.classList.remove('hidden');
+        playBtn.href = `/groups/play.html?id=${groupId}`;
       }
     }
 
