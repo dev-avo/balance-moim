@@ -1,9 +1,9 @@
 // 헤더 컴포넌트
-import { checkSession, logout, redirectToGoogleLogin, getCurrentUser } from '../utils/auth.js';
+import { checkSession, logout, redirectToGoogleLogin, getCurrentUser, getGoogleClientId } from '../utils/auth.js';
 import { getTheme, toggleTheme, getThemeIcon, getThemeLabel } from '../utils/theme.js';
 
-// Google Client ID (환경에 따라 설정 필요)
-const GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || '';
+// Google Client ID (캐시)
+let googleClientId = '';
 
 /**
  * 헤더 초기화
@@ -12,8 +12,13 @@ export async function initHeader() {
   const header = document.getElementById('header');
   if (!header) return;
   
-  // 세션 확인
-  const user = await checkSession();
+  // 인증 설정 및 세션 확인 (병렬 처리)
+  const [clientId, user] = await Promise.all([
+    getGoogleClientId(),
+    checkSession()
+  ]);
+  
+  googleClientId = clientId;
   
   // 헤더 렌더링
   renderHeader(header, user);
@@ -126,8 +131,8 @@ function bindHeaderEvents(container) {
   const loginBtn = container.querySelector('#loginBtn');
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
-      if (GOOGLE_CLIENT_ID) {
-        redirectToGoogleLogin(GOOGLE_CLIENT_ID);
+      if (googleClientId) {
+        redirectToGoogleLogin(googleClientId);
       } else {
         console.error('Google Client ID가 설정되지 않았습니다.');
         alert('로그인 설정이 완료되지 않았습니다.');

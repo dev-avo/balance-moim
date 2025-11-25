@@ -65,7 +65,7 @@
   <!-- 스크립트 -->
   <script type="module">
     import { initHeader } from '/js/components/Header.js';
-    import { checkSession, redirectToGoogleLogin } from '/js/utils/auth.js';
+    import { checkSession, redirectToGoogleLogin, getGoogleClientId } from '/js/utils/auth.js';
     import { groupAPI } from '/js/services/api.js';
     import { toastSuccess, toastError } from '/js/components/Toast.js';
     import { setButtonLoading } from '/js/components/Loading.js';
@@ -104,10 +104,15 @@
         if (!user) {
           // 로그인 필요
           document.getElementById('loginRequired').classList.remove('hidden');
-          document.getElementById('loginBtn').addEventListener('click', () => {
+          document.getElementById('loginBtn').addEventListener('click', async () => {
             // 로그인 후 돌아올 URL 저장
             sessionStorage.setItem('invite_redirect', window.location.href);
-            redirectToGoogleLogin(window.GOOGLE_CLIENT_ID || '');
+            const clientId = await getGoogleClientId();
+            if (clientId) {
+              redirectToGoogleLogin(clientId);
+            } else {
+              alert('로그인 설정이 완료되지 않았습니다.');
+            }
           });
           return;
         }

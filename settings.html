@@ -213,7 +213,7 @@
   <!-- 스크립트 -->
   <script type="module">
     import { initHeader } from '/js/components/Header.js';
-    import { checkSession, redirectToGoogleLogin } from '/js/utils/auth.js';
+    import { checkSession, redirectToGoogleLogin, getGoogleClientId } from '/js/utils/auth.js';
     import { userAPI } from '/js/services/api.js';
     import { toastSuccess, toastError } from '/js/components/Toast.js';
     import { setButtonLoading } from '/js/components/Loading.js';
@@ -237,8 +237,13 @@
       
       if (!user) {
         notLoggedIn.classList.remove('hidden');
-        document.getElementById('loginBtn').addEventListener('click', () => {
-          redirectToGoogleLogin(window.GOOGLE_CLIENT_ID || '');
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+          const clientId = await getGoogleClientId();
+          if (clientId) {
+            redirectToGoogleLogin(clientId);
+          } else {
+            alert('로그인 설정이 완료되지 않았습니다.');
+          }
         });
         return;
       }

@@ -7,6 +7,34 @@ const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 // 현재 사용자 상태 (캐시)
 let currentUser = null;
 
+// Google Client ID (캐시)
+let cachedGoogleClientId = null;
+
+/**
+ * Google Client ID 가져오기 (API에서 로드)
+ * @returns {Promise<string>} Google Client ID
+ */
+export async function getGoogleClientId() {
+  if (cachedGoogleClientId) {
+    return cachedGoogleClientId;
+  }
+  
+  try {
+    const response = await fetch('/api/auth/config');
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.data?.googleClientId) {
+        cachedGoogleClientId = data.data.googleClientId;
+        return cachedGoogleClientId;
+      }
+    }
+  } catch (error) {
+    console.error('인증 설정 로드 실패:', error);
+  }
+  
+  return '';
+}
+
 /**
  * Google 로그인 페이지로 리다이렉트
  * @param {string} clientId - Google OAuth 클라이언트 ID
