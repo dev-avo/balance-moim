@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모임 설정 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content">
+        <!-- 로딩 상태 -->
+        <div id="loadingState" class="text-center p-xl">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <!-- 설정 내용 -->
+        <div class="hidden" id="settingsContent">
+          <div class="flex items-center gap-md mb-xl">
+            <a href="#" class="btn btn-ghost btn-sm" id="backBtn">← 돌아가기</a>
+            <h1 class="text-3xl font-bold">모임 설정</h1>
+          </div>
+
+          <!-- 기본 정보 수정 -->
+          <section class="card mb-lg">
+            <h2 class="text-lg font-semibold mb-md">📝 기본 정보</h2>
+            <form id="updateGroupForm">
+              <div class="form-group">
+                <label class="form-label">모임 이름 *</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  id="groupName"
+                  placeholder="모임 이름"
+                  maxlength="30"
+                  required
+                >
+                <p class="text-sm text-secondary mt-xs">최대 30자</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">모임 설명</label>
+                <textarea 
+                  class="form-textarea" 
+                  id="groupDescription"
+                  placeholder="모임에 대한 간단한 설명"
+                  maxlength="200"
+                  rows="3"
+                ></textarea>
+                <p class="text-sm text-secondary mt-xs">최대 200자</p>
+              </div>
+
+              <button type="submit" class="btn btn-primary" id="updateBtn">
+                저장하기
+              </button>
+            </form>
+          </section>
+
+          <!-- 멤버 관리 -->
+          <section class="card mb-lg">
+            <h2 class="text-lg font-semibold mb-md">👥 멤버 관리</h2>
+            <p class="text-secondary text-sm mb-md">
+              모임 멤버: <span id="memberCount">0</span>명
+            </p>
+            <div id="membersList" class="members-list">
+              <p class="text-secondary text-sm">로딩 중...</p>
+            </div>
+          </section>
+
+          <!-- 초대 링크 -->
+          <section class="card mb-lg">
+            <h2 class="text-lg font-semibold mb-md">🔗 초대 링크</h2>
+            <p class="text-secondary text-sm mb-md">
+              새로운 멤버를 초대하려면 아래 버튼을 클릭하세요.
+            </p>
+            <button class="btn btn-secondary" id="copyInviteBtn">
+              📋 초대 링크 복사
+            </button>
+          </section>
+
+          <!-- 위험 구역 -->
+          <section class="card danger-zone">
+            <h2 class="text-lg font-semibold mb-md text-danger">⚠️ 위험 구역</h2>
+            <p class="text-secondary text-sm mb-md">
+              모임을 삭제하면 복구할 수 없습니다. 모임 내 질문은 유지되지만 모임 전용 설정이 해제됩니다.
+            </p>
+            <button class="btn btn-danger" id="deleteGroupBtn">
+              모임 삭제하기
+            </button>
+          </section>
+        </div>
+
+        <!-- 에러 상태 -->
+        <div class="card text-center hidden" id="errorState">
+          <div class="empty-state-icon">😢</div>
+          <h3 class="empty-state-title">모임을 찾을 수 없거나 권한이 없습니다</h3>
+          <a href="/groups.html" class="btn btn-primary mt-lg">
+            모임 목록으로
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 추가 스타일 -->
+  <style>
+    .members-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .member-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      background-color: var(--color-bg);
+      border-radius: var(--radius-md);
+    }
+
+    .member-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .member-name {
+      font-weight: 500;
+    }
+
+    .member-badge {
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      background-color: rgba(0, 113, 227, 0.1);
+      color: var(--color-accent);
+    }
+
+    .danger-zone {
+      border: 1px solid var(--color-danger);
+    }
+
+    .btn-danger {
+      background-color: var(--color-danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { requireAuth, getCurrentUser } from '/js/utils/auth.js';
+    import { groupAPI } from '/js/services/api.js';
+    import { toastSuccess, toastError } from '/js/components/Toast.js';
+    import { confirmModal } from '/js/components/Modal.js';
+    import { setButtonLoading } from '/js/components/Loading.js';
+
+    let groupId = null;
+    let groupData = null;
+
+    async function init() {
+      await initHeader();
+      
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+      
+      // URL에서 그룹 ID 가져오기
+      const params = new URLSearchParams(window.location.search);
+      groupId = params.get('id');
+      
+      if (!groupId) {
+        showError();
+        return;
+      }
+      
+      await loadGroupSettings();
+      bindEvents();
+    }
+
+    async function loadGroupSettings() {
+      const loadingState = document.getElementById('loadingState');
+      const settingsContent = document.getElementById('settingsContent');
+      
+      try {
+        const response = await groupAPI.getDetail(groupId);
+        groupData = response.data?.group;
+        
+        if (!groupData) {
+          showError();
+          return;
+        }
+        
+        // 관리자 확인
+        const user = getCurrentUser();
+        if (!user || groupData.creator_id !== user.id) {
+          showError();
+          return;
+        }
+        
+        renderSettings(groupData);
+        loadingState.classList.add('hidden');
+        settingsContent.classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('모임 로드 실패:', error);
+        showError();
+      }
+    }
+
+    function renderSettings(group) {
+      document.getElementById('groupName').value = group.name || '';
+      document.getElementById('groupDescription').value = group.description || '';
+      document.getElementById('memberCount').textContent = group.memberCount || 0;
+      document.getElementById('backBtn').href = `/groups/detail.html?id=${groupId}`;
+      
+      // 멤버 목록 렌더링
+      const membersList = document.getElementById('membersList');
+      const members = group.members || [];
+      const user = getCurrentUser();
+      
+      if (members.length === 0) {
+        membersList.innerHTML = '<p class="text-secondary text-sm">멤버가 없습니다.</p>';
+        return;
+      }
+      
+      membersList.innerHTML = members.map(member => `
+        <div class="member-item">
+          <div class="member-info">
+            <span class="member-name">${escapeHtml(member.display_name)}</span>
+            ${member.user_id === group.creator_id ? '<span class="member-badge">관리자</span>' : ''}
+          </div>
+          ${member.user_id !== user.id && member.user_id !== group.creator_id ? `
+            <button class="btn btn-ghost btn-sm text-danger" onclick="removeMember('${member.user_id}', '${escapeHtml(member.display_name)}')">
+              추방
+            </button>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    function bindEvents() {
+      // 모임 수정
+      document.getElementById('updateGroupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('groupName').value.trim();
+        const description = document.getElementById('groupDescription').value.trim();
+        
+        if (!name) {
+          toastError('모임 이름을 입력해주세요.');
+          return;
+        }
+        
+        const btn = document.getElementById('updateBtn');
+        setButtonLoading(btn, true);
+        
+        try {
+          await groupAPI.update(groupId, { name, description });
+          toastSuccess('모임이 수정되었습니다.');
+        } catch (error) {
+          console.error('모임 수정 실패:', error);
+          toastError(error.message || '모임 수정에 실패했습니다.');
+        } finally {
+          setButtonLoading(btn, false);
+        }
+      });
+      
+      // 초대 링크 복사
+      document.getElementById('copyInviteBtn').addEventListener('click', async () => {
+        try {
+          const response = await groupAPI.createInvite(groupId);
+          const inviteCode = response.data?.inviteCode;
+          const inviteUrl = `${window.location.origin}/invite.html?code=${inviteCode}`;
+          
+          await navigator.clipboard.writeText(inviteUrl);
+          toastSuccess('초대 링크가 복사되었습니다!');
+        } catch (error) {
+          console.error('초대 링크 생성 실패:', error);
+          toastError('초대 링크 생성에 실패했습니다.');
+        }
+      });
+      
+      // 모임 삭제
+      document.getElementById('deleteGroupBtn').addEventListener('click', async () => {
+        const confirmed = await confirmModal(
+          '모임 삭제',
+          `정말 "${groupData?.name}" 모임을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`
+        );
+        
+        if (!confirmed) return;
+        
+        try {
+          await groupAPI.delete(groupId);
+          toastSuccess('모임이 삭제되었습니다.');
+          setTimeout(() => {
+            window.location.href = '/groups.html';
+          }, 1000);
+        } catch (error) {
+          console.error('모임 삭제 실패:', error);
+          toastError(error.message || '모임 삭제에 실패했습니다.');
+        }
+      });
+    }
+
+    // 멤버 추방
+    window.removeMember = async function(userId, userName) {
+      const confirmed = await confirmModal(
+        '멤버 추방',
+        `정말 "${userName}"님을 모임에서 추방하시겠습니까?`
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        await groupAPI.removeMember(groupId, userId);
+        toastSuccess('멤버가 추방되었습니다.');
+        await loadGroupSettings();
+      } catch (error) {
+        console.error('멤버 추방 실패:', error);
+        toastError(error.message || '멤버 추방에 실패했습니다.');
+      }
+    };
+
+    function showError() {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('errorState').classList.remove('hidden');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>
+

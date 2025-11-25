@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>질문 편집 - 밸런스 모임</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- 헤더 -->
+  <header class="header" id="header"></header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page">
+    <div class="container">
+      <div class="page-content">
+        <!-- 로딩 상태 -->
+        <div id="loadingState" class="text-center p-xl">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <!-- 편집 폼 -->
+        <div class="hidden" id="editContent">
+          <div class="flex items-center gap-md mb-xl">
+            <a href="/questions/my.html" class="btn btn-ghost btn-sm">← 돌아가기</a>
+            <h1 class="text-3xl font-bold">질문 편집</h1>
+          </div>
+
+          <div class="card">
+            <form id="editQuestionForm">
+              <!-- 질문 제목 -->
+              <div class="form-group">
+                <label class="form-label">질문 제목 *</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  id="questionTitle"
+                  placeholder="예: 더 맛있는 진라면은?"
+                  maxlength="100"
+                  required
+                >
+                <p class="text-sm text-secondary mt-xs">최대 100자</p>
+              </div>
+
+              <!-- 선택지 A -->
+              <div class="form-group">
+                <label class="form-label">선택지 A *</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  id="optionA"
+                  placeholder="예: 매운맛"
+                  maxlength="50"
+                  required
+                >
+              </div>
+
+              <!-- 선택지 B -->
+              <div class="form-group">
+                <label class="form-label">선택지 B *</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  id="optionB"
+                  placeholder="예: 순한맛"
+                  maxlength="50"
+                  required
+                >
+              </div>
+
+              <!-- 태그 (읽기 전용) -->
+              <div class="form-group">
+                <label class="form-label">태그</label>
+                <div class="tag-list" id="tagList"></div>
+                <p class="text-sm text-secondary mt-xs">태그는 수정할 수 없습니다.</p>
+              </div>
+
+              <!-- 공개 설정 -->
+              <div class="form-group">
+                <label class="form-label">공개 설정</label>
+                
+                <label class="flex items-center gap-sm mb-sm">
+                  <input type="radio" name="visibility" value="public">
+                  <span>전체 공개</span>
+                  <span class="text-secondary text-sm">- 모든 사용자가 볼 수 있음</span>
+                </label>
+                
+                <label class="flex items-center gap-sm mb-sm">
+                  <input type="radio" name="visibility" value="group" disabled>
+                  <span>모임 전용</span>
+                  <span class="text-secondary text-sm">- 공개 설정에서 변경 불가</span>
+                </label>
+                
+                <label class="flex items-center gap-sm">
+                  <input type="radio" name="visibility" value="private">
+                  <span>비공개</span>
+                  <span class="text-secondary text-sm">- 나만 볼 수 있음</span>
+                </label>
+              </div>
+
+              <!-- 통계 정보 -->
+              <div class="form-group">
+                <label class="form-label">응답 통계</label>
+                <div class="stats-info" id="statsInfo">
+                  <p class="text-secondary text-sm">로딩 중...</p>
+                </div>
+              </div>
+
+              <div class="flex gap-md mt-xl">
+                <button type="button" class="btn btn-secondary" onclick="history.back()">
+                  취소
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                  저장하기
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- 에러 상태 -->
+        <div class="card text-center hidden" id="errorState">
+          <div class="empty-state-icon">😢</div>
+          <h3 class="empty-state-title">질문을 찾을 수 없거나 권한이 없습니다</h3>
+          <a href="/questions/my.html" class="btn btn-primary mt-lg">
+            내 질문 목록으로
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 추가 스타일 -->
+  <style>
+    .stats-info {
+      padding: var(--spacing-md);
+      background-color: var(--color-bg);
+      border-radius: var(--radius-md);
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-sm) 0;
+    }
+
+    .stats-row + .stats-row {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .selected-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background-color: var(--color-accent);
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      margin-right: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs);
+    }
+  </style>
+
+  <!-- 스크립트 -->
+  <script type="module">
+    import { initHeader } from '/js/components/Header.js';
+    import { requireAuth, getCurrentUser } from '/js/utils/auth.js';
+    import { questionAPI } from '/js/services/api.js';
+    import { toastSuccess, toastError } from '/js/components/Toast.js';
+    import { setButtonLoading } from '/js/components/Loading.js';
+
+    let questionId = null;
+    let questionData = null;
+
+    async function init() {
+      await initHeader();
+      
+      const isAuth = await requireAuth();
+      if (!isAuth) return;
+      
+      // URL에서 질문 ID 가져오기
+      const params = new URLSearchParams(window.location.search);
+      questionId = params.get('id');
+      
+      if (!questionId) {
+        showError();
+        return;
+      }
+      
+      await loadQuestion();
+      bindEvents();
+    }
+
+    async function loadQuestion() {
+      const loadingState = document.getElementById('loadingState');
+      const editContent = document.getElementById('editContent');
+      
+      try {
+        const response = await questionAPI.getDetail(questionId);
+        questionData = response.data?.question;
+        
+        if (!questionData) {
+          showError();
+          return;
+        }
+        
+        // 소유자 확인
+        const user = getCurrentUser();
+        if (!user || questionData.creator_id !== user.id) {
+          showError();
+          return;
+        }
+        
+        renderQuestion(questionData);
+        loadingState.classList.add('hidden');
+        editContent.classList.remove('hidden');
+        
+        // 통계 로드
+        loadStats();
+        
+      } catch (error) {
+        console.error('질문 로드 실패:', error);
+        showError();
+      }
+    }
+
+    function renderQuestion(question) {
+      document.getElementById('questionTitle').value = question.title || '';
+      document.getElementById('optionA').value = question.option_a || '';
+      document.getElementById('optionB').value = question.option_b || '';
+      
+      // 공개 설정
+      const visibilityRadio = document.querySelector(`input[name="visibility"][value="${question.visibility}"]`);
+      if (visibilityRadio) {
+        visibilityRadio.checked = true;
+      }
+      
+      // 태그
+      const tagList = document.getElementById('tagList');
+      const tags = question.tags || [];
+      tagList.innerHTML = tags.map(tag => `
+        <span class="selected-tag">#${escapeHtml(tag)}</span>
+      `).join('') || '<span class="text-secondary text-sm">태그 없음</span>';
+    }
+
+    async function loadStats() {
+      const container = document.getElementById('statsInfo');
+      
+      try {
+        const response = await questionAPI.getStats(questionId);
+        const stats = response.data;
+        
+        if (!stats || stats.totalCount === 0) {
+          container.innerHTML = '<p class="text-secondary text-sm">아직 응답이 없습니다.</p>';
+          return;
+        }
+        
+        container.innerHTML = `
+          <div class="stats-row">
+            <span>총 응답</span>
+            <span class="font-semibold">${stats.totalCount}명</span>
+          </div>
+          <div class="stats-row">
+            <span>${escapeHtml(questionData.option_a)}</span>
+            <span class="font-semibold">${stats.optionAPercent}% (${stats.optionACount}명)</span>
+          </div>
+          <div class="stats-row">
+            <span>${escapeHtml(questionData.option_b)}</span>
+            <span class="font-semibold">${stats.optionBPercent}% (${stats.optionBCount}명)</span>
+          </div>
+        `;
+        
+      } catch (error) {
+        console.error('통계 로드 실패:', error);
+        container.innerHTML = '<p class="text-secondary text-sm">통계를 불러오는데 실패했습니다.</p>';
+      }
+    }
+
+    function bindEvents() {
+      document.getElementById('editQuestionForm').addEventListener('submit', handleSubmit);
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('questionTitle').value.trim();
+      const optionA = document.getElementById('optionA').value.trim();
+      const optionB = document.getElementById('optionB').value.trim();
+      const visibility = document.querySelector('input[name="visibility"]:checked')?.value;
+      
+      // 검증
+      if (!title || !optionA || !optionB) {
+        toastError('모든 필수 항목을 입력해주세요.');
+        return;
+      }
+      
+      // 모임 전용은 변경 불가
+      if (visibility === 'group') {
+        toastError('모임 전용 설정은 변경할 수 없습니다.');
+        return;
+      }
+      
+      const btn = document.getElementById('submitBtn');
+      setButtonLoading(btn, true);
+      
+      try {
+        await questionAPI.update(questionId, {
+          title,
+          optionA,
+          optionB,
+          visibility,
+        });
+        
+        toastSuccess('질문이 수정되었습니다!');
+        
+        setTimeout(() => {
+          window.location.href = '/questions/my.html';
+        }, 1000);
+        
+      } catch (error) {
+        console.error('질문 수정 실패:', error);
+        toastError(error.message || '질문 수정에 실패했습니다.');
+        setButtonLoading(btn, false);
+      }
+    }
+
+    function showError() {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('errorState').classList.remove('hidden');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>
+

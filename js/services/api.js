@@ -97,7 +97,7 @@ export const questionAPI = {
     fetchAPI(`/questions/my?page=${page}&limit=${limit}`),
   
   /** 질문 상세 */
-  getDetail: (id) => fetchAPI(`/questions/detail?id=${id}`),
+  getDetail: (id) => fetchAPI(`/questions/${id}`),
   
   /** 질문 생성 */
   create: (data) => fetchAPI('/questions', {
@@ -106,13 +106,13 @@ export const questionAPI = {
   }),
   
   /** 질문 수정 */
-  update: (id, data) => fetchAPI(`/questions/detail?id=${id}`, {
+  update: (id, data) => fetchAPI(`/questions/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
   
   /** 질문 삭제 */
-  delete: (id) => fetchAPI(`/questions/detail?id=${id}`, {
+  delete: (id) => fetchAPI(`/questions/${id}`, {
     method: 'DELETE',
   }),
   
