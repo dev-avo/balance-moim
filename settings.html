@@ -275,7 +275,7 @@
 
     function renderSettings(user) {
       document.getElementById('userEmail').textContent = user.email;
-      document.getElementById('googleNamePreview').textContent = `(${user.displayName})`;
+      document.getElementById('googleNamePreview').textContent = `(${user.googleName})`;
       
       const useGoogleName = document.getElementById('useGoogleName');
       const useCustomName = document.getElementById('useCustomName');

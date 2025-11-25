@@ -9,6 +9,8 @@ interface SessionResponse {
     id: string;
     email: string;
     displayName: string;
+    googleName: string;
+    customNickname: string | null;
     useNickname: boolean;
   } | null;
 }
@@ -44,10 +46,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       });
     }
     
-    // 표시 이름 결정
+    // Google 계정명 (원본)
+    const googleName = user.display_name || user.email.split('@')[0];
+    
+    // 표시 이름 결정 (익명 별명 사용 시 별명, 아니면 구글 계정명)
     const displayName = user.use_nickname && user.custom_nickname
       ? user.custom_nickname
-      : user.display_name || user.email.split('@')[0];
+      : googleName;
     
     return jsonResponse<SessionResponse>({
       success: true,
@@ -56,6 +61,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
           id: user.id,
           email: user.email,
           displayName,
+          googleName,
+          customNickname: user.custom_nickname || null,
           useNickname: user.use_nickname === 1,
         },
       },
