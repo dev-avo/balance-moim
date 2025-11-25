@@ -306,6 +306,13 @@
         customNickname.focus();
       });
       
+      // 별명 입력 길이 제한 (한글 IME 및 붙여넣기 대응)
+      customNickname.addEventListener('input', (e) => {
+        if (e.target.value.length > 12) {
+          e.target.value = e.target.value.slice(0, 12);
+        }
+      });
+      
       // 저장 버튼
       document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
       
