@@ -165,7 +165,7 @@
     import { toastSuccess, toastError } from '/js/components/Toast.js';
     import { confirmModal } from '/js/components/Modal.js';
     import { setButtonLoading } from '/js/components/Loading.js';
-    import { copyToClipboard } from '/js/utils/clipboard.js';
+    import { copyWithFallbackPrompt } from '/js/utils/clipboard.js';
 
     let groupId = null;
     let groupData = null;
@@ -284,14 +284,11 @@
           const inviteCode = response.data?.inviteCode;
           const inviteUrl = `${window.location.origin}/invite.html?code=${inviteCode}`;
           
-          // 클립보드 복사 시도
-          const copySuccess = await copyToClipboard(inviteUrl);
+          // 클립보드 복사 시도 (실패 시 prompt 자동 표시)
+          const copySuccess = await copyWithFallbackPrompt(inviteUrl, '아래 링크를 복사하세요:');
           
           if (copySuccess) {
             toastSuccess('초대 링크가 복사되었습니다!');
-          } else {
-            // 복사 실패 시 링크 표시
-            prompt('아래 링크를 복사하세요:', inviteUrl);
           }
         } catch (error) {
           console.error('초대 링크 생성 실패:', error);

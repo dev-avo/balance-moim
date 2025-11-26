@@ -42,7 +42,7 @@ function renderHeader(container, user) {
       
       <nav class="header-nav" id="headerNav">
         <a href="/home.html" class="header-nav-link ${currentPath === '/home.html' ? 'active' : ''}">
-          플레이
+          시작
         </a>
         ${user ? `
           <a href="/groups.html" class="header-nav-link ${currentPath === '/groups.html' ? 'active' : ''}">

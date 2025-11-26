@@ -63,7 +63,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // 새 초대 코드 생성 (UUID의 앞 8자리 사용)
     const inviteId = crypto.randomUUID().substring(0, 8);
-    const expiresAt = nowTs + 7 * 24 * 60 * 60; // 7일 후
+    const expiresAt = nowTs + 30 * 24 * 60 * 60; // 30일 후
     
     await env.DB.prepare(`
       INSERT INTO invite_link (id, group_id, created_by, expires_at, created_at)

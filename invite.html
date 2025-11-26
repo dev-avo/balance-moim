@@ -163,7 +163,7 @@
         toastSuccess('모임에 참여했습니다!');
         
         setTimeout(() => {
-          window.location.href = `/groups/detail.html?id=${inviteInfo.groupId}`;
+          window.location.href = `/groups/detail.html?id=${inviteInfo.groupId}&from=invite`;
         }, 1000);
         
       } catch (error) {
@@ -172,7 +172,7 @@
         if (error.message?.includes('이미 참여')) {
           toastSuccess('이미 참여한 모임입니다.');
           setTimeout(() => {
-            window.location.href = `/groups/detail.html?id=${inviteInfo.groupId}`;
+            window.location.href = `/groups/detail.html?id=${inviteInfo.groupId}&from=invite`;
           }, 1000);
         } else {
           toastError(error.message || '모임 참여에 실패했습니다.');

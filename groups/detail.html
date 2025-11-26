@@ -30,6 +30,9 @@
             <a href="#" class="btn btn-secondary btn-sm hidden" id="settingsBtn">
               ⚙️ 설정
             </a>
+            <a href="/home.html" class="btn btn-primary btn-sm hidden" id="startBtn">
+              🚀 바로 시작
+            </a>
           </div>
 
           <!-- 모임 통계 -->
@@ -48,7 +51,7 @@
             
             <div class="flex gap-sm mt-lg flex-wrap">
               <a href="#" class="btn btn-primary btn-sm hidden" id="playGroupBtn">
-                🎯 모임 전용 질문 플레이
+                🎯 모임 전용 질문 시작
               </a>
               <button class="btn btn-secondary btn-sm" id="copyInviteBtn">
                 📋 초대 링크 복사
@@ -265,7 +268,7 @@
     import { groupAPI } from '/js/services/api.js';
     import { toastSuccess, toastError } from '/js/components/Toast.js';
     import { confirmModal } from '/js/components/Modal.js';
-    import { copyToClipboard } from '/js/utils/clipboard.js';
+    import { copyWithFallbackPrompt } from '/js/utils/clipboard.js';
 
     let groupId = null;
     let groupData = null;
@@ -330,12 +333,19 @@
       document.getElementById('memberCount').textContent = group.memberCount || 0;
       document.getElementById('questionCount').textContent = group.questionCount || 0;
       
-      // 관리자인 경우 설정 버튼 표시
       const user = getCurrentUser();
+      const params = new URLSearchParams(window.location.search);
+      const fromInvite = params.get('from') === 'invite';
+      
+      // 관리자인 경우 설정 버튼 표시
       if (user && group.creator_id === user.id) {
         const settingsBtn = document.getElementById('settingsBtn');
         settingsBtn.classList.remove('hidden');
         settingsBtn.href = `/groups/settings.html?id=${groupId}`;
+      } else if (fromInvite) {
+        // 초대로 들어온 사용자에게 바로 시작 버튼 표시
+        const startBtn = document.getElementById('startBtn');
+        startBtn.classList.remove('hidden');
       }
       
       // 모임 전용 질문이 있으면 플레이 버튼 표시
@@ -542,14 +552,11 @@
           const inviteCode = response.data?.inviteCode;
           const inviteUrl = `${window.location.origin}/invite.html?code=${inviteCode}`;
           
-          // 클립보드 복사 시도
-          const copySuccess = await copyToClipboard(inviteUrl);
+          // 클립보드 복사 시도 (실패 시 prompt 자동 표시)
+          const copySuccess = await copyWithFallbackPrompt(inviteUrl, '아래 링크를 복사하세요:');
           
           if (copySuccess) {
             toastSuccess('초대 링크가 복사되었습니다!');
-          } else {
-            // 복사 실패 시 링크 표시
-            prompt('아래 링크를 복사하세요:', inviteUrl);
           }
         } catch (error) {
           console.error('초대 링크 생성 실패:', error);
