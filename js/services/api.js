@@ -198,6 +198,10 @@ export const groupAPI = {
     return fetchAPI(`/groups/responses?id=${id}${params}`);
   },
   
+  /** 질문별 멤버 목록 조회 */
+  getQuestionMembers: (groupId, questionId) => 
+    fetchAPI(`/groups/responses?id=${groupId}&questionId=${questionId}`),
+  
   /** 취향 유사도 */
   getSimilarity: (id) => fetchAPI(`/groups/similarity?id=${id}`),
   

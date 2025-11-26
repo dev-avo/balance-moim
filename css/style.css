@@ -517,6 +517,25 @@ h6 { font-size: var(--font-size-base); }
   display: flex;
 }
 
+/* 모바일 메뉴 오버레이 */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  top: var(--header-height);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-base);
+}
+
+.menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
@@ -549,6 +568,8 @@ h6 { font-size: var(--font-size-base); }
     background-color: var(--color-bg-secondary);
     padding: var(--spacing-md);
     border-bottom: 1px solid var(--color-border);
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
   }
 }
 

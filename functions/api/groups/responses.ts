@@ -1,5 +1,6 @@
 // 모임 응답 목록 API
 // GET /api/groups/responses?id=xxx&tag=음식
+// GET /api/groups/responses?id=xxx&questionId=yyy (특정 질문의 멤버 목록)
 
 import { getSession } from '../../../lib/auth/session';
 
@@ -23,6 +24,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const url = new URL(request.url);
     const groupId = url.searchParams.get('id');
     const tagFilter = url.searchParams.get('tag');
+    const questionId = url.searchParams.get('questionId');
     
     if (!groupId) {
       return Response.json(
@@ -42,6 +44,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         { success: false, error: '해당 모임에 속해있지 않습니다.' },
         { status: 403 }
       );
+    }
+    
+    // 특정 질문의 멤버 목록 조회
+    if (questionId) {
+      return await getQuestionMembers(env, groupId, questionId);
     }
     
     // 모임 멤버들이 응답한 질문들 조회
@@ -121,3 +128,57 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     );
   }
 };
+
+// 특정 질문의 선택지별 멤버 목록 조회
+async function getQuestionMembers(env: Env, groupId: string, questionId: string) {
+  // 질문 정보 조회
+  const question = await env.DB.prepare(`
+    SELECT id, title, option_a, option_b FROM question WHERE id = ? AND deleted_at IS NULL
+  `).bind(questionId).first();
+  
+  if (!question) {
+    return Response.json(
+      { success: false, error: '질문을 찾을 수 없습니다.' },
+      { status: 404 }
+    );
+  }
+  
+  // 각 선택지별 멤버 조회
+  const members = await env.DB.prepare(`
+    SELECT u.id, u.display_name, r.selected_option
+    FROM response r
+    INNER JOIN user u ON r.user_id = u.id
+    INNER JOIN group_member gm ON r.user_id = gm.user_id
+    WHERE r.question_id = ?
+      AND gm.group_id = ?
+      AND gm.left_at IS NULL
+    ORDER BY r.created_at DESC
+  `).bind(questionId, groupId).all();
+  
+  const optionAMembers: { id: string; displayName: string }[] = [];
+  const optionBMembers: { id: string; displayName: string }[] = [];
+  
+  for (const member of members.results || []) {
+    const m = member as any;
+    const memberData = { id: m.id, displayName: m.display_name };
+    if (m.selected_option === 'A') {
+      optionAMembers.push(memberData);
+    } else if (m.selected_option === 'B') {
+      optionBMembers.push(memberData);
+    }
+  }
+  
+  return Response.json({
+    success: true,
+    data: {
+      question: {
+        id: (question as any).id,
+        title: (question as any).title,
+        optionA: (question as any).option_a,
+        optionB: (question as any).option_b,
+      },
+      optionAMembers,
+      optionBMembers,
+    },
+  });
+}

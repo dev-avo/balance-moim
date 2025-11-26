@@ -121,6 +121,26 @@
     </div>
   </div>
 
+  <!-- 응답 상세 모달 (선택지별 멤버 목록) -->
+  <div class="modal-overlay" id="responseMembersModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">👥 응답 상세</h3>
+        <button class="modal-close" id="closeResponseMembersModal">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="4" x2="16" y2="16"></line>
+            <line x1="16" y1="4" x2="4" y2="16"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="responseMembersModalBody">
+        <div class="text-center p-lg">
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 추가 스타일 -->
   <style>
     .similarity-list {
@@ -175,6 +195,13 @@
       background-color: var(--color-bg);
       border-radius: var(--radius-md);
       margin-bottom: var(--spacing-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .response-item:hover {
+      background-color: var(--color-bg-secondary);
+      transform: translateX(4px);
     }
 
     .response-question {
@@ -258,6 +285,78 @@
       font-size: var(--font-size-xs);
       color: var(--color-text-secondary);
       margin-bottom: 2px;
+    }
+
+    /* 응답 멤버 모달 스타일 */
+    .response-modal-question {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-md);
+      background-color: var(--color-bg);
+      border-radius: var(--radius-md);
+    }
+
+    .response-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+    }
+
+    .response-option-section {
+      background-color: var(--color-bg);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+    }
+
+    .response-option-section.option-a {
+      border-top: 3px solid var(--color-accent);
+    }
+
+    .response-option-section.option-b {
+      border-top: 3px solid var(--color-success);
+    }
+
+    .response-option-header {
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .response-option-count {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .response-member-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .response-member-item {
+      padding: var(--spacing-sm);
+      font-size: var(--font-size-sm);
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .response-member-item:last-child {
+      border-bottom: none;
+    }
+
+    .response-empty-message {
+      color: var(--color-text-tertiary);
+      font-size: var(--font-size-sm);
+      text-align: center;
+      padding: var(--spacing-md);
+    }
+
+    @media (max-width: 480px) {
+      .response-options-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 
@@ -426,7 +525,7 @@
       const displayItems = allResponses.slice(0, responsesDisplayCount);
       
       container.innerHTML = displayItems.map(item => `
-        <div class="response-item">
+        <div class="response-item" onclick="showResponseMembers('${item.id}')">
           <div class="response-question">${escapeHtml(item.title)}</div>
           <div class="stats-bar" style="height: 32px; font-size: 13px;">
             <div class="stats-bar-a" style="width: ${item.optionA.percentage}%">${item.optionA.percentage > 0 ? item.optionA.percentage + '%' : ''}</div>
@@ -446,6 +545,115 @@
         loadMoreBtn.classList.add('hidden');
       }
     }
+
+    // 응답 멤버 모달 상태
+    let responseMembersData = null;
+    let optionADisplayCount = 20;
+    let optionBDisplayCount = 20;
+    
+    // 응답 멤버 모달 표시
+    window.showResponseMembers = async function(questionId) {
+      const modal = document.getElementById('responseMembersModal');
+      const body = document.getElementById('responseMembersModalBody');
+      
+      modal.classList.add('open');
+      body.innerHTML = '<div class="text-center p-lg"><div class="loading-spinner"></div></div>';
+      
+      // 초기화
+      optionADisplayCount = 20;
+      optionBDisplayCount = 20;
+      
+      try {
+        const response = await groupAPI.getQuestionMembers(groupId, questionId);
+        responseMembersData = response.data;
+        
+        if (!responseMembersData) {
+          body.innerHTML = `
+            <div class="text-center p-lg">
+              <p class="text-secondary">데이터를 불러올 수 없습니다.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        renderResponseMembersModal();
+        
+      } catch (error) {
+        console.error('응답 멤버 로드 실패:', error);
+        body.innerHTML = `
+          <div class="text-center p-lg">
+            <p class="text-danger">멤버 목록을 불러오는데 실패했습니다.</p>
+          </div>
+        `;
+      }
+    };
+    
+    // 응답 멤버 모달 렌더링
+    function renderResponseMembersModal() {
+      const body = document.getElementById('responseMembersModalBody');
+      const { question, optionAMembers, optionBMembers } = responseMembersData;
+      
+      const displayA = optionAMembers.slice(0, optionADisplayCount);
+      const displayB = optionBMembers.slice(0, optionBDisplayCount);
+      const hasMoreA = optionADisplayCount < optionAMembers.length;
+      const hasMoreB = optionBDisplayCount < optionBMembers.length;
+      
+      body.innerHTML = `
+        <div class="response-modal-question">${escapeHtml(question.title)}</div>
+        <div class="response-options-grid">
+          <div class="response-option-section option-a">
+            <div class="response-option-header">
+              <span>${escapeHtml(question.optionA)}</span>
+              <span class="response-option-count">${optionAMembers.length}명</span>
+            </div>
+            <div class="response-member-list" id="optionAMemberList">
+              ${displayA.length > 0 
+                ? displayA.map(m => `
+                    <div class="response-member-item">${escapeHtml(m.displayName)}</div>
+                  `).join('')
+                : '<div class="response-empty-message">아직 없어요</div>'
+              }
+            </div>
+            ${hasMoreA ? `
+              <button class="btn btn-ghost btn-sm mt-sm w-full" onclick="loadMoreOptionA()">
+                더보기 (${displayA.length}/${optionAMembers.length})
+              </button>
+            ` : ''}
+          </div>
+          <div class="response-option-section option-b">
+            <div class="response-option-header">
+              <span>${escapeHtml(question.optionB)}</span>
+              <span class="response-option-count">${optionBMembers.length}명</span>
+            </div>
+            <div class="response-member-list" id="optionBMemberList">
+              ${displayB.length > 0 
+                ? displayB.map(m => `
+                    <div class="response-member-item">${escapeHtml(m.displayName)}</div>
+                  `).join('')
+                : '<div class="response-empty-message">아직 없어요</div>'
+              }
+            </div>
+            ${hasMoreB ? `
+              <button class="btn btn-ghost btn-sm mt-sm w-full" onclick="loadMoreOptionB()">
+                더보기 (${displayB.length}/${optionBMembers.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    // 선택지 A 멤버 더보기
+    window.loadMoreOptionA = function() {
+      optionADisplayCount += 20;
+      renderResponseMembersModal();
+    };
+    
+    // 선택지 B 멤버 더보기
+    window.loadMoreOptionB = function() {
+      optionBDisplayCount += 20;
+      renderResponseMembersModal();
+    };
 
     // 비교 모달 상태
     let currentCompareData = null;
@@ -536,6 +744,17 @@
       document.getElementById('compareModal').addEventListener('click', (e) => {
         if (e.target.id === 'compareModal') {
           document.getElementById('compareModal').classList.remove('open');
+        }
+      });
+      
+      // 응답 멤버 모달 닫기
+      document.getElementById('closeResponseMembersModal').addEventListener('click', () => {
+        document.getElementById('responseMembersModal').classList.remove('open');
+      });
+      
+      document.getElementById('responseMembersModal').addEventListener('click', (e) => {
+        if (e.target.id === 'responseMembersModal') {
+          document.getElementById('responseMembersModal').classList.remove('open');
         }
       });
       

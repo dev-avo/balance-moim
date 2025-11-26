@@ -93,11 +93,39 @@ function bindHeaderEvents(container) {
   const menuToggle = container.querySelector('#menuToggle');
   const headerNav = container.querySelector('#headerNav');
   
+  // 메뉴 오버레이 생성
+  let menuOverlay = document.querySelector('.menu-overlay');
+  if (!menuOverlay) {
+    menuOverlay = document.createElement('div');
+    menuOverlay.className = 'menu-overlay';
+    document.body.appendChild(menuOverlay);
+  }
+  
+  // 메뉴 닫기 함수
+  const closeMenu = () => {
+    headerNav.classList.remove('open');
+    menuOverlay.classList.remove('open');
+    menuToggle.setAttribute('aria-label', '메뉴 열기');
+  };
+  
   if (menuToggle && headerNav) {
     menuToggle.addEventListener('click', () => {
-      headerNav.classList.toggle('open');
       const isOpen = headerNav.classList.contains('open');
-      menuToggle.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+      if (isOpen) {
+        closeMenu();
+      } else {
+        headerNav.classList.add('open');
+        menuOverlay.classList.add('open');
+        menuToggle.setAttribute('aria-label', '메뉴 닫기');
+      }
+    });
+    
+    // 오버레이 클릭 시 메뉴 닫기
+    menuOverlay.addEventListener('click', closeMenu);
+    
+    // 메뉴 내 링크 클릭 시 메뉴 닫기
+    headerNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeMenu);
     });
   }
   
