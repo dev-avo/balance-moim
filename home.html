@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>플레이 - 밸런스 모임</title>
+  <title>시작 - 밸런스 모임</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -48,6 +48,9 @@
           <div class="tag-filter-list" id="tagFilterList">
             <div class="loading-spinner" style="width: 20px; height: 20px;"></div>
           </div>
+          <button class="btn btn-ghost btn-sm mt-sm hidden" id="loadMoreTagsBtn">
+            더보기
+          </button>
         </div>
 
         <!-- 질문 카드 -->
@@ -227,6 +230,7 @@
     let hasAnswered = false;
     let selectedTags = [];
     let allTags = [];
+    let tagDisplayCount = 20;
 
     // 페이지 초기화
     async function init() {
@@ -282,6 +286,12 @@
         renderTagFilters();
         loadQuestion();
       });
+      
+      // 태그 더보기 버튼
+      document.getElementById('loadMoreTagsBtn').addEventListener('click', () => {
+        tagDisplayCount += 20;
+        renderTagFilters();
+      });
     }
 
     // 태그 목록 로드
@@ -302,14 +312,18 @@
     function renderTagFilters() {
       const container = document.getElementById('tagFilterList');
       const clearBtn = document.getElementById('clearTagsBtn');
+      const loadMoreBtn = document.getElementById('loadMoreTagsBtn');
       
       if (allTags.length === 0) {
         container.innerHTML = '<span class="text-secondary text-sm">태그가 없습니다.</span>';
+        loadMoreBtn.classList.add('hidden');
         return;
       }
       
-      // 전체 태그 표시
-      container.innerHTML = allTags.map(tag => `
+      // 표시할 태그 (20개씩)
+      const displayTags = allTags.slice(0, tagDisplayCount);
+      
+      container.innerHTML = displayTags.map(tag => `
         <span class="tag-filter-chip ${selectedTags.includes(tag.name) ? 'active' : ''}" 
               data-tag="${tag.name}"
               onclick="toggleTag('${tag.name}')">
@@ -319,6 +333,14 @@
       
       // 전체 보기 버튼 표시/숨김
       clearBtn.style.display = selectedTags.length > 0 ? 'inline-flex' : 'none';
+      
+      // 더보기 버튼 표시/숨김
+      if (tagDisplayCount < allTags.length) {
+        loadMoreBtn.classList.remove('hidden');
+        loadMoreBtn.textContent = `더보기 (${displayTags.length}/${allTags.length})`;
+      } else {
+        loadMoreBtn.classList.add('hidden');
+      }
     }
 
     // 태그 토글
