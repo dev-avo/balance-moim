@@ -302,12 +302,15 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-md);
+      align-items: stretch;
     }
 
     .response-option-section {
       background-color: var(--color-bg);
       border-radius: var(--radius-md);
       padding: var(--spacing-md);
+      display: flex;
+      flex-direction: column;
     }
 
     .response-option-section.option-a {
@@ -319,16 +322,26 @@
     }
 
     .response-option-header {
-      font-weight: 600;
       margin-bottom: var(--spacing-sm);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    }
+
+    .response-option-text {
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+      line-height: 1.4;
+      margin-bottom: var(--spacing-xs);
+      word-break: keep-all;
     }
 
     .response-option-count {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-xs);
       color: var(--color-text-secondary);
+    }
+
+    .response-member-list-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .response-member-list {
@@ -603,41 +616,45 @@
         <div class="response-options-grid">
           <div class="response-option-section option-a">
             <div class="response-option-header">
-              <span>${escapeHtml(question.optionA)}</span>
-              <span class="response-option-count">${optionAMembers.length}명</span>
+              <div class="response-option-text">${escapeHtml(question.optionA)}</div>
+              <div class="response-option-count">${optionAMembers.length}명</div>
             </div>
-            <div class="response-member-list" id="optionAMemberList">
-              ${displayA.length > 0 
-                ? displayA.map(m => `
-                    <div class="response-member-item">${escapeHtml(m.displayName)}</div>
-                  `).join('')
-                : '<div class="response-empty-message">아직 없어요</div>'
-              }
+            <div class="response-member-list-wrapper">
+              <div class="response-member-list" id="optionAMemberList">
+                ${displayA.length > 0 
+                  ? displayA.map(m => `
+                      <div class="response-member-item">${escapeHtml(m.displayName)}</div>
+                    `).join('')
+                  : '<div class="response-empty-message">아직 없어요</div>'
+                }
+              </div>
+              ${hasMoreA ? `
+                <button class="btn btn-ghost btn-sm mt-sm w-full" onclick="loadMoreOptionA()">
+                  더보기 (${displayA.length}/${optionAMembers.length})
+                </button>
+              ` : ''}
             </div>
-            ${hasMoreA ? `
-              <button class="btn btn-ghost btn-sm mt-sm w-full" onclick="loadMoreOptionA()">
-                더보기 (${displayA.length}/${optionAMembers.length})
-              </button>
-            ` : ''}
           </div>
           <div class="response-option-section option-b">
             <div class="response-option-header">
-              <span>${escapeHtml(question.optionB)}</span>
-              <span class="response-option-count">${optionBMembers.length}명</span>
+              <div class="response-option-text">${escapeHtml(question.optionB)}</div>
+              <div class="response-option-count">${optionBMembers.length}명</div>
             </div>
-            <div class="response-member-list" id="optionBMemberList">
-              ${displayB.length > 0 
-                ? displayB.map(m => `
-                    <div class="response-member-item">${escapeHtml(m.displayName)}</div>
-                  `).join('')
-                : '<div class="response-empty-message">아직 없어요</div>'
-              }
+            <div class="response-member-list-wrapper">
+              <div class="response-member-list" id="optionBMemberList">
+                ${displayB.length > 0 
+                  ? displayB.map(m => `
+                      <div class="response-member-item">${escapeHtml(m.displayName)}</div>
+                    `).join('')
+                  : '<div class="response-empty-message">아직 없어요</div>'
+                }
+              </div>
+              ${hasMoreB ? `
+                <button class="btn btn-ghost btn-sm mt-sm w-full" onclick="loadMoreOptionB()">
+                  더보기 (${displayB.length}/${optionBMembers.length})
+                </button>
+              ` : ''}
             </div>
-            ${hasMoreB ? `
-              <button class="btn btn-ghost btn-sm mt-sm w-full" onclick="loadMoreOptionB()">
-                더보기 (${displayB.length}/${optionBMembers.length})
-              </button>
-            ` : ''}
           </div>
         </div>
       `;
