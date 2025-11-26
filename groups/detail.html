@@ -59,17 +59,23 @@
           <!-- 취향 유사도 -->
           <section class="card mb-lg">
             <h2 class="text-lg font-semibold mb-md">🏆 나와 가장 비슷한 사람</h2>
-            <div id="similarityList" class="similarity-list">
+            <div id="similarityList" class="similarity-list scrollable-list">
               <p class="text-secondary text-sm">로딩 중...</p>
             </div>
+            <button class="btn btn-ghost btn-sm mt-md hidden" id="loadMoreSimilarity">
+              더보기
+            </button>
           </section>
 
           <!-- 모임 응답 -->
           <section class="card mb-lg">
             <h2 class="text-lg font-semibold mb-md">📋 모임 응답</h2>
-            <div id="responsesList">
+            <div id="responsesList" class="scrollable-list">
               <p class="text-secondary text-sm">로딩 중...</p>
             </div>
+            <button class="btn btn-ghost btn-sm mt-md hidden" id="loadMoreResponses">
+              더보기
+            </button>
           </section>
 
           <!-- 모임 나가기 -->
@@ -118,6 +124,11 @@
       display: flex;
       flex-direction: column;
       gap: var(--spacing-sm);
+    }
+
+    .scrollable-list {
+      max-height: 400px;
+      overflow-y: auto;
     }
 
     .similarity-item {
@@ -254,9 +265,16 @@
     import { groupAPI } from '/js/services/api.js';
     import { toastSuccess, toastError } from '/js/components/Toast.js';
     import { confirmModal } from '/js/components/Modal.js';
+    import { copyToClipboard } from '/js/utils/clipboard.js';
 
     let groupId = null;
     let groupData = null;
+    
+    // 페이지네이션 상태
+    let allSimilarities = [];
+    let similarityDisplayCount = 10;
+    let allResponses = [];
+    let responsesDisplayCount = 10;
 
     async function init() {
       await initHeader();
@@ -330,31 +348,45 @@
 
     async function loadSimilarity() {
       const container = document.getElementById('similarityList');
+      const loadMoreBtn = document.getElementById('loadMoreSimilarity');
       
       try {
         const response = await groupAPI.getSimilarity(groupId);
-        const similarities = response.data?.similarities || [];
+        allSimilarities = response.data?.similarities || [];
         
-        if (similarities.length === 0) {
+        if (allSimilarities.length === 0) {
           container.innerHTML = '<p class="text-secondary text-sm">아직 비교할 데이터가 없어요.</p>';
           return;
         }
         
-        container.innerHTML = similarities.slice(0, 5).map((item, index) => `
-          <div class="similarity-item" onclick="showCompare('${item.userId}')">
-            <span class="similarity-rank">${index + 1}</span>
-            <div class="similarity-info">
-              <div class="similarity-name">${escapeHtml(item.displayName)}</div>
-              <div class="similarity-rate">${item.matchRate}% 일치 (${item.matchCount}/${item.commonCount}개)</div>
-            </div>
-            <span class="text-secondary">→</span>
-          </div>
-        `).join('');
+        renderSimilarities();
         
       } catch (error) {
         console.error('유사도 로드 실패:', error);
         container.innerHTML = '<p class="text-secondary text-sm">유사도를 불러오는데 실패했습니다.</p>';
       }
+    }
+    
+    function renderSimilarities() {
+      const container = document.getElementById('similarityList');
+      const loadMoreBtn = document.getElementById('loadMoreSimilarity');
+      
+      // 상위 5명만 보여주기 (요청사항)
+      const displayItems = allSimilarities.slice(0, Math.min(5, similarityDisplayCount));
+      
+      container.innerHTML = displayItems.map((item, index) => `
+        <div class="similarity-item" onclick="showCompare('${item.userId}')">
+          <span class="similarity-rank">${index + 1}</span>
+          <div class="similarity-info">
+            <div class="similarity-name">${escapeHtml(item.displayName)}</div>
+            <div class="similarity-rate">${item.matchRate}% 일치 (${item.matchCount}/${item.commonCount}개)</div>
+          </div>
+          <span class="text-secondary">→</span>
+        </div>
+      `).join('');
+      
+      // 더보기 버튼은 유사도의 경우 5명 이하로 제한되어 있으므로 숨김
+      loadMoreBtn.classList.add('hidden');
     }
 
     async function loadResponses() {
@@ -362,33 +394,53 @@
       
       try {
         const response = await groupAPI.getResponses(groupId);
-        const responses = response.data?.responses || [];
+        allResponses = response.data?.responses || [];
         
-        if (responses.length === 0) {
+        if (allResponses.length === 0) {
           container.innerHTML = '<p class="text-secondary text-sm">아직 응답이 없어요.</p>';
           return;
         }
         
-        container.innerHTML = responses.slice(0, 5).map(item => `
-          <div class="response-item">
-            <div class="response-question">${escapeHtml(item.title)}</div>
-            <div class="stats-bar" style="height: 32px; font-size: 13px;">
-              <div class="stats-bar-a" style="width: ${item.optionA.percentage}%">${item.optionA.percentage > 0 ? item.optionA.percentage + '%' : ''}</div>
-              <div class="stats-bar-b" style="width: ${item.optionB.percentage}%">${item.optionB.percentage > 0 ? item.optionB.percentage + '%' : ''}</div>
-            </div>
-            <div class="stats-labels flex justify-between mt-sm">
-              <span class="text-sm">${escapeHtml(item.optionA.text)} (${item.optionA.count}명)</span>
-              <span class="text-sm">${escapeHtml(item.optionB.text)} (${item.optionB.count}명)</span>
-            </div>
-          </div>
-        `).join('');
+        renderResponses();
         
       } catch (error) {
         console.error('응답 로드 실패:', error);
         container.innerHTML = '<p class="text-secondary text-sm">응답을 불러오는데 실패했습니다.</p>';
       }
     }
+    
+    function renderResponses() {
+      const container = document.getElementById('responsesList');
+      const loadMoreBtn = document.getElementById('loadMoreResponses');
+      
+      const displayItems = allResponses.slice(0, responsesDisplayCount);
+      
+      container.innerHTML = displayItems.map(item => `
+        <div class="response-item">
+          <div class="response-question">${escapeHtml(item.title)}</div>
+          <div class="stats-bar" style="height: 32px; font-size: 13px;">
+            <div class="stats-bar-a" style="width: ${item.optionA.percentage}%">${item.optionA.percentage > 0 ? item.optionA.percentage + '%' : ''}</div>
+            <div class="stats-bar-b" style="width: ${item.optionB.percentage}%">${item.optionB.percentage > 0 ? item.optionB.percentage + '%' : ''}</div>
+          </div>
+          <div class="stats-labels flex justify-between mt-sm">
+            <span class="text-sm">${escapeHtml(item.optionA.text)} (${item.optionA.count}명)</span>
+            <span class="text-sm">${escapeHtml(item.optionB.text)} (${item.optionB.count}명)</span>
+          </div>
+        </div>
+      `).join('');
+      
+      // 더 표시할 항목이 있으면 버튼 표시
+      if (responsesDisplayCount < allResponses.length) {
+        loadMoreBtn.classList.remove('hidden');
+      } else {
+        loadMoreBtn.classList.add('hidden');
+      }
+    }
 
+    // 비교 모달 상태
+    let currentCompareData = null;
+    let compareDisplayCount = 10;
+    
     // 사용자 비교 모달 표시
     window.showCompare = async function(userId) {
       const modal = document.getElementById('compareModal');
@@ -396,12 +448,13 @@
       
       modal.classList.add('open');
       body.innerHTML = '<div class="text-center p-lg"><div class="loading-spinner"></div></div>';
+      compareDisplayCount = 10; // 초기화
       
       try {
         const response = await groupAPI.getCompare(groupId, userId);
-        const data = response.data;
+        currentCompareData = response.data;
         
-        if (!data || data.comparisons.length === 0) {
+        if (!currentCompareData || currentCompareData.comparisons.length === 0) {
           body.innerHTML = `
             <div class="text-center p-lg">
               <p class="text-secondary">공통으로 응답한 질문이 없습니다.</p>
@@ -410,30 +463,7 @@
           return;
         }
         
-        body.innerHTML = `
-          <div class="compare-summary">
-            <div class="compare-user-name">${escapeHtml(data.targetUser.displayName)}님과</div>
-            <div class="compare-match-rate">${data.summary.matchRate}%</div>
-            <div class="text-secondary text-sm">취향 일치 (${data.summary.matchCount}/${data.summary.commonCount}개)</div>
-          </div>
-          <div class="compare-list">
-            ${data.comparisons.map(item => `
-              <div class="compare-item">
-                <div class="compare-question">${escapeHtml(item.title)}</div>
-                <div class="compare-choices">
-                  <div class="compare-choice ${item.isMatch ? 'match' : 'mine'}">
-                    <div class="compare-choice-label">나</div>
-                    <div>${item.myChoice === 'A' ? escapeHtml(item.optionA) : escapeHtml(item.optionB)}</div>
-                  </div>
-                  <div class="compare-choice ${item.isMatch ? 'match' : 'theirs'}">
-                    <div class="compare-choice-label">${escapeHtml(data.targetUser.displayName)}</div>
-                    <div>${item.theirChoice === 'A' ? escapeHtml(item.optionA) : escapeHtml(item.optionB)}</div>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
+        renderCompareModal();
         
       } catch (error) {
         console.error('비교 데이터 로드 실패:', error);
@@ -443,6 +473,48 @@
           </div>
         `;
       }
+    };
+    
+    function renderCompareModal() {
+      const body = document.getElementById('compareModalBody');
+      const data = currentCompareData;
+      const displayItems = data.comparisons.slice(0, compareDisplayCount);
+      const hasMore = compareDisplayCount < data.comparisons.length;
+      
+      body.innerHTML = `
+        <div class="compare-summary">
+          <div class="compare-user-name">${escapeHtml(data.targetUser.displayName)}님과</div>
+          <div class="compare-match-rate">${data.summary.matchRate}%</div>
+          <div class="text-secondary text-sm">취향 일치 (${data.summary.matchCount}/${data.summary.commonCount}개)</div>
+        </div>
+        <div class="compare-list">
+          ${displayItems.map(item => `
+            <div class="compare-item">
+              <div class="compare-question">${escapeHtml(item.title)}</div>
+              <div class="compare-choices">
+                <div class="compare-choice ${item.isMatch ? 'match' : 'mine'}">
+                  <div class="compare-choice-label">나</div>
+                  <div>${item.myChoice === 'A' ? escapeHtml(item.optionA) : escapeHtml(item.optionB)}</div>
+                </div>
+                <div class="compare-choice ${item.isMatch ? 'match' : 'theirs'}">
+                  <div class="compare-choice-label">${escapeHtml(data.targetUser.displayName)}</div>
+                  <div>${item.theirChoice === 'A' ? escapeHtml(item.optionA) : escapeHtml(item.optionB)}</div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        ${hasMore ? `
+          <button class="btn btn-ghost btn-sm mt-md" style="width: 100%;" onclick="loadMoreCompare()">
+            더보기 (${displayItems.length}/${data.comparisons.length})
+          </button>
+        ` : ''}
+      `;
+    }
+    
+    window.loadMoreCompare = function() {
+      compareDisplayCount += 10;
+      renderCompareModal();
     };
 
     function bindEvents() {
@@ -456,6 +528,12 @@
           document.getElementById('compareModal').classList.remove('open');
         }
       });
+      
+      // 모임 응답 더보기
+      document.getElementById('loadMoreResponses').addEventListener('click', () => {
+        responsesDisplayCount += 10;
+        renderResponses();
+      });
 
       // 초대 링크 복사
       document.getElementById('copyInviteBtn').addEventListener('click', async () => {
@@ -464,8 +542,15 @@
           const inviteCode = response.data?.inviteCode;
           const inviteUrl = `${window.location.origin}/invite.html?code=${inviteCode}`;
           
-          await navigator.clipboard.writeText(inviteUrl);
-          toastSuccess('초대 링크가 복사되었습니다!');
+          // 클립보드 복사 시도
+          const copySuccess = await copyToClipboard(inviteUrl);
+          
+          if (copySuccess) {
+            toastSuccess('초대 링크가 복사되었습니다!');
+          } else {
+            // 복사 실패 시 링크 표시
+            prompt('아래 링크를 복사하세요:', inviteUrl);
+          }
         } catch (error) {
           console.error('초대 링크 생성 실패:', error);
           toastError('초대 링크 생성에 실패했습니다.');
