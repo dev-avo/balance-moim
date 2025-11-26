@@ -143,9 +143,9 @@ async function getQuestionMembers(env: Env, groupId: string, questionId: string)
     );
   }
   
-  // 각 선택지별 멤버 조회
+  // 각 선택지별 멤버 조회 (익명 별명 설정 포함)
   const members = await env.DB.prepare(`
-    SELECT u.id, u.display_name, r.selected_option
+    SELECT u.id, u.display_name, u.custom_nickname, u.use_nickname, r.selected_option
     FROM response r
     INNER JOIN user u ON r.user_id = u.id
     INNER JOIN group_member gm ON r.user_id = gm.user_id
@@ -160,7 +160,11 @@ async function getQuestionMembers(env: Env, groupId: string, questionId: string)
   
   for (const member of members.results || []) {
     const m = member as any;
-    const memberData = { id: m.id, displayName: m.display_name };
+    // 표시 이름 결정 (익명 별명 사용 시 별명, 아니면 구글 계정명)
+    const displayName = m.use_nickname && m.custom_nickname
+      ? m.custom_nickname
+      : m.display_name;
+    const memberData = { id: m.id, displayName };
     if (m.selected_option === 'A') {
       optionAMembers.push(memberData);
     } else if (m.selected_option === 'B') {

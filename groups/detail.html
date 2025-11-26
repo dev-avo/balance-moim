@@ -103,7 +103,7 @@
 
   <!-- 사용자 비교 모달 -->
   <div class="modal-overlay" id="compareModal">
-    <div class="modal" style="max-width: 500px;">
+    <div class="modal compare-modal" style="max-width: 500px;">
       <div class="modal-header">
         <h3 class="modal-title">🔍 취향 비교</h3>
         <button class="modal-close" id="closeCompareModal">
@@ -161,13 +161,16 @@
       padding: var(--spacing-md);
       background-color: var(--color-bg);
       border-radius: var(--radius-md);
+      border: 1px solid transparent;
       cursor: pointer;
-      transition: var(--transition-fast);
+      transition: all var(--transition-base);
     }
 
     .similarity-item:hover {
-      background-color: var(--color-bg-secondary);
-      transform: translateX(4px);
+      background: linear-gradient(135deg, rgba(0, 113, 227, 0.05), rgba(52, 199, 89, 0.05));
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
 
     .similarity-rank {
@@ -194,14 +197,17 @@
       padding: var(--spacing-md);
       background-color: var(--color-bg);
       border-radius: var(--radius-md);
+      border: 1px solid transparent;
       margin-bottom: var(--spacing-sm);
       cursor: pointer;
-      transition: var(--transition-fast);
+      transition: all var(--transition-base);
     }
 
     .response-item:hover {
-      background-color: var(--color-bg-secondary);
-      transform: translateX(4px);
+      background: linear-gradient(135deg, rgba(0, 113, 227, 0.05), rgba(52, 199, 89, 0.05));
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
 
     .response-question {
@@ -220,6 +226,7 @@
       background-color: var(--color-bg);
       border-radius: var(--radius-md);
       margin-bottom: var(--spacing-lg);
+      flex-shrink: 0;
     }
 
     .compare-user-name {
@@ -234,9 +241,22 @@
       color: var(--color-accent);
     }
 
+    /* 취향비교 모달: summary 고정, list만 스크롤 */
+    .compare-modal .modal-body {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+
     .compare-list {
-      max-height: 400px;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
+    }
+
+    .compare-load-more {
+      flex-shrink: 0;
+      padding-top: var(--spacing-md);
     }
 
     .compare-item {
@@ -288,6 +308,11 @@
     }
 
     /* 응답 멤버 모달 스타일 */
+    #responseMembersModal .modal-body {
+      display: flex;
+      flex-direction: column;
+    }
+
     .response-modal-question {
       font-size: var(--font-size-lg);
       font-weight: 600;
@@ -296,6 +321,7 @@
       padding: var(--spacing-md);
       background-color: var(--color-bg);
       border-radius: var(--radius-md);
+      flex-shrink: 0;
     }
 
     .response-options-grid {
@@ -303,6 +329,9 @@
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-md);
       align-items: stretch;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
     }
 
     .response-option-section {
@@ -740,9 +769,11 @@
           `).join('')}
         </div>
         ${hasMore ? `
-          <button class="btn btn-ghost btn-sm mt-md" style="width: 100%;" onclick="loadMoreCompare()">
-            더보기 (${displayItems.length}/${data.comparisons.length})
-          </button>
+          <div class="compare-load-more">
+            <button class="btn btn-ghost btn-sm w-full" onclick="loadMoreCompare()">
+              더보기 (${displayItems.length}/${data.comparisons.length})
+            </button>
+          </div>
         ` : ''}
       `;
     }

@@ -602,8 +602,10 @@ h6 { font-size: var(--font-size-base); }
   padding: var(--spacing-xl);
   max-width: 480px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   transform: scale(0.95);
   transition: transform var(--transition-base);
 }
@@ -617,6 +619,7 @@ h6 { font-size: var(--font-size-base); }
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -640,6 +643,9 @@ h6 { font-size: var(--font-size-base); }
 }
 
 .modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   margin-bottom: var(--spacing-lg);
 }
 
@@ -647,6 +653,7 @@ h6 { font-size: var(--font-size-base); }
   display: flex;
   gap: var(--spacing-md);
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 /* =====================================================
